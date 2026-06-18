@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>센서 ↔ 스트립 거리 시뮬레이터</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#111318;color:#d8dae8;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#1a1d28;border-bottom:1px solid #2a2d3e;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700;color:#e0e4f0}
+.tabs{display:flex;gap:4px;margin-left:10px}
+.tab{padding:3px 12px;border-radius:12px;font-size:11px;background:#1e3a5f;color:#7eb8f7;border:1px solid #3a6a9f}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:#161920;border-right:1px solid #2a2d3e;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.cg{background:#1e2130;border-radius:6px;padding:10px}
+.cg-t{font-size:10px;font-weight:700;color:#6080a0;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.ci{margin-bottom:7px}
+.ci:last-child{margin-bottom:0}
+.ch{display:flex;justify-content:space-between;margin-bottom:2px}
+.cl{font-size:11px;color:#8890a8}
+.cv{font-size:12px;font-weight:700;color:#7eb8f7}
+input[type=range]{width:100%;height:4px;accent-color:#4a90d9;cursor:pointer}
+.mcards{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:2px}
+.mc{background:#1a1d28;border-radius:5px;padding:7px 8px;text-align:center;border-left:3px solid #4a90d9}
+.mc.w{grid-column:1/-1}
+.mc.g{border-left-color:#3caf70}
+.mc.o{border-left-color:#f0a030}
+.mc.b{border-left-color:#4a90d9}
+.mv{font-size:17px;font-weight:800;line-height:1.2;color:#7eb8f7}
+.mc.g .mv{color:#3caf70}
+.mc.o .mv{color:#f0a030}
+.ml{font-size:9px;color:#556070;margin-top:1px}
+.charts{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.cc{background:#1a1d28;border:1px solid #2a2d3e;border-radius:6px;padding:10px}
+.ct{font-size:11px;font-weight:600;color:#8898bb;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.crow{display:flex;gap:8px}
+.crow .cc{flex:1;min-width:0}
+canvas{display:block;width:100%!important}
+.sub{font-size:10px;color:#4a5060;margin-top:4px}
+.wb{border-radius:4px;padding:6px 10px;font-size:11px;margin-top:5px;border-left:3px solid #f0a030;background:#2a1e0a;color:#f0a030}
+.wb.r{border-left-color:#e05050;background:#2a0a0a;color:#e05050}
+.wb.g{border-left-color:#3caf70;background:#0a2014;color:#3caf70}
+#tt{position:fixed;z-index:9999;pointer-events:none;background:rgba(8,10,18,.97);border:1px solid #3a70b0;border-radius:5px;padding:8px 11px;max-width:250px;font-size:11px;line-height:1.55;opacity:0;transition:opacity .12s;top:0;left:0}
+#tt b{color:#7eb8f7;display:block;margin-bottom:2px}
+#tt s{color:#8898b0;font-style:normal;text-decoration:none}
+[data-tip]{cursor:help}
+</style>
+</head>
+<body>
+<div id="tt"><b id="ttt"></b><s id="ttb"></s></div>
+
+<div class="topbar">
+  <div class="topbar-title">센서 ↔ 스트립 거리 시뮬레이터</div>
+  <div class="tabs">
+    <span class="tab">역제곱 법칙</span>
+    <span class="tab">집광 효율</span>
+    <span class="tab">라인 분리</span>
+  </div>
+</div>
+
+<div class="main">
+<div class="sidebar">
+
+  <div class="cg">
+    <div class="cg-t">거리 &amp; 광학계</div>
+    <div class="ci">
+      <div class="ch">
+        <span class="cl" data-tip="센서-스트립 거리 d|렌즈와 스트립 사이 거리(mm). 2배 멀면 신호 1/4 감소.">센서-스트립 거리 d</span>
+        <span class="cv" id="vd">5.0 mm</span>
+      </div>
+      <input type="range" id="rd" min="1" max="30" step="0.5" value="5" oninput="go()">
+    </div>
+    <div class="ci">
+      <div class="ch">
+        <span class="cl" data-tip="렌즈 반경 r|집광 렌즈 반경(mm). r² 에 비례해 집광 효율 증가.">렌즈 반경 r</span>
+        <span class="cv" id="vr">3.0 mm</span>
+      </div>
+      <input type="range" id="rr" min="0.5" max="10" step="0.5" value="3" oninput="go()">
+    </div>
+    <div class="ci">
+      <div class="ch">
+        <span class="cl" data-tip="광원 파워|UV LED 출력(상대값). 신호 세기에 선형 비례.">광원 파워 (a.u.)</span>
+        <span class="cv" id="vpw">80</span>
+      </div>
+      <input type="range" id="rpw" min="10" max="200" value="80" oninput="go()">
+    </div>
+    <div class="ci">
+      <div class="ch">
+        <span class="cl" data-tip="T-line 반사율 R|Eu³⁺ 입자 반사율. 양성일수록 높음(0.05~0.9).">T-line 반사율 R</span>
+        <span class="cv" id="vR">0.40</span>
+      </div>
+      <input type="range" id="rR" min="0.05" max="0.90" step="0.05" value="0.40" oninput="go()">
+    </div>
+  </div>
+
+  <div class="cg">
+    <div class="cg-t">스트립 구조</div>
+    <div class="ci">
+      <div class="ch">
+        <span class="cl" data-tip="T-line 폭|T-라인 폭(μm). 좁을수록 고분해능이나 신호 감소.">T-line 폭 (μm)</span>
+        <span class="cv" id="vtw">800</span>
+      </div>
+      <input type="range" id="rtw" min="200" max="2000" step="100" value="800" oninput="go()">
+    </div>
+    <div class="ci">
+      <div class="ch">
+        <span class="cl" data-tip="T-C line 간격|T-라인과 C-라인 사이 거리(mm). 빔 스팟보다 커야 독립 측정 가능.">T-C line 간격 (mm)</span>
+        <span class="cv" id="vtc">3.0</span>
+      </div>
+      <input type="range" id="rtc" min="1" max="8" step="0.5" value="3" oninput="go()">
+    </div>
+  </div>
+
+  <div class="cg">
+    <div class="cg-t">측정값</div>
+    <div class="mcards">
+      <div class="mc g" data-tip="집광 효율 η|η=r²/(4d²). 렌즈에 포집되는 빛의 비율.">
+        <div class="mv" id="meta">--</div><div class="ml">집광 효율 η</div>
+      </div>
+      <div class="mc o" data-tip="상대 신호 강도|파워×η×반사율. 검출기 수신 신호.">
+        <div class="mv" id="msig">--</div><div class="ml">상대 신호 강도</div>
+      </div>
+      <div class="mc b" data-tip="개구수 NA|NA=r/√(r²+d²). 0.3 이상 양호.">
+        <div class="mv" id="mna">--</div><div class="ml">개구수 NA</div>
+      </div>
+      <div class="mc o" id="mcsep" data-tip="T/C 분리도|두 피크의 분리 정도. 80% 이상 양호.">
+        <div class="mv" id="msep">--</div><div class="ml">T/C 분리도</div>
+      </div>
+      <div class="mc b w" data-tip="빔 스팟 직경|스트립 위 빔 크기. T/C 간격보다 작아야 독립 측정 가능.">
+        <div class="mv" id="mspot">--</div><div class="ml">빔 스팟 직경</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- sidebar -->
+
+<div class="charts" id="chartarea">
+  <div class="cc">
+    <div class="ct">광학 단면도 — 거리에 따른 집광 각도 변화</div>
+    <canvas id="copt"></canvas>
+  </div>
+  <div class="crow">
+    <div class="cc">
+      <div class="ct">거리 → 신호 강도 (역제곱 법칙)</div>
+      <canvas id="csig"></canvas>
+      <div class="sub">신호 ∝ 1/d²  —  거리 2배 → 신호 4배 감소</div>
+    </div>
+    <div class="cc">
+      <div class="ct">거리 → 집광 효율 η_COLLECT</div>
+      <canvas id="ceta"></canvas>
+      <div class="sub">η = r² / (4d²)  —  렌즈 클수록, 거리 짧을수록 유리</div>
+    </div>
+  </div>
+  <div class="cc">
+    <div class="ct">T-LINE / C-LINE 검출기 수신 프로파일 (현재 거리 기준)</div>
+    <canvas id="cprof"></canvas>
+    <div id="wbox" class="wb">로딩중...</div>
+  </div>
+  <div class="cc">
+    <div class="ct">거리별 T-LINE / C-LINE 분리 능력 (CROSSTALK)</div>
+    <canvas id="cxtalk"></canvas>
+    <div class="sub">거리 멀수록 빔 퍼짐 → 두 라인 겹침 → Crosstalk 증가</div>
+  </div>
+</div>
+</div><!-- main -->
+
+<script>
+// ── tooltip ──────────────────────────────────────────────────
+var tt=document.getElementById('tt'),ttt=document.getElementById('ttt'),ttb=document.getElementById('ttb');
+document.addEventListener('mouseover',function(e){
+  var el=e.target;
+  for(var i=0;i<6;i++){
+    if(!el||el===document.body)break;
+    if(el.getAttribute&&el.getAttribute('data-tip')){
+      var p=el.getAttribute('data-tip').split('|');
+      ttt.textContent=p[0]||'';ttb.textContent=p[1]||'';tt.style.opacity='1';return;
+    }
+    el=el.parentElement;
+  }
+  tt.style.opacity='0';
+});
+document.addEventListener('mousemove',function(e){
+  var W=tt.offsetWidth,H=tt.offsetHeight,vw=window.innerWidth,vh=window.innerHeight;
+  tt.style.left=Math.min(e.clientX+14,vw-W-8)+'px';
+  tt.style.top=Math.min(e.clientY+14,vh-H-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  if(!e.relatedTarget||!e.relatedTarget.closest('[data-tip]'))tt.style.opacity='0';
+});
+
+// ── color palette ─────────────────────────────────────────────
+var C={grid:'#252836',axis:'#3a3d52',txt:'#505868',txt2:'#8898bb',
+  blue:'#4a90d9',green:'#3caf70',orange:'#f0a030',purple:'#9060d0',
+  red:'#e05050',yellow:'#f0c030'};
+
+function gv(id){return parseFloat(document.getElementById(id).value);}
+function sv(id,v){document.getElementById(id).textContent=v;}
+function ctx2(id){return document.getElementById(id).getContext('2d');}
+function pw(id){var el=document.getElementById(id);return Math.max(300,(el.parentElement.clientWidth||640)-20);}
+
+// ── MAIN ─────────────────────────────────────────────────────
+function go(){
+  var d=gv('rd'), r=gv('rr'), pw_=gv('rpw'), R=gv('rR'), tc=gv('rtc');
+  sv('vd',d.toFixed(1)+' mm');
+  sv('vr',r.toFixed(1)+' mm');
+  sv('vpw',Math.round(pw_));
+  sv('vR',R.toFixed(2));
+  sv('vtw',Math.round(gv('rtw')));
+  sv('vtc',tc.toFixed(1));
+
+  var eta=r*r/(4*d*d);
+  var sig=pw_*eta*R;
+  var na=r/Math.sqrt(r*r+d*d);
+  var spot=2*(r+d*0.15);
+  var sigma=d*0.15;
+  var hv=tc/2;
+  var valley=Math.exp(-(hv*hv)/(2*sigma*sigma));
+  var sep=Math.max(0,Math.min(100,(1-valley)*100));
+
+  sv('meta',(eta*100).toFixed(2)+'%');
+  sv('msig',sig.toFixed(1));
+  sv('mna',na.toFixed(3));
+  sv('mspot',spot.toFixed(2)+' mm');
+
+  var sepEl=document.getElementById('msep');
+  var mcEl=document.getElementById('mcsep');
+  sepEl.textContent=Math.round(sep)+'%';
+  if(sep>80){sepEl.style.color=C.green;mcEl.style.borderLeftColor=C.green;}
+  else if(sep>50){sepEl.style.color=C.orange;mcEl.style.borderLeftColor=C.orange;}
+  else{sepEl.style.color=C.red;mcEl.style.borderLeftColor=C.red;}
+
+  var wb=document.getElementById('wbox');
+  if(sep<50){wb.className='wb r';wb.textContent='⚠ 분리도 '+Math.round(sep)+'% — T/C 구분 불가. 거리를 줄이거나 렌즈를 키우세요.';}
+  else if(sep<80){wb.className='wb';wb.textContent='△ 분리도 '+Math.round(sep)+'% — T/C 구분 약함. 거리를 줄이거나 렌즈를 키우세요.';}
+  else{wb.className='wb g';wb.textContent='✓ 분리도 '+Math.round(sep)+'% — T/C 명확히 분리됨.';}
+
+  dOpt(d,r,tc,na,spot);
+  dSig(d,r,pw_,R);
+  dEta(d,r);
+  dProf(d,R,tc,sigma,sep);
+  dXtalk(d,tc);
+}
+
+// ── helpers ───────────────────────────────────────────────────
+function axes(c,xs,xe,yb,yt){
+  c.strokeStyle=C.axis;c.lineWidth=1;
+  c.beginPath();c.moveTo(xs,yb);c.lineTo(xe,yb);c.stroke();
+  c.beginPath();c.moveTo(xs,yt);c.lineTo(xs,yb);c.stroke();
+}
+function gridH(c,xs,xe,yb,yt,fracs,labels){
+  for(var i=0;i<fracs.length;i++){
+    var y=yb-(yb-yt)*fracs[i];
+    c.strokeStyle=C.grid;c.lineWidth=1;
+    c.beginPath();c.moveTo(xs,y);c.lineTo(xe,y);c.stroke();
+    c.fillStyle=C.txt;c.font='9px Arial';c.textAlign='right';
+    c.fillText(labels[i],xs-2,y+3);
+  }
+}
+function curMarker(c,xc,yc){
+  c.fillStyle=C.yellow;c.beginPath();c.arc(xc,yc,5,0,2*Math.PI);c.fill();
+}
+function vline(c,xc,yt,yb){
+  c.strokeStyle='rgba(240,192,48,.35)';c.lineWidth=1;
+  c.setLineDash([3,3]);c.beginPath();c.moveTo(xc,yt);c.lineTo(xc,yb);c.stroke();c.setLineDash([]);
+}
+function xTicks(c,xs,xe,yb,dmin,dmax){
+  var ticks=[0,5,10,15,20,25,30];
+  c.textAlign='center';c.fillStyle=C.txt;c.font='9px Arial';
+  for(var i=0;i<ticks.length;i++){
+    var x=xs+(ticks[i]-dmin)/(dmax-dmin)*(xe-xs);
+    if(x<xs)continue;
+    c.fillText(ticks[i],x,yb+11);
+  }
+  c.fillStyle=C.txt2;c.font='9px Arial';c.textAlign='right';
+  c.fillText('거리 d (mm)',xe,yb+22);
+}
+
+// ── optical diagram ───────────────────────────────────────────
+function dOpt(d,r,tc,na,spot){
+  var id='copt',W=pw(id);
+  var el=document.getElementById(id);el.width=W;el.height=130;
+  var c=el.getContext('2d');c.clearRect(0,0,W,130);
+  var cx=W*0.42,sy=14,sty=108,sc=Math.min(18,W*0.025);
+
+  // strip
+  c.fillStyle='#192214';c.fillRect(0,sty,W,22);
+  c.fillStyle='#706050';c.font='9px Arial';c.textAlign='left';c.fillText('스트립 패드',8,sty+13);
+
+  // T/C lines
+  var tcp=tc*sc*0.65;
+  c.fillStyle='rgba(240,160,48,.45)';c.fillRect(cx-tcp/2-5,sty,10,22);
+  c.strokeStyle=C.orange;c.lineWidth=1.5;c.strokeRect(cx-tcp/2-5,sty,10,22);
+  c.fillStyle='rgba(74,144,217,.4)';c.fillRect(cx+tcp/2-5,sty,10,22);
+  c.strokeStyle=C.blue;c.lineWidth=1.5;c.strokeRect(cx+tcp/2-5,sty,10,22);
+  c.fillStyle=C.orange;c.font='bold 10px Arial';c.textAlign='center';c.fillText('T',cx-tcp/2,sty-3);
+  c.fillStyle=C.blue;c.fillText('C',cx+tcp/2,sty-3);
+
+  // sensor
+  var srw=Math.min(r*sc*2.4,W*0.4);
+  c.fillStyle='#152038';c.fillRect(cx-srw/2,sy,srw,12);
+  c.strokeStyle=C.blue;c.lineWidth=2;c.strokeRect(cx-srw/2,sy,srw,12);
+  c.fillStyle='#7eb8f7';c.font='9px Arial';c.textAlign='center';
+  c.fillText('검출기 (r='+r+'mm)',cx,sy-3);
+
+  // cone
+  c.fillStyle='rgba(74,144,217,.07)';
+  c.beginPath();c.moveTo(cx-srw/2,sy+12);c.lineTo(cx,sty);c.lineTo(cx+srw/2,sy+12);c.closePath();c.fill();
+  c.strokeStyle='rgba(74,144,217,.35)';c.lineWidth=1;
+  c.beginPath();c.moveTo(cx-srw/2,sy+12);c.lineTo(cx,sty);c.stroke();
+  c.beginPath();c.moveTo(cx+srw/2,sy+12);c.lineTo(cx,sty);c.stroke();
+
+  // beam spot
+  var sr=Math.max(3,spot*sc*0.5);
+  c.fillStyle='rgba(240,192,60,.15)';c.beginPath();c.arc(cx,sty,sr,0,2*Math.PI);c.fill();
+  c.strokeStyle='rgba(240,192,60,.55)';c.lineWidth=1;c.setLineDash([2,2]);
+  c.beginPath();c.arc(cx,sty,sr,0,2*Math.PI);c.stroke();c.setLineDash([]);
+  c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';
+  c.fillText('빔Ø'+spot.toFixed(2)+'mm',cx+sr+3,sty+4);
+
+  // d arrow
+  var ax=cx+srw/2+20;
+  c.strokeStyle='#4a6080';c.lineWidth=1;c.setLineDash([3,3]);
+  c.beginPath();c.moveTo(ax,sy+12);c.lineTo(ax,sty);c.stroke();c.setLineDash([]);
+  c.fillStyle='#7090b0';c.font='10px Arial';c.textAlign='left';
+  c.fillText('d='+d+'mm',ax+4,(sy+sty)/2-6);
+  c.fillText('NA='+na.toFixed(3),ax+4,(sy+sty)/2+8);
+
+  var theta=(Math.atan2(r,d)*180/Math.PI).toFixed(1);
+  c.fillStyle='#507090';c.font='9px Arial';c.textAlign='right';
+  c.fillText('θ='+theta+'°',cx-srw/2-4,(sy+sty)/2+4);
+}
+
+// ── signal vs distance ────────────────────────────────────────
+function dSig(dc,r,pw_,R){
+  var id='csig',W=pw(id);
+  var el=document.getElementById(id);el.width=W;el.height=130;
+  var c=el.getContext('2d');c.clearRect(0,0,W,130);
+  var xs=50,xe=W-10,yb=112,yt=10,dmin=0.5,dmax=30;
+  var ref=pw_*(r*r/(4*dmin*dmin))*R;
+  gridH(c,xs,xe,yb,yt,[.25,.5,.75,1],[(ref*.25).toFixed(1),(ref*.5).toFixed(1),(ref*.75).toFixed(1),ref.toFixed(1)]);
+  axes(c,xs,xe,yb,yt);
+  c.strokeStyle=C.blue;c.lineWidth=2;c.beginPath();
+  for(var i=0;i<=200;i++){
+    var di=dmin+i*(dmax-dmin)/200;
+    var si=pw_*(r*r/(4*di*di))*R;
+    var x=xs+i*(xe-xs)/200,y=yb-(yb-yt)*(si/ref);
+    i===0?c.moveTo(x,y):c.lineTo(x,y);
+  }c.stroke();
+  var sc2=pw_*(r*r/(4*dc*dc))*R;
+  var xc=xs+(dc-dmin)/(dmax-dmin)*(xe-xs);
+  var yc=yb-(yb-yt)*(sc2/ref);
+  vline(c,xc,yt,yb);curMarker(c,xc,yc);
+  c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText(sc2.toFixed(1),xc+7,yc-3);
+  xTicks(c,xs,xe,yb,dmin,dmax);
+}
+
+// ── eta vs distance ───────────────────────────────────────────
+function dEta(dc,r){
+  var id='ceta',W=pw(id);
+  var el=document.getElementById(id);el.width=W;el.height=130;
+  var c=el.getContext('2d');c.clearRect(0,0,W,130);
+  var xs=54,xe=W-10,yb=112,yt=10,dmin=0.5,dmax=30;
+  var ref=r*r/(4*dmin*dmin);
+  gridH(c,xs,xe,yb,yt,[.25,.5,.75,1],
+    [(ref*.25*100).toFixed(1)+'%',(ref*.5*100).toFixed(1)+'%',(ref*.75*100).toFixed(1)+'%',(ref*100).toFixed(1)+'%']);
+  axes(c,xs,xe,yb,yt);
+  c.strokeStyle=C.green;c.lineWidth=2;c.beginPath();
+  for(var i=0;i<=200;i++){
+    var di=dmin+i*(dmax-dmin)/200;
+    var ei=r*r/(4*di*di);
+    var x=xs+i*(xe-xs)/200,y=yb-(yb-yt)*(ei/ref);
+    i===0?c.moveTo(x,y):c.lineTo(x,y);
+  }c.stroke();
+  var ec=r*r/(4*dc*dc);
+  var xc=xs+(dc-dmin)/(dmax-dmin)*(xe-xs);
+  var yc=yb-(yb-yt)*(ec/ref);
+  vline(c,xc,yt,yb);curMarker(c,xc,yc);
+  c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText((ec*100).toFixed(2)+'%',xc+7,yc-3);
+  xTicks(c,xs,xe,yb,dmin,dmax);
+}
+
+// ── T/C profile ───────────────────────────────────────────────
+function dProf(d,R,tc,sigma,sep){
+  var id='cprof',W=pw(id);
+  var el=document.getElementById(id);el.width=W;el.height=160;
+  var c=el.getContext('2d');c.clearRect(0,0,W,160);
+  var xs=54,xe=W-10,yb=140,yt=14,RNG=6;
+  var toX=function(p){return xs+(p+RNG)/(2*RNG)*(xe-xs);};
+  var bg=0.02;
+  var gv2=function(pos){
+    var a=pos+tc/2,b=pos-tc/2;
+    return bg+R*Math.exp(-(a*a)/(2*sigma*sigma))+0.5*Math.exp(-(b*b)/(2*sigma*sigma));
+  };
+  var mv=gv2(-tc/2)*1.06;
+  gridH(c,xs,xe,yb,yt,[.25,.5,.75,1],
+    [(mv*.25).toFixed(3),(mv*.5).toFixed(3),(mv*.75).toFixed(3),mv.toFixed(3)]);
+  axes(c,xs,xe,yb,yt);
+  // fill
+  c.fillStyle='rgba(240,160,48,.09)';c.beginPath();c.moveTo(toX(-RNG),yb);
+  for(var i=0;i<=300;i++){var pos=-RNG+i*(2*RNG/300);c.lineTo(toX(pos),yb-(yb-yt)*gv2(pos)/mv);}
+  c.lineTo(toX(RNG),yb);c.closePath();c.fill();
+  // curve
+  c.strokeStyle=C.orange;c.lineWidth=2.5;c.beginPath();
+  for(var i=0;i<=300;i++){var pos=-RNG+i*(2*RNG/300),x=toX(pos),y=yb-(yb-yt)*gv2(pos)/mv;i===0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+  // T/C markers
+  var xT=toX(-tc/2),xC=toX(tc/2);
+  c.strokeStyle='rgba(240,160,48,.45)';c.lineWidth=1;c.setLineDash([2,3]);
+  c.beginPath();c.moveTo(xT,yt);c.lineTo(xT,yb);c.stroke();
+  c.strokeStyle='rgba(74,144,217,.45)';
+  c.beginPath();c.moveTo(xC,yt);c.lineTo(xC,yb);c.stroke();c.setLineDash([]);
+  c.fillStyle=C.orange;c.font='bold 9px Arial';c.textAlign='center';c.fillText('T',xT,yt+9);
+  c.fillStyle=C.blue;c.fillText('C',xC,yt+9);
+  var col=sep>80?C.green:sep>50?C.orange:C.red;
+  c.fillStyle=col;c.font='bold 11px Arial';c.textAlign='right';
+  c.fillText('분리도: '+Math.round(sep)+'%',xe-4,yt+12);
+  c.textAlign='center';c.fillStyle=C.txt;c.font='9px Arial';
+  for(var v=-4;v<=4;v+=2){c.fillText(v+'mm',toX(v),yb+11);}
+  c.fillStyle=C.txt2;c.textAlign='right';c.fillText('스트립 위치 (mm)',xe,yb+22);
+}
+
+// ── crosstalk vs distance ─────────────────────────────────────
+function dXtalk(dc,tc){
+  var id='cxtalk',W=pw(id);
+  var el=document.getElementById(id);el.width=W;el.height=155;
+  var c=el.getContext('2d');c.clearRect(0,0,W,155);
+  var xs=50,xe=W-10,yb=132,yt=10,dmin=0.5,dmax=30;
+  // ref lines
+  var refs=[[100,C.grid,'100%'],[70,'rgba(240,160,48,.28)','70%'],[30,'rgba(224,80,80,.25)','30%']];
+  for(var i=0;i<refs.length;i++){
+    var y=yb-(yb-yt)*refs[i][0]/100;
+    c.strokeStyle=refs[i][1];c.lineWidth=1;c.beginPath();c.moveTo(xs,y);c.lineTo(xe,y);c.stroke();
+    c.fillStyle=refs[i][0]===70?C.orange:refs[i][0]===30?C.red:C.txt;
+    c.font='9px Arial';c.textAlign='right';c.fillText(refs[i][2],xs-2,y+3);
+  }
+  c.fillStyle='rgba(240,160,48,.6)';c.font='9px Arial';c.textAlign='left';
+  c.fillText('양호 경계 70%',xs+4,yb-(yb-yt)*.70+10);
+  c.fillStyle='rgba(224,80,80,.6)';c.fillText('불가 경계 30%',xs+4,yb-(yb-yt)*.30+10);
+  axes(c,xs,xe,yb,yt);
+  // fill
+  c.fillStyle='rgba(144,96,208,.06)';c.beginPath();c.moveTo(xs,yb);
+  for(var i=0;i<=200;i++){
+    var di=dmin+i*(dmax-dmin)/200,si=di*0.15,hv=tc/2;
+    var vl=Math.exp(-(hv*hv)/(2*si*si));
+    var sp=Math.max(0,Math.min(100,(1-vl)*100));
+    c.lineTo(xs+i*(xe-xs)/200,yb-(yb-yt)*sp/100);
+  }c.lineTo(xe,yb);c.closePath();c.fill();
+  // curve
+  c.strokeStyle=C.purple;c.lineWidth=2.5;c.beginPath();
+  for(var i=0;i<=200;i++){
+    var di=dmin+i*(dmax-dmin)/200,si=di*0.15,hv=tc/2;
+    var vl=Math.exp(-(hv*hv)/(2*si*si));
+    var sp=Math.max(0,Math.min(100,(1-vl)*100));
+    var x=xs+i*(xe-xs)/200,y=yb-(yb-yt)*sp/100;
+    i===0?c.moveTo(x,y):c.lineTo(x,y);
+  }c.stroke();
+  // current
+  var sc2=dc*0.15,hv2=tc/2,vl2=Math.exp(-(hv2*hv2)/(2*sc2*sc2));
+  var sepc=Math.max(0,Math.min(100,(1-vl2)*100));
+  var xc=xs+(dc-dmin)/(dmax-dmin)*(xe-xs);
+  var yc=yb-(yb-yt)*sepc/100;
+  vline(c,xc,yt,yb);curMarker(c,xc,yc);
+  c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText(sepc.toFixed(1)+'%',xc+7,yc-3);
+  xTicks(c,xs,xe,yb,dmin,dmax);
+}
+
+// ── init ─────────────────────────────────────────────────────
+function init(){
+  go();
+  // 한 번 더 그려서 레이아웃 확정 후 갱신
+  setTimeout(go,200);
+}
+window.onload=function(){setTimeout(init,60);};
+window.onresize=function(){setTimeout(go,50);};
+</script>
+</body>
+</html>
