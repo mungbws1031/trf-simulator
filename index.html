@@ -535,7 +535,9 @@ function seededRand(s) {
   return function() { x=(x*9301+49297)%233280; return x/233280; };
 }
 
-function stripR(cv,Rmax) { return Rmax/(1+Math.pow(0.15/(cv+1e-9),1.5)); }
+// 경쟁법(competitive) T-line: 농도↑ → 신호↓
+// R = Rmax / (1 + (cv/EC50)^n)  EC50=0.15ng/mL, n=1.5
+function stripR(cv,Rmax) { return Rmax/(1+Math.pow((cv+1e-9)/0.15,1.5)); }
 
 function upd3() {
   var rmax=parseInt(document.getElementById('r3_rmax').value)/100;
@@ -753,7 +755,8 @@ function upd5() {
   document.getElementById('v5_d').textContent=d;
   document.getElementById('v5_r').textContent=r;
   document.getElementById('v5_tc').textContent=tc;
-  var eta=r*r/(4*d*d), na=r/Math.sqrt(r*r+d*d), spot=2*d*0.1, xtalk=Math.exp(-tc*tc/(2*spot*spot))*100;
+  // η = (1 - cos θ)/2, cos θ = d/√(r²+d²) — 정확한 입체각 기반 수집 효율
+  var eta=(1-d/Math.sqrt(r*r+d*d))/2, na=r/Math.sqrt(r*r+d*d), spot=2*d*0.1, xtalk=Math.exp(-tc*tc/(2*spot*spot))*100;
   document.getElementById('v5_eta').textContent=(eta*100).toFixed(3)+'%';
   document.getElementById('v5_na').textContent=na.toFixed(3);
   document.getElementById('v5_spot').textContent=spot.toFixed(1)+'mm';
@@ -799,9 +802,9 @@ function drawInv5(curD,r) {
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
   c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('η%',xS-22,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
   c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
-  for (var i=0;i<=100;i++) { var d=1+i*0.29, eta=r*r/(4*d*d), x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(eta*10,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
+  for (var i=0;i<=100;i++) { var d=1+i*0.29, eta=(1-d/Math.sqrt(r*r+d*d))/2, x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(eta*10,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
-  var etaC=r*r/(4*curD*curD), xc=xS+(curD-1)/29*(xE-xS), yc=yB-(yB-yT)*Math.min(etaC*10,1);
+  var etaC=(1-curD/Math.sqrt(r*r+curD*curD))/2, xc=xS+(curD-1)/29*(xE-xS), yc=yB-(yB-yT)*Math.min(etaC*10,1);
   c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
   c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText((etaC*100).toFixed(3)+'%',xc+5,yc-3);
 }
@@ -815,9 +818,9 @@ function drawSig5(curD,r) {
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
   c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('신호',xS-28,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
   c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
-  for (var i=0;i<=100;i++) { var d=1+i*0.29, sig=r*r/(4*d*d), x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(sig*10,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
+  for (var i=0;i<=100;i++) { var d=1+i*0.29, sig=(1-d/Math.sqrt(r*r+d*d))/2, x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(sig*10,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
-  var sigC=r*r/(4*curD*curD), xc=xS+(curD-1)/29*(xE-xS), yc=yB-(yB-yT)*Math.min(sigC*10,1);
+  var sigC=(1-curD/Math.sqrt(r*r+curD*curD))/2, xc=xS+(curD-1)/29*(xE-xS), yc=yB-(yB-yT)*Math.min(sigC*10,1);
   c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,5,0,Math.PI*2); c.fill();
   // dashed reference lines
   c.strokeStyle='#555'; c.setLineDash([2,2]);
@@ -857,7 +860,7 @@ function drawOpt5(r) {
   // composite score: η normalized - xtalk penalty
   c.strokeStyle='#4caf7d'; c.lineWidth=2; c.beginPath();
   for (var i=0;i<=100;i++) {
-    var d=1+i*0.29, eta=r*r/(4*d*d)*10, xtalk=Math.exp(-16/(2*Math.pow(d*0.1,2))), score=eta*(1-xtalk*0.5);
+    var d=1+i*0.29, eta=(1-d/Math.sqrt(r*r+d*d))/2*10, xtalk=Math.exp(-16/(2*Math.pow(d*0.1,2))), score=eta*(1-xtalk*0.5);
     var x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(score,1);
     if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
   }
@@ -876,7 +879,7 @@ function drawEta5() {
   var dArr=[3,5,8,12], dcols=['#7eb8f7','#4caf7d','#f0b93a','#f07070'];
   dArr.forEach(function(d,i) {
     c.strokeStyle=dcols[i]; c.lineWidth=1.5; c.beginPath();
-    for (var j=0;j<=100;j++) { var rr=0.5+j*0.095, eta=rr*rr/(4*d*d), x=xS+j*(xE-xS)/100, y=yB-(yB-yT)*Math.min(eta*30,1); if(j===0) c.moveTo(x,y); else c.lineTo(x,y); }
+    for (var j=0;j<=100;j++) { var rr=0.5+j*0.095, eta=(1-d/Math.sqrt(rr*rr+d*d))/2, x=xS+j*(xE-xS)/100, y=yB-(yB-yT)*Math.min(eta*30,1); if(j===0) c.moveTo(x,y); else c.lineTo(x,y); }
     c.stroke();
     c.fillStyle=dcols[i]; c.font='9px sans-serif'; c.fillText('d='+d,xE-30,yT+i*12+8);
   });
