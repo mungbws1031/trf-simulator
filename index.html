@@ -1,34 +1,34 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <title>TRF 통합 분석 플랫폼</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#1a1c24;color:#c8ccd8;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
-#topbar{background:#13151e;border-bottom:1px solid #2a2d3a;padding:10px 20px;display:flex;align-items:center;gap:16px}
-#topbar h1{font-size:15px;font-weight:700;color:#7eb8f7;letter-spacing:1px}
-#topbar span{font-size:11px;color:#555;margin-left:auto}
-#tabs{display:flex;background:#13151e;border-bottom:1px solid #2a2d3a;padding:0 12px}
-.tab{padding:9px 14px;cursor:pointer;font-size:12px;color:#666;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s}
-.tab:hover{color:#aaa}
-.tab.active{color:#7eb8f7;border-bottom-color:#7eb8f7}
+body{background:#eef1fa;color:#1e2540;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+#topbar{background:#fff;border-bottom:1px solid #dde2f0;padding:10px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#topbar h1{font-size:15px;font-weight:700;color:#2060c0;letter-spacing:1px}
+#topbar span{font-size:11px;color:#9098c0;margin-left:auto}
+#tabs{display:flex;background:#fff;border-bottom:1px solid #dde2f0;padding:0 12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.tab{padding:9px 14px;cursor:pointer;font-size:12px;color:#8898c0;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s}
+.tab:hover{color:#3060b0}
+.tab.active{color:#2060c0;border-bottom-color:#2060c0}
 .tabcontent{display:none;padding:16px;overflow-y:auto;max-height:calc(100vh - 90px)}
 .tabcontent.active{display:block}
 .row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
-.card{background:#1e2130;border:1px solid #2a2d3a;border-radius:8px;padding:14px}
-.card h3{font-size:11px;color:#7eb8f7;letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase}
-canvas{display:block;background:#161820;border-radius:4px}
-label{color:#888;font-size:11px}
-input[type=range]{width:100%;accent-color:#7eb8f7;margin:3px 0}
-select{background:#13151e;color:#c8ccd8;border:1px solid #2a2d3a;border-radius:4px;padding:3px 6px;font-size:12px}
-.val{color:#7eb8f7;font-weight:700;font-size:13px}
-.kv{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1a1c24;font-size:12px}
+.card{background:#fff;border:1px solid #dde2f0;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(30,40,100,.06)}
+.card h3{font-size:11px;color:#2060c0;letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase}
+canvas{display:block;background:#f4f7ff;border-radius:6px;border:1px solid #e4e8f8}
+label{color:#6878a8;font-size:11px}
+input[type=range]{width:100%;accent-color:#2060c0;margin:3px 0}
+select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4px;padding:3px 6px;font-size:12px}
+.val{color:#2060c0;font-weight:700;font-size:13px}
+.kv{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #edf0fa;font-size:12px}
 .kv:last-child{border-bottom:none}
-.kv span:last-child{color:#4caf7d;font-weight:700}
+.kv span:last-child{color:#1a8040;font-weight:700}
 .ctrl{margin-bottom:8px}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
-.green{background:#1a3a2a;color:#4caf7d}.blue{background:#1a2a4a;color:#7eb8f7}.yellow{background:#3a3010;color:#f0b93a}.red{background:#3a1010;color:#f07070}
+.green{background:#e8f5ee;color:#1a8040}.blue{background:#e4eeff;color:#2060c0}.yellow{background:#fff3e0;color:#b06010}.red{background:#ffebeb;color:#c02828}
 </style>
 </head>
 <body>
@@ -99,7 +99,7 @@ select{background:#13151e;color:#c8ccd8;border:1px solid #2a2d3a;border-radius:4
       <div class="ctrl"><label>수명 τ: <span class="val" id="v2_tau">600</span> μs</label><input type="range" id="r2_tau" min="100" max="2000" value="600" oninput="upd2()"></div>
       <div class="ctrl"><label>배경광 Ib: <span class="val" id="v2_bg">10</span></label><input type="range" id="r2_bg" min="1" max="100" value="10" oninput="upd2()"></div>
       <div class="ctrl"><label>신호 Is: <span class="val" id="v2_sig">1000</span></label><input type="range" id="r2_sig" min="100" max="5000" value="1000" oninput="upd2()"></div>
-      <div style="margin-top:10px;padding:8px;background:#13151e;border-radius:4px" id="res2">
+      <div style="margin-top:10px;padding:8px;background:#f0f4ff;border-radius:6px;border:1px solid #dde2f0" id="res2">
         <div class="kv"><span>η</span><span id="r2_eta">-</span></div>
         <div class="kv"><span>SNR</span><span id="r2_snr">-</span></div>
         <div class="kv"><span>최적 t_d</span><span id="r2_opt">-</span></div>
@@ -205,7 +205,7 @@ select{background:#13151e;color:#c8ccd8;border:1px solid #2a2d3a;border-radius:4
       <div class="ctrl"><label>거리 d: <span class="val" id="v5_d">10</span> mm</label><input type="range" id="r5_d" min="1" max="30" value="10" oninput="upd5()"></div>
       <div class="ctrl"><label>렌즈 반경 r: <span class="val" id="v5_r">3</span> mm</label><input type="range" id="r5_r" min="1" max="10" value="3" oninput="upd5()"></div>
       <div class="ctrl"><label>T-C 간격: <span class="val" id="v5_tc">4</span> mm</label><input type="range" id="r5_tc" min="1" max="10" value="4" oninput="upd5()"></div>
-      <div style="margin-top:10px;padding:8px;background:#13151e;border-radius:4px">
+      <div style="margin-top:10px;padding:8px;background:#f0f4ff;border-radius:6px;border:1px solid #dde2f0">
         <div class="kv"><span>수집 효율 η</span><span id="v5_eta">-</span></div>
         <div class="kv"><span>개구수 NA</span><span id="v5_na">-</span></div>
         <div class="kv"><span>PSF 스팟</span><span id="v5_spot">-</span></div>
@@ -256,7 +256,7 @@ select{background:#13151e;color:#c8ccd8;border:1px solid #2a2d3a;border-radius:4
       <div class="ctrl"><label>주변광 Ib: <span class="val" id="v6_amb">30</span></label><input type="range" id="r6_amb" min="1" max="100" value="30" oninput="upd6()"></div>
       <div class="ctrl"><label>차광률: <span class="val" id="v6_sh">80</span>%</label><input type="range" id="r6_sh" min="0" max="100" value="80" oninput="upd6()"></div>
       <div class="ctrl"><label>지연 t_d: <span class="val" id="v6_td">100</span> μs</label><input type="range" id="r6_td" min="10" max="500" value="100" oninput="upd6()"></div>
-      <div style="margin-top:10px;padding:8px;background:#13151e;border-radius:4px" id="shield_result"></div>
+      <div style="margin-top:10px;padding:8px;background:#f0f4ff;border-radius:6px;border:1px solid #dde2f0" id="shield_result"></div>
     </div>
     <div style="flex:1;min-width:300px">
       <div class="card" style="margin-bottom:12px">
@@ -299,39 +299,39 @@ function drawPrinciple() {
   var c = document.getElementById('c_principle').getContext('2d');
   var W = 520, H = 170;
   c.clearRect(0,0,W,H);
-  var phases = [{label:'UV 펄스',x:30,w:20,color:'#9060f0'},{label:'지연 t_d',x:55,w:80,color:'#333'},{label:'게이트 t_g',x:140,w:160,color:'#1a3a5a'},{label:'다음 펄스',x:340,w:20,color:'#9060f0'}];
+  var phases = [{label:'UV 펄스',x:30,w:20,color:'#6030d0'},{label:'지연 t_d',x:55,w:80,color:'#333'},{label:'게이트 t_g',x:140,w:160,color:'#ddeeff'},{label:'다음 펄스',x:340,w:20,color:'#6030d0'}];
   // timeline
-  c.strokeStyle='#333'; c.lineWidth=1;
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1;
   c.beginPath(); c.moveTo(20,H-30); c.lineTo(W-10,H-30); c.stroke();
-  c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText('시간 →',W-40,H-22);
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('시간 →',W-40,H-22);
   // UV pulse
-  c.fillStyle='#9060f0'; c.fillRect(30,H-80,20,50);
-  c.fillStyle='#b090ff'; c.font='9px sans-serif'; c.fillText('UV',33,H-83);
+  c.fillStyle='#6030d0'; c.fillRect(30,H-80,20,50);
+  c.fillStyle='#8060e8'; c.font='9px sans-serif'; c.fillText('UV',33,H-83);
   // background signal (decaying)
-  c.strokeStyle='#f07070'; c.lineWidth=1.5;
+  c.strokeStyle='#c03030'; c.lineWidth=1.5;
   c.beginPath();
   for (var i = 0; i <= 200; i++) { var x=50+i*1.3, t=i/30, y=(H-30)-40*Math.exp(-t*2); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
-  c.fillStyle='#f07070'; c.font='9px sans-serif'; c.fillText('배경 형광',52,H-68);
+  c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경 형광',52,H-68);
   // delay bracket
   c.strokeStyle='#888'; c.lineWidth=1; c.setLineDash([2,2]);
   c.beginPath(); c.moveTo(50,H-90); c.lineTo(130,H-90); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('t_d',82,H-93);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('t_d',82,H-93);
   // Eu signal during gate
-  c.fillStyle='rgba(126,184,247,0.15)'; c.fillRect(130,H-85,160,55);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2;
+  c.fillStyle='rgba(34,114,204,0.15)'; c.fillRect(130,H-85,160,55);
+  c.strokeStyle='#2272cc'; c.lineWidth=2;
   c.beginPath();
   for (var i = 0; i <= 160; i++) { var x=130+i, t=i/80, y=(H-30)-55*Math.exp(-t*0.4); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
-  c.fillStyle='#7eb8f7'; c.font='9px sans-serif'; c.fillText('Eu³⁺ 신호',135,H-87);
+  c.fillStyle='#2272cc'; c.font='9px sans-serif'; c.fillText('Eu³⁺ 신호',135,H-87);
   // gate bracket
-  c.strokeStyle='#4caf7d'; c.lineWidth=1;
+  c.strokeStyle='#1a8040'; c.lineWidth=1;
   c.beginPath(); c.moveTo(130,H-95); c.lineTo(290,H-95); c.stroke();
   c.beginPath(); c.moveTo(130,H-98); c.lineTo(130,H-92); c.stroke();
   c.beginPath(); c.moveTo(290,H-98); c.lineTo(290,H-92); c.stroke();
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('t_g (게이트)',180,H-98);
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('t_g (게이트)',180,H-98);
   // labels bottom
-  c.fillStyle='#555'; c.font='9px sans-serif';
+  c.fillStyle='#7080a8'; c.font='9px sans-serif';
   c.fillText('0',30,H-18); c.fillText('50μs',80,H-18); c.fillText('100μs',130,H-18); c.fillText('300μs',270,H-18); c.fillText('500μs',450,H-18);
 }
 
@@ -340,19 +340,19 @@ function drawLifetime() {
   var W = 340, H = 170;
   c.clearRect(0,0,W,H);
   var xS=35, xE=W-10, yB=H-20, yT=10;
-  c.strokeStyle='#333'; c.lineWidth=1;
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  var dyes = [{name:'자가형광(ns)',tau:0.001,color:'#f07070'},{name:'유기형광(μs)',tau:0.01,color:'#f0b93a'},{name:'Eu³⁺(ms)',tau:1.0,color:'#7eb8f7'}];
+  var dyes = [{name:'자가형광(ns)',tau:0.001,color:'#c03030'},{name:'유기형광(μs)',tau:0.01,color:'#c07818'},{name:'Eu³⁺(ms)',tau:1.0,color:'#2272cc'}];
   dyes.forEach(function(d) {
     c.strokeStyle=d.color; c.lineWidth=1.5; c.beginPath();
     for (var i=0; i<=150; i++) { var x=xS+i*(xE-xS)/150, t=i/30, v=Math.exp(-t/d.tau); var y=yB-(yB-yT)*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
     c.stroke();
     c.fillStyle=d.color; c.font='9px sans-serif'; c.fillText(d.name, xS+5, yT+(dyes.indexOf(d))*12+15);
   });
-  c.fillStyle='rgba(126,184,247,0.08)'; c.fillRect(xS+40,yT,xE-xS-40,yB-yT);
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('TRF 게이트',xS+50,yT+12);
-  c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText('시간 →',xE-30,yB+11); c.fillText('강도',xS-28,yT+4);
+  c.fillStyle='rgba(34,114,204,0.08)'; c.fillRect(xS+40,yT,xE-xS-40,yB-yT);
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('TRF 게이트',xS+50,yT+12);
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('시간 →',xE-30,yB+11); c.fillText('강도',xS-28,yT+4);
 }
 
 function drawEta0() {
@@ -360,11 +360,11 @@ function drawEta0() {
   var W = 340, H = 160;
   c.clearRect(0,0,W,H);
   var xS=35, xE=W-10, yB=H-18, yT=8;
-  c.strokeStyle='#333'; c.lineWidth=1;
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('η',xS-20,yT+4); c.fillText('t_d(μs)→',xE-38,yB+11);
-  var taus = [300,600,1200], cols = ['#f0b93a','#7eb8f7','#4caf7d'];
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('η',xS-20,yT+4); c.fillText('t_d(μs)→',xE-38,yB+11);
+  var taus = [300,600,1200], cols = ['#c07818','#2272cc','#1a8040'];
   taus.forEach(function(tau,i) {
     var tg=600;
     c.strokeStyle=cols[i]; c.lineWidth=1.5; c.beginPath();
@@ -380,14 +380,14 @@ function drawSpectrum0() {
   c.clearRect(0,0,W,H);
   var xS=10, xE=W-10, yB=H-18, yT=8;
   var wl2x = function(wl) { return xS+(wl-280)*(xE-xS)/500; };
-  c.strokeStyle='#9060f0'; c.lineWidth=1.5; c.beginPath();
+  c.strokeStyle='#6030d0'; c.lineWidth=1.5; c.beginPath();
   for (var wl=300; wl<=420; wl++) { var v=Math.exp(-Math.pow(wl-340,2)/800), x=wl2x(wl), y=yB-(yB-yT)*v*0.7; if(wl===300) c.moveTo(x,y); else c.lineTo(x,y); }
-  c.stroke(); c.fillStyle='#9060f0'; c.font='9px sans-serif'; c.fillText('여기 340nm',wl2x(330),yT+12);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
+  c.stroke(); c.fillStyle='#6030d0'; c.font='9px sans-serif'; c.fillText('여기 340nm',wl2x(330),yT+12);
+  c.strokeStyle='#2272cc'; c.lineWidth=2; c.beginPath();
   for (var wl=580; wl<=680; wl++) { var v=Math.exp(-Math.pow(wl-615,2)/200), x=wl2x(wl), y=yB-(yB-yT)*v; if(wl===580) c.moveTo(x,y); else c.lineTo(x,y); }
-  c.stroke(); c.fillStyle='#7eb8f7'; c.font='9px sans-serif'; c.fillText('발광 615nm',wl2x(615)-10,yT+12);
-  [400,500,600,700].forEach(function(wl) { c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText(wl+'nm',wl2x(wl)-8,yB+11); });
-  c.strokeStyle='#333'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.stroke(); c.fillStyle='#2272cc'; c.font='9px sans-serif'; c.fillText('발광 615nm',wl2x(615)-10,yT+12);
+  [400,500,600,700].forEach(function(wl) { c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText(wl+'nm',wl2x(wl)-8,yB+11); });
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   // color gradient bg
   var grd = c.createLinearGradient(xS,0,xE,0);
   grd.addColorStop(0,'rgba(80,0,100,0.08)'); grd.addColorStop(0.25,'rgba(0,0,255,0.05)'); grd.addColorStop(0.5,'rgba(0,200,0,0.05)'); grd.addColorStop(0.8,'rgba(255,0,0,0.08)');
@@ -398,18 +398,18 @@ function drawSuppress() {
   var c = document.getElementById('c_suppress').getContext('2d');
   var W = 280, H = 160;
   c.clearRect(0,0,W,H);
-  var items = [{label:'기존 형광',bg:80,sig:20,color:'#f07070'},{label:'TRF',bg:1,sig:18,color:'#7eb8f7'}];
+  var items = [{label:'기존 형광',bg:80,sig:20,color:'#c03030'},{label:'TRF',bg:1,sig:18,color:'#2272cc'}];
   items.forEach(function(it,i) {
     var x=30+i*110, maxV=100;
     c.fillStyle='#333'; c.font='10px sans-serif'; c.fillText(it.label,x,20);
     c.fillStyle='rgba(240,180,50,0.3)'; c.fillRect(x,25,(W-60)*it.bg/maxV,30);
-    c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText('배경 '+it.bg,x+2,44);
-    c.fillStyle='rgba(126,184,247,0.5)'; c.fillRect(x,65,(W-60)*it.sig/maxV,30);
-    c.fillStyle='#7eb8f7'; c.font='9px sans-serif'; c.fillText('신호 '+it.sig,x+2,84);
+    c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText('배경 '+it.bg,x+2,44);
+    c.fillStyle='rgba(34,114,204,0.5)'; c.fillRect(x,65,(W-60)*it.sig/maxV,30);
+    c.fillStyle='#2272cc'; c.font='9px sans-serif'; c.fillText('신호 '+it.sig,x+2,84);
     var snr = it.sig/Math.max(0.1,it.bg);
     c.fillStyle=it.color; c.font='11px sans-serif'; c.fillText('SNR='+snr.toFixed(2),x,110);
   });
-  c.fillStyle='#4caf7d'; c.font='10px sans-serif'; c.fillText('SNR 향상: ~'+Math.round(18/0.1/0.25)+'×',30,140);
+  c.fillStyle='#1a8040'; c.font='10px sans-serif'; c.fillText('SNR 향상: ~'+Math.round(18/0.1/0.25)+'×',30,140);
 }
 
 function drawTab1() {
@@ -442,45 +442,45 @@ function drawTiming2(td,tg,tau) {
   c.clearRect(0,0,W,H);
   var xS=20, scale=W/1600;
   // UV pulse
-  c.fillStyle='#9060f0'; c.fillRect(xS,H-80,15,50); c.fillStyle='#b090ff'; c.font='9px sans-serif'; c.fillText('UV',xS+2,H-83);
+  c.fillStyle='#6030d0'; c.fillRect(xS,H-80,15,50); c.fillStyle='#8060e8'; c.font='9px sans-serif'; c.fillText('UV',xS+2,H-83);
   // background decay
-  c.strokeStyle='#f07070'; c.lineWidth=1.5; c.beginPath();
+  c.strokeStyle='#c03030'; c.lineWidth=1.5; c.beginPath();
   for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/50), y=(H-30)-50*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
-  c.stroke(); c.fillStyle='#f07070'; c.font='9px sans-serif'; c.fillText('배경',xS+22,H-68);
+  c.stroke(); c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경',xS+22,H-68);
   // Eu signal
-  c.strokeStyle='#7eb8f7'; c.lineWidth=1.5; c.beginPath();
+  c.strokeStyle='#2272cc'; c.lineWidth=1.5; c.beginPath();
   for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/tau), y=(H-30)-55*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   // delay shading
   var dx1=xS+20, dx2=xS+20+td*(W-50)/1200;
-  c.fillStyle='rgba(50,50,50,0.4)'; c.fillRect(dx1,H-90,dx2-dx1,60);
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('t_d='+td+'μs',dx1+2,H-80);
+  c.fillStyle='rgba(200,210,240,0.4)'; c.fillRect(dx1,H-90,dx2-dx1,60);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('t_d='+td+'μs',dx1+2,H-80);
   // gate shading
   var gx1=dx2, gx2=Math.min(W-10,dx2+tg*(W-50)/1200);
-  c.fillStyle='rgba(126,184,247,0.1)'; c.fillRect(gx1,H-90,gx2-gx1,60);
-  c.strokeStyle='#4caf7d'; c.lineWidth=1;
+  c.fillStyle='rgba(34,114,204,0.1)'; c.fillRect(gx1,H-90,gx2-gx1,60);
+  c.strokeStyle='#1a8040'; c.lineWidth=1;
   c.beginPath(); c.moveTo(gx1,H-95); c.lineTo(gx2,H-95); c.stroke();
   c.beginPath(); c.moveTo(gx1,H-98); c.lineTo(gx1,H-92); c.stroke();
   c.beginPath(); c.moveTo(gx2,H-98); c.lineTo(gx2,H-92); c.stroke();
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('t_g='+tg+'μs',(gx1+gx2)/2-15,H-99);
-  c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText('시간(μs)→',W-50,H-14);
-  c.strokeStyle='#333'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,H-30); c.lineTo(W-10,H-30); c.stroke();
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('t_g='+tg+'μs',(gx1+gx2)/2-15,H-99);
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('시간(μs)→',W-50,H-14);
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,H-30); c.lineTo(W-10,H-30); c.stroke();
 }
 
 function drawEtaCurve(curTd,tg,tau) {
   var c=document.getElementById('c_etacurve').getContext('2d'), W=300, H=140;
   c.clearRect(0,0,W,H);
   var xS=35, xE=W-10, yB=H-18, yT=8;
-  c.strokeStyle='#333'; c.lineWidth=1;
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('η%',xS-22,yT+4); c.fillText('t_d→',xE-20,yB+11);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=1.5; c.beginPath();
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('η%',xS-22,yT+4); c.fillText('t_d→',xE-20,yB+11);
+  c.strokeStyle='#2272cc'; c.lineWidth=1.5; c.beginPath();
   for (var i=0;i<=100;i++) { var td=i*10, v=Math.exp(-td/tau)*(1-Math.exp(-tg/tau)), x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   var etaC=Math.exp(-curTd/tau)*(1-Math.exp(-tg/tau)), xc=xS+curTd*(xE-xS)/1000, yc=yB-(yB-yT)*etaC;
-  c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
-  c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText((etaC*100).toFixed(1)+'%',xc+5,yc-3);
+  c.fillStyle='#c07818'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
+  c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText((etaC*100).toFixed(1)+'%',xc+5,yc-3);
 }
 
 function drawSNR2(sig,bg,td,tg,tau) {
@@ -489,14 +489,14 @@ function drawSNR2(sig,bg,td,tg,tau) {
   var eta=Math.exp(-td/tau)*(1-Math.exp(-tg/tau));
   var snrConv=sig/Math.max(0.1,bg), snrTRF=sig*eta/Math.max(0.01,bg*0.001);
   var mx=Math.max(snrConv,snrTRF)*1.2;
-  var bars=[{label:'기존',v:snrConv,color:'#f07070'},{label:'TRF',v:snrTRF,color:'#7eb8f7'}];
+  var bars=[{label:'기존',v:snrConv,color:'#c03030'},{label:'TRF',v:snrTRF,color:'#2272cc'}];
   bars.forEach(function(b,i) {
     var x=20+i*80, bw=50, h=Math.min(90,(H-40)*b.v/mx);
     c.fillStyle=b.color; c.fillRect(x,H-25-h,bw,h);
-    c.fillStyle='#aaa'; c.font='9px sans-serif'; c.fillText(b.label,x+8,H-12);
-    c.fillStyle='#eee'; c.font='9px sans-serif'; c.fillText(b.v.toFixed(0),x+4,H-28-h);
+    c.fillStyle='#8898b8'; c.font='9px sans-serif'; c.fillText(b.label,x+8,H-12);
+    c.fillStyle='#3050a0'; c.font='9px sans-serif'; c.fillText(b.v.toFixed(0),x+4,H-28-h);
   });
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('SNR',5,15);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('SNR',5,15);
 }
 
 function drawSpec2() {
@@ -510,20 +510,20 @@ function drawSpec2() {
   c.fillStyle=grd; c.fillRect(xS,yT,xE-xS,yB-yT);
   // excitation filter
   c.fillStyle='rgba(150,50,255,0.1)'; c.fillRect(wl2x(320),yT,wl2x(370)-wl2x(320),yB-yT);
-  c.strokeStyle='#9060f0'; c.lineWidth=1; c.beginPath(); c.moveTo(wl2x(320),yT); c.lineTo(wl2x(320),yB); c.stroke(); c.beginPath(); c.moveTo(wl2x(370),yT); c.lineTo(wl2x(370),yB); c.stroke();
-  c.fillStyle='#9060f0'; c.font='9px sans-serif'; c.fillText('Ex필터',wl2x(330),yT+10);
+  c.strokeStyle='#6030d0'; c.lineWidth=1; c.beginPath(); c.moveTo(wl2x(320),yT); c.lineTo(wl2x(320),yB); c.stroke(); c.beginPath(); c.moveTo(wl2x(370),yT); c.lineTo(wl2x(370),yB); c.stroke();
+  c.fillStyle='#6030d0'; c.font='9px sans-serif'; c.fillText('Ex필터',wl2x(330),yT+10);
   // emission filter
   c.fillStyle='rgba(50,100,255,0.07)'; c.fillRect(wl2x(600),yT,wl2x(660)-wl2x(600),yB-yT);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=1; c.beginPath(); c.moveTo(wl2x(600),yT); c.lineTo(wl2x(600),yB); c.stroke(); c.beginPath(); c.moveTo(wl2x(660),yT); c.lineTo(wl2x(660),yB); c.stroke();
-  c.fillStyle='#7eb8f7'; c.font='9px sans-serif'; c.fillText('Em필터',wl2x(608),yT+10);
+  c.strokeStyle='#2272cc'; c.lineWidth=1; c.beginPath(); c.moveTo(wl2x(600),yT); c.lineTo(wl2x(600),yB); c.stroke(); c.beginPath(); c.moveTo(wl2x(660),yT); c.lineTo(wl2x(660),yB); c.stroke();
+  c.fillStyle='#2272cc'; c.font='9px sans-serif'; c.fillText('Em필터',wl2x(608),yT+10);
   // Eu emission peak
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
+  c.strokeStyle='#2272cc'; c.lineWidth=2; c.beginPath();
   for (var wl=580;wl<=680;wl++) { var v=Math.exp(-Math.pow(wl-615,2)/200), x=wl2x(wl), y=yB-(yB-yT)*v; if(wl===580) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   // axis
-  c.strokeStyle='#333'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
-  [350,450,550,650,750].forEach(function(wl) { c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText(wl,wl2x(wl)-6,yB+11); });
-  c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText('파장(nm)',xE-30,yB+11);
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  [350,450,550,650,750].forEach(function(wl) { c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText(wl,wl2x(wl)-6,yB+11); });
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('파장(nm)',xE-30,yB+11);
 }
 
 // ── TAB3: 스트립 밴드 ───────────────────────────────────────
@@ -578,28 +578,28 @@ function drawStrip3(Rmax,bgr,psz,tlw,pad) {
       }
     }
     // control band
-    c.fillStyle='rgba(120,120,160,0.7)'; c.fillRect(x+5,20+sh*0.65,sw-12,12);
+    c.fillStyle='rgba(100,120,200,0.7)'; c.fillRect(x+5,20+sh*0.65,sw-12,12);
     c.fillStyle='rgba(200,200,240,0.6)';
     var rnd3=seededRand(i*333+7), npc=Math.round(8*psz);
     for (var p=0;p<npc;p++) {
       var px=x+5+rnd3()*(sw-12), py=20+sh*0.65+rnd3()*12;
       c.beginPath(); c.arc(px,py,psz*0.35,0,Math.PI*2); c.fill();
     }
-    c.fillStyle='#888'; c.font='8px sans-serif'; c.fillText(STRIP_LABELS[i],x+2,H-5);
-    c.strokeStyle='#3a3d4a'; c.strokeRect(x,20,sw-2,sh);
-    c.fillStyle='#7eb8f7'; c.font='8px sans-serif'; c.fillText('R='+R.toFixed(2),x+2,32);
+    c.fillStyle='#6878a8'; c.font='8px sans-serif'; c.fillText(STRIP_LABELS[i],x+2,H-5);
+    c.strokeStyle='#c8d0e8'; c.strokeRect(x,20,sw-2,sh);
+    c.fillStyle='#2272cc'; c.font='8px sans-serif'; c.fillText('R='+R.toFixed(2),x+2,32);
   }
   // labels
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('T밴드',10+3*sw+4,20+sh*0.35+28);
-  c.fillStyle='#aaa'; c.font='9px sans-serif'; c.fillText('C밴드',10+3*sw+4,20+sh*0.65+22);
-  c.fillStyle='#aaa'; c.font='9px sans-serif'; c.fillText('농도 (ng/mL) →',W/2-40,H-2);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('T밴드',10+3*sw+4,20+sh*0.35+28);
+  c.fillStyle='#8898b8'; c.font='9px sans-serif'; c.fillText('C밴드',10+3*sw+4,20+sh*0.65+22);
+  c.fillStyle='#8898b8'; c.font='9px sans-serif'; c.fillText('농도 (ng/mL) →',W/2-40,H-2);
 }
 
 function drawProfile3(Rmax,bgr,tlw) {
   var c=document.getElementById('c_profile').getContext('2d'), W=460, H=130;
   c.clearRect(0,0,W,H);
   var xS=10, xE=W-10, yB=H-14, yT=8, cx=(xS+xE)/2;
-  var colors=['#4caf7d','#7eb8f7','#f0b93a','#f07070','#b080ff'];
+  var colors=['#1a8040','#2272cc','#c07818','#c03030','#6040b8'];
   var sels=[0,4,8,11,14];
   for (var ci=0; ci<sels.length; ci++) {
     var si=sels[ci], R=stripR(STRIP_CONCS[si],Rmax), sigma=tlw/2;
@@ -612,28 +612,28 @@ function drawProfile3(Rmax,bgr,tlw) {
     c.stroke();
     c.fillStyle=colors[ci]; c.font='8px sans-serif'; c.fillText(STRIP_LABELS[si],xE-50+ci*5,yT+ci*10+5);
   }
-  c.strokeStyle='#444'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
-  c.strokeStyle='#3a3d4a'; c.setLineDash([2,2]);
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.strokeStyle='#c8d0e8'; c.setLineDash([2,2]);
   c.beginPath(); c.moveTo(cx-tlw/2,yT); c.lineTo(cx-tlw/2,yB); c.stroke();
   c.beginPath(); c.moveTo(cx+tlw/2,yT); c.lineTo(cx+tlw/2,yB); c.stroke();
   c.setLineDash([]);
-  c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText('위치 →',xE-30,yB+11);
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('위치 →',xE-30,yB+11);
 }
 
 function drawDose3(Rmax) {
   var c=document.getElementById('c_dose').getContext('2d'), W=220, H=150;
   c.clearRect(0,0,W,H);
   var xS=35, xE=W-10, yB=H-14, yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('R',xS-18,yT+4); c.fillText('농도→',xE-22,yB+11);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('R',xS-18,yT+4); c.fillText('농도→',xE-22,yB+11);
   [0.2,0.4,0.6,0.8].forEach(function(v) {
     var y=yB-(yB-yT)*v;
-    c.strokeStyle='#252836'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
-    c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText(v.toFixed(1),0,y+4);
+    c.strokeStyle='#e4e8f8'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
+    c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText(v.toFixed(1),0,y+4);
   });
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
+  c.strokeStyle='#2272cc'; c.lineWidth=2; c.beginPath();
   for (var i=0;i<=100;i++) {
     var conc=Math.pow(10,-3+i*4/100), R=stripR(conc,Rmax), x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*R/Rmax;
     if (i===0) c.moveTo(x,y); else c.lineTo(x,y);
@@ -643,7 +643,7 @@ function drawDose3(Rmax) {
     var conc=STRIP_CONCS[k];
     if (conc>0) {
       var R=stripR(conc,Rmax), xi=(Math.log10(conc)+3)/4, x=xS+xi*(xE-xS), y=yB-(yB-yT)*R/Rmax;
-      c.fillStyle='#f0b93a'; c.beginPath(); c.arc(x,y,2.5,0,Math.PI*2); c.fill();
+      c.fillStyle='#c07818'; c.beginPath(); c.arc(x,y,2.5,0,Math.PI*2); c.fill();
     }
   }
 }
@@ -654,7 +654,7 @@ var RAW=[[90000,95000,100000,108000,116000,180459],[88000,93000,100000,110000,12
 var R18_100=RAW.map(function(ch){return ch.map(function(v){return Math.round(v*0.48);});});
 var R37_10=RAW.map(function(ch){return ch.map(function(v){return Math.round(v*0.095);});});
 var R18_10=RAW.map(function(ch){return ch.map(function(v){return Math.round(v*0.046);});});
-var CONDS=[{label:'18×10cy',data:R18_10,color:'#4060a0'},{label:'37×10cy',data:R37_10,color:'#6080c0'},{label:'18×100cy',data:R18_100,color:'#5090d0'},{label:'37×100cy',data:RAW,color:'#7eb8f7'}];
+var CONDS=[{label:'18×10cy',data:R18_10,color:'#4060a0'},{label:'37×10cy',data:R37_10,color:'#6080c0'},{label:'18×100cy',data:R18_100,color:'#5090d0'},{label:'37×100cy',data:RAW,color:'#2272cc'}];
 
 function avgCh(data) {
   return CONCS.map(function(_,ci) { return Math.round(data.reduce(function(a,ch){return a+ch[ci];},0)/7); });
@@ -668,7 +668,7 @@ function drawResponseCurve() {
   var c=document.getElementById('c_resp').getContext('2d'), W=520, H=160;
   c.clearRect(0,0,W,H);
   var xS=50,xE=W-20,yB=H-18,yT=8,maxV=250000;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
   CONDS.forEach(function(cd) {
@@ -677,8 +677,8 @@ function drawResponseCurve() {
     c.stroke();
     c.fillStyle=cd.color; c.font='9px sans-serif'; c.fillText(cd.label,xE-60,yB-(yB-yT)*avg[5]/maxV-2);
   });
-  CONCS.forEach(function(v,i) { c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText(v,xS+i*(xE-xS)/(CONCS.length-1)-6,yB+11); });
-  c.save(); c.translate(12,yT+30); c.rotate(-Math.PI/2); c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('신호',0,0); c.restore();
+  CONCS.forEach(function(v,i) { c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText(v,xS+i*(xE-xS)/(CONCS.length-1)-6,yB+11); });
+  c.save(); c.translate(12,yT+30); c.rotate(-Math.PI/2); c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('신호',0,0); c.restore();
 }
 
 function drawChannelBar() {
@@ -688,16 +688,16 @@ function drawChannelBar() {
   data.forEach(function(v){if(v>max)max=v;}); max*=1.1;
   var xS=30,xE=W-10,yB=H-18,yT=8,bw=(xE-xS)/7-4;
   var avg=data.reduce(function(a,v){return a+v;},0)/7;
-  c.strokeStyle='#444'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
-  var avgY=yB-(yB-yT)*avg/max; c.strokeStyle='#f0b93a'; c.lineWidth=1; c.setLineDash([4,3]);
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  var avgY=yB-(yB-yT)*avg/max; c.strokeStyle='#c07818'; c.lineWidth=1; c.setLineDash([4,3]);
   c.beginPath(); c.moveTo(xS,avgY); c.lineTo(xE,avgY); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText('avg',xE-18,avgY-2);
+  c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText('avg',xE-18,avgY-2);
   data.forEach(function(v,i) {
     var x=xS+i*(xE-xS)/7, h=(yB-yT)*v/max, dev=(v-avg)/avg;
-    c.fillStyle=dev>0.05?'#7eb8f7':dev<-0.05?'#f07070':'#4caf7d';
+    c.fillStyle=dev>0.05?'#2272cc':dev<-0.05?'#c03030':'#1a8040';
     c.fillRect(x+2,yB-h,bw,h);
-    c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('CH'+(i+1),x+2,yB+11);
-    c.fillStyle='#aaa'; c.fillText(Math.round(v/1000)+'k',x+2,yB-h-3);
+    c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('CH'+(i+1),x+2,yB+11);
+    c.fillStyle='#8898b8'; c.fillText(Math.round(v/1000)+'k',x+2,yB-h-3);
   });
 }
 
@@ -710,7 +710,7 @@ function drawDiffChart() {
     return {label:cd.label,color:cd.color,diff:avg.map(function(v,i){return i===0?0:v-avg[0];})};
   });
   var maxD=0; diffs[3].diff.forEach(function(v){if(v>maxD)maxD=v;}); maxD*=1.1;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
   diffs.forEach(function(cd) {
@@ -719,8 +719,8 @@ function drawDiffChart() {
     c.stroke();
     c.fillStyle=cd.color; c.font='9px sans-serif'; c.fillText(cd.label,xE-60,yB-(yB-yT)*cd.diff[5]/maxD-2);
   });
-  CONCS.forEach(function(v,i) { c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText(v,xS+i*(xE-xS)/(CONCS.length-1)-6,yB+11); });
-  c.save(); c.translate(10,50); c.rotate(-Math.PI/2); c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('차이값',0,0); c.restore();
+  CONCS.forEach(function(v,i) { c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText(v,xS+i*(xE-xS)/(CONCS.length-1)-6,yB+11); });
+  c.save(); c.translate(10,50); c.rotate(-Math.PI/2); c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('차이값',0,0); c.restore();
 }
 
 function drawHeatmap() {
@@ -728,7 +728,7 @@ function drawHeatmap() {
   c.clearRect(0,0,W,H);
   var data=RAW.map(function(ch){return ch[5];}), avg=data.reduce(function(a,v){return a+v;},0)/7;
   var xS=30,xE=W-10,cellW=(xE-xS)/7,cellH=18,yS=18;
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('채널',xS,yS-4);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('채널',xS,yS-4);
   data.forEach(function(v,i) {
     var dev=(v-avg)/avg, r=dev>0?Math.round(dev*500):0, b=dev<0?Math.round(-dev*500):0, g=Math.max(0,80-Math.abs(dev)*300);
     c.fillStyle='rgb('+Math.min(255,r+60)+','+Math.min(255,g+100)+','+Math.min(255,b+60)+')';
@@ -743,7 +743,7 @@ function drawHeatmap() {
       c.fillStyle='rgba('+(Math.min(255,r+30))+',55,'+Math.min(255,b+30)+',0.85)';
       c.fillRect(xS+i*cellW,yS+cellH+20+ci*11,cellW-2,10);
     });
-    c.fillStyle='#666'; c.font='8px sans-serif'; c.fillText(conc,0,yS+cellH+28+ci*11);
+    c.fillStyle='#7888b0'; c.font='8px sans-serif'; c.fillText(conc,0,yS+cellH+28+ci*11);
   });
 }
 
@@ -768,74 +768,74 @@ function drawOptics5(d,r,tc) {
   var c=document.getElementById('c_optics5').getContext('2d'), W=460, H=160;
   c.clearRect(0,0,W,H);
   var cx=W/2, stripY=H-24, sensorY=14, scale=5;
-  c.fillStyle='#3a3d4a'; c.fillRect(0,stripY,W,14);
+  c.fillStyle='#c8d0e8'; c.fillRect(0,stripY,W,14);
   c.fillStyle='#c8b89a'; c.font='9px sans-serif'; c.fillText('스트립',8,stripY+10);
   // T and C bands on strip
-  c.fillStyle='rgba(240,185,58,0.8)'; c.fillRect(cx-tc*scale/2-4,stripY,8,14);
-  c.fillStyle='rgba(126,184,247,0.8)'; c.fillRect(cx+tc*scale/2-4,stripY,8,14);
-  c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText('T',cx-tc*scale/2-3,stripY-2);
-  c.fillStyle='#7eb8f7'; c.fillText('C',cx+tc*scale/2-3,stripY-2);
+  c.fillStyle='rgba(192,120,24,0.8)'; c.fillRect(cx-tc*scale/2-4,stripY,8,14);
+  c.fillStyle='rgba(34,114,204,0.8)'; c.fillRect(cx+tc*scale/2-4,stripY,8,14);
+  c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText('T',cx-tc*scale/2-3,stripY-2);
+  c.fillStyle='#2272cc'; c.fillText('C',cx+tc*scale/2-3,stripY-2);
   // sensor
   c.fillStyle='#4060a0'; c.fillRect(cx-r*scale,sensorY,r*scale*2,8);
-  c.fillStyle='#7eb8f7'; c.font='9px sans-serif'; c.fillText('센서 r='+r+'mm',cx-20,sensorY-2);
+  c.fillStyle='#2272cc'; c.font='9px sans-serif'; c.fillText('센서 r='+r+'mm',cx-20,sensorY-2);
   // distance arrow
-  c.strokeStyle='#555'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.strokeStyle='#b8c2d8'; c.lineWidth=1; c.setLineDash([3,3]);
   c.beginPath(); c.moveTo(cx+r*scale+15,sensorY+4); c.lineTo(cx+r*scale+15,stripY); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('d='+d+'mm',cx+r*scale+17,(sensorY+stripY)/2);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('d='+d+'mm',cx+r*scale+17,(sensorY+stripY)/2);
   // light cone
-  c.strokeStyle='rgba(126,184,247,0.3)'; c.lineWidth=1;
+  c.strokeStyle='rgba(34,114,204,0.3)'; c.lineWidth=1;
   c.beginPath(); c.moveTo(cx-r*scale,sensorY+8); c.lineTo(cx,stripY); c.stroke();
   c.beginPath(); c.moveTo(cx+r*scale,sensorY+8); c.lineTo(cx,stripY); c.stroke();
   // PSF spot
   var spotW=d*0.1*scale*1.5;
-  c.strokeStyle='rgba(240,185,58,0.4)'; c.lineWidth=1; c.setLineDash([2,2]);
+  c.strokeStyle='rgba(192,120,24,0.4)'; c.lineWidth=1; c.setLineDash([2,2]);
   c.beginPath(); c.arc(cx,stripY-2,spotW,0,Math.PI*2); c.stroke(); c.setLineDash([]);
-  c.fillStyle='rgba(240,185,58,0.3)'; c.font='8px sans-serif'; c.fillText('PSF',cx-8,stripY-spotW-3);
+  c.fillStyle='rgba(192,120,24,0.3)'; c.font='8px sans-serif'; c.fillText('PSF',cx-8,stripY-spotW-3);
 }
 
 function drawInv5(curD,r) {
   var c=document.getElementById('c_inv5').getContext('2d'), W=220, H=160;
   c.clearRect(0,0,W,H);
   var xS=35, xE=W-10, yB=H-18, yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('η%',xS-22,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('η%',xS-22,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
+  c.strokeStyle='#2272cc'; c.lineWidth=2; c.beginPath();
   for (var i=0;i<=100;i++) { var d=1+i*0.29, eta=(1-d/Math.sqrt(r*r+d*d))/2, x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(eta*10,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   var etaC=(1-curD/Math.sqrt(r*r+curD*curD))/2, xc=xS+(curD-1)/29*(xE-xS), yc=yB-(yB-yT)*Math.min(etaC*10,1);
-  c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
-  c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText((etaC*100).toFixed(3)+'%',xc+5,yc-3);
+  c.fillStyle='#c07818'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
+  c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText((etaC*100).toFixed(3)+'%',xc+5,yc-3);
 }
 
 function drawSig5(curD,r) {
   var c=document.getElementById('c_sig5').getContext('2d'), W=400, H=140;
   c.clearRect(0,0,W,H);
   var xS=40, xE=W-10, yB=H-18, yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('신호',xS-28,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('신호',xS-28,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
+  c.strokeStyle='#2272cc'; c.lineWidth=2; c.beginPath();
   for (var i=0;i<=100;i++) { var d=1+i*0.29, sig=(1-d/Math.sqrt(r*r+d*d))/2, x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(sig*10,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   var sigC=(1-curD/Math.sqrt(r*r+curD*curD))/2, xc=xS+(curD-1)/29*(xE-xS), yc=yB-(yB-yT)*Math.min(sigC*10,1);
-  c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,5,0,Math.PI*2); c.fill();
+  c.fillStyle='#c07818'; c.beginPath(); c.arc(xc,yc,5,0,Math.PI*2); c.fill();
   // dashed reference lines
-  c.strokeStyle='#555'; c.setLineDash([2,2]);
+  c.strokeStyle='#b8c2d8'; c.setLineDash([2,2]);
   c.beginPath(); c.moveTo(xc,yc); c.lineTo(xc,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yc); c.lineTo(xc,yc); c.stroke();
   c.setLineDash([]);
-  c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText('d='+curD+'mm',xc+3,yc-3);
+  c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText('d='+curD+'mm',xc+3,yc-3);
 }
 
 function drawTC5(d,r,tc) {
   var c=document.getElementById('c_tc5').getContext('2d'), W=380, H=140;
   c.clearRect(0,0,W,H);
   var xS=30,xE=W-10,yB=H-14,yT=8;
-  var dArr=[2,5,8,12,18,25], colors=['#4caf7d','#7eb8f7','#f0b93a','#f07070','#b080ff','#888'];
-  c.strokeStyle='#444'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  var dArr=[2,5,8,12,18,25], colors=['#1a8040','#2272cc','#c07818','#c03030','#6040b8','#888'];
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   dArr.forEach(function(di,i) {
     var sigma=di*0.15; c.strokeStyle=colors[i]; c.lineWidth=1.5; c.beginPath();
     for (var j=0;j<=200;j++) {
@@ -846,37 +846,37 @@ function drawTC5(d,r,tc) {
     c.stroke();
     c.fillStyle=colors[i]; c.font='9px sans-serif'; c.fillText('d='+di,xE-48,yT+i*11+5);
   });
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('위치(mm)',xE-30,yB+11);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('위치(mm)',xE-30,yB+11);
 }
 
 function drawOpt5(r) {
   var c=document.getElementById('c_opt5').getContext('2d'), W=400, H=130;
   c.clearRect(0,0,W,H);
   var xS=40, xE=W-10, yB=H-18, yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('점수',xS-28,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('점수',xS-28,yT+4); c.fillText('d(mm)→',xE-30,yB+11);
   // composite score: η normalized - xtalk penalty
-  c.strokeStyle='#4caf7d'; c.lineWidth=2; c.beginPath();
+  c.strokeStyle='#1a8040'; c.lineWidth=2; c.beginPath();
   for (var i=0;i<=100;i++) {
     var d=1+i*0.29, eta=(1-d/Math.sqrt(r*r+d*d))/2*10, xtalk=Math.exp(-16/(2*Math.pow(d*0.1,2))), score=eta*(1-xtalk*0.5);
     var x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(score,1);
     if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
   }
   c.stroke();
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('최적 점수 (η - 혼선)',xS+5,yT+10);
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('최적 점수 (η - 혼선)',xS+5,yT+10);
 }
 
 function drawEta5() {
   var c=document.getElementById('c_eta5').getContext('2d'), W=380, H=130;
   c.clearRect(0,0,W,H);
   var xS=35, xE=W-10, yB=H-18, yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('η',xS-18,yT+4); c.fillText('r(mm)→',xE-30,yB+11);
-  var dArr=[3,5,8,12], dcols=['#7eb8f7','#4caf7d','#f0b93a','#f07070'];
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('η',xS-18,yT+4); c.fillText('r(mm)→',xE-30,yB+11);
+  var dArr=[3,5,8,12], dcols=['#2272cc','#1a8040','#c07818','#c03030'];
   dArr.forEach(function(d,i) {
     c.strokeStyle=dcols[i]; c.lineWidth=1.5; c.beginPath();
     for (var j=0;j<=100;j++) { var rr=0.5+j*0.095, eta=(1-d/Math.sqrt(rr*rr+d*d))/2, x=xS+j*(xE-xS)/100, y=yB-(yB-yT)*Math.min(eta*30,1); if(j===0) c.moveTo(x,y); else c.lineTo(x,y); }
@@ -900,26 +900,26 @@ function upd6() {
     '<div class="kv"><span>TRF 억제율</span><span style="color:#4caf7d">'+(trf_s*100).toFixed(0)+'%</span></div>'+
     '<div class="kv"><span>차광 후 주변광</span><span style="color:#f0b93a">'+amb_after.toFixed(1)+'</span></div>'+
     '<div class="kv"><span>SNR</span><span style="color:#7eb8f7;font-weight:700">'+snr.toFixed(1)+'</span></div>'+
-    '<div class="kv" style="margin-top:4px"><span>권장 차광률</span><span style="color:'+(lt==='dc'?'#f07070':lt==='ac'?'#f0b93a':'#4caf7d')+'">'+(lt==='dc'?'>95%':lt==='ac'?'>80%':'불필요')+'</span></div>';
+    '<div class="kv" style="margin-top:4px"><span>권장 차광률</span><span style="color:'+(lt==='dc'?'#c03030':lt==='ac'?'#c07818':'#1a8040')+'">'+(lt==='dc'?'>95%':lt==='ac'?'>80%':'불필요')+'</span></div>';
   drawLtypes6(); drawShield6(); drawAmb6(amb,lt); drawTiming6(td);
 }
 
 function drawLtypes6() {
   var c=document.getElementById('c_ltypes6').getContext('2d'), W=460, H=160;
   c.clearRect(0,0,W,H);
-  var types=[{name:'스트립 자가형광',trf:99,sh:0,color:'#4caf7d'},{name:'AC 형광등 100Hz',trf:40,sh:60,color:'#f0b93a'},{name:'DC 태양광',trf:0,sh:95,color:'#f07070'},{name:'DC LED',trf:0,sh:90,color:'#f07070'}];
+  var types=[{name:'스트립 자가형광',trf:99,sh:0,color:'#1a8040'},{name:'AC 형광등 100Hz',trf:40,sh:60,color:'#c07818'},{name:'DC 태양광',trf:0,sh:95,color:'#c03030'},{name:'DC LED',trf:0,sh:90,color:'#c03030'}];
   var xS=160, bH=20, gap=12;
   types.forEach(function(t,i) {
     var y=20+i*(bH+gap);
-    c.fillStyle='#888'; c.font='10px sans-serif'; c.fillText(t.name,0,y+14);
-    c.fillStyle='#252836'; c.fillRect(xS,y,120,bH);
+    c.fillStyle='#6878a8'; c.font='10px sans-serif'; c.fillText(t.name,0,y+14);
+    c.fillStyle='#e4e8f8'; c.fillRect(xS,y,120,bH);
     c.fillStyle=t.color+'99'; c.fillRect(xS,y,t.trf*1.2,bH);
     c.fillStyle=t.color; c.font='10px sans-serif'; c.fillText('TRF '+t.trf+'%',xS+2,y+14);
-    c.fillStyle='#252836'; c.fillRect(xS+130,y,120,bH);
+    c.fillStyle='#e4e8f8'; c.fillRect(xS+130,y,120,bH);
     c.fillStyle='#6080a0'; c.fillRect(xS+130,y,t.sh*1.2,bH);
-    c.fillStyle='#aaa'; c.fillText('차광 '+t.sh+'%',xS+132,y+14);
+    c.fillStyle='#8898b8'; c.fillText('차광 '+t.sh+'%',xS+132,y+14);
   });
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('TRF 억제',xS+2,H-5); c.fillText('필요 차광',xS+132,H-5);
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('TRF 억제',xS+2,H-5); c.fillText('필요 차광',xS+132,H-5);
 }
 
 function drawShield6() {
@@ -928,20 +928,20 @@ function drawShield6() {
   var lt=document.getElementById('r6_lt').value, amb=parseInt(document.getElementById('r6_amb').value)||30, sh=parseInt(document.getElementById('r6_sh').value)||80;
   var trf_s={strip:0.999,ac:0.40,dc:0.0}[lt]||0;
   var xS=40,xE=W-20,yB=H-14,yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('SNR',xS-24,yT+4); c.fillText('차광률%→',xE-38,yB+11);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=2; c.beginPath();
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('SNR',xS-24,yT+4); c.fillText('차광률%→',xE-38,yB+11);
+  c.strokeStyle='#2272cc'; c.lineWidth=2; c.beginPath();
   for (var i=0;i<=100;i++) { var a=amb*(1-i/100)*(1-trf_s), snr=100/Math.max(0.1,a), x=xS+i*(xE-xS)/100, y=yB-(yB-yT)*Math.min(snr/50,1); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   var ac=amb*(1-sh/100)*(1-trf_s), snrc=100/Math.max(0.1,ac), xc=xS+sh*(xE-xS)/100, yc=yB-(yB-yT)*Math.min(snrc/50,1);
-  c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,5,0,Math.PI*2); c.fill();
-  c.fillStyle='#f0b93a'; c.font='10px sans-serif'; c.fillText('SNR='+snrc.toFixed(1),xc+7,yc);
-  var yth=yB-(yB-yT)*(10/50); c.strokeStyle='#4caf7d'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.fillStyle='#c07818'; c.beginPath(); c.arc(xc,yc,5,0,Math.PI*2); c.fill();
+  c.fillStyle='#c07818'; c.font='10px sans-serif'; c.fillText('SNR='+snrc.toFixed(1),xc+7,yc);
+  var yth=yB-(yB-yT)*(10/50); c.strokeStyle='#1a8040'; c.lineWidth=1; c.setLineDash([3,3]);
   c.beginPath(); c.moveTo(xS,yth); c.lineTo(xE,yth); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('SNR=10',xE-33,yth-3);
-  [0,20,40,60,80,100].forEach(function(v) { c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText(v,xS+v*(xE-xS)/100-6,yB+11); });
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('SNR=10',xE-33,yth-3);
+  [0,20,40,60,80,100].forEach(function(v) { c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText(v,xS+v*(xE-xS)/100-6,yB+11); });
 }
 
 function drawAmb6(amb,lt) {
@@ -949,15 +949,15 @@ function drawAmb6(amb,lt) {
   c.clearRect(0,0,W,H);
   var trf_s={strip:0.999,ac:0.40,dc:0.0}[lt]||0, sh=parseInt(document.getElementById('r6_sh').value)||80;
   var xS=40, xE=W-10, yB=H-14, yT=8;
-  c.strokeStyle='#444'; c.lineWidth=1;
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
-  c.fillStyle='#888'; c.font='9px sans-serif'; c.fillText('SNR',xS-24,yT+4); c.fillText('Ib→',xE-15,yB+11);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=1.5; c.beginPath();
+  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('SNR',xS-24,yT+4); c.fillText('Ib→',xE-15,yB+11);
+  c.strokeStyle='#2272cc'; c.lineWidth=1.5; c.beginPath();
   for (var i=1;i<=100;i++) { var a=i*(1-sh/100)*(1-trf_s), snr=100/Math.max(0.1,a), x=xS+(i-1)*(xE-xS)/99, y=yB-(yB-yT)*Math.min(snr/100,1); if(i===1) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke();
   var ac=amb*(1-sh/100)*(1-trf_s), snrc=100/Math.max(0.1,ac), xc=xS+(amb-1)*(xE-xS)/99, yc=yB-(yB-yT)*Math.min(snrc/100,1);
-  c.fillStyle='#f0b93a'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
+  c.fillStyle='#c07818'; c.beginPath(); c.arc(xc,yc,4,0,Math.PI*2); c.fill();
 }
 
 function drawTiming6(td) {
@@ -965,17 +965,17 @@ function drawTiming6(td) {
   c.clearRect(0,0,W,H);
   var xS=20, xE=W-10, yB=H-14, yT=8;
   // AC interference (100Hz = 10ms period)
-  c.strokeStyle='#f0b93a'; c.lineWidth=1; c.beginPath();
+  c.strokeStyle='#c07818'; c.lineWidth=1; c.beginPath();
   for (var i=0;i<=200;i++) { var t=i*5, v=0.5+0.5*Math.sin(2*Math.PI*t/10000), x=xS+i*(xE-xS)/200, y=yB-(yB-yT)*v*0.6; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
-  c.stroke(); c.fillStyle='#f0b93a'; c.font='9px sans-serif'; c.fillText('AC 간섭',xS+2,yT+10);
+  c.stroke(); c.fillStyle='#c07818'; c.font='9px sans-serif'; c.fillText('AC 간섭',xS+2,yT+10);
   // gate window
   var gx=xS+td*(xE-xS)/1000;
-  c.fillStyle='rgba(126,184,247,0.12)'; c.fillRect(gx,yT,80,yB-yT);
-  c.strokeStyle='#4caf7d'; c.lineWidth=1;
+  c.fillStyle='rgba(34,114,204,0.12)'; c.fillRect(gx,yT,80,yB-yT);
+  c.strokeStyle='#1a8040'; c.lineWidth=1;
   c.beginPath(); c.moveTo(gx,yT); c.lineTo(gx,yB); c.stroke();
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('게이트',gx+2,yT+10);
-  c.strokeStyle='#444'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
-  c.fillStyle='#555'; c.font='9px sans-serif'; c.fillText('시간(μs)→',xE-36,yB+11);
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('게이트',gx+2,yT+10);
+  c.strokeStyle='#ccd4ea'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('시간(μs)→',xE-36,yB+11);
 }
 
 // ── 초기화 ──────────────────────────────────────────────────
