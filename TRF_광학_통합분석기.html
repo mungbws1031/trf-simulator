@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>TRF 광학 통합 분석기</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#111318;color:#d8dae8;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;gap:0;padding:0 14px;background:#1a1d28;border-bottom:1px solid #2a2d3e;flex-shrink:0;height:42px}
+.topbar-title{font-size:15px;font-weight:700;color:#e0e4f0;margin-right:20px;white-space:nowrap}
+.tabs{display:flex;gap:0}
+.tab{padding:0 22px;height:42px;line-height:42px;font-size:12px;font-weight:600;color:#6070a0;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:#a0b8d8}
+.tab.active{color:#7eb8f7;border-bottom-color:#4a90d9}
+
+/* ── LAYOUT ── */
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:224px;flex-shrink:0;background:#161920;border-right:1px solid #2a2d3e;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.content{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+
+/* ── SIDEBAR CONTROLS ── */
+.cg{background:#1e2130;border-radius:6px;padding:10px}
+.cg-t{font-size:10px;font-weight:700;color:#6080a0;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.ci{margin-bottom:7px}.ci:last-child{margin-bottom:0}
+.ch{display:flex;justify-content:space-between;margin-bottom:2px}
+.cl{font-size:11px;color:#8890a8}
+.cv{font-size:12px;font-weight:700;color:#7eb8f7}
+input[type=range]{width:100%;height:4px;accent-color:#4a90d9;cursor:pointer}
+select{background:#252840;border:1px solid #3a3d50;color:#d0d4e8;padding:5px 8px;border-radius:4px;font-size:11px;width:100%;outline:none}
+
+/* ── METRIC CARDS ── */
+.mcards{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mc{background:#1a1d28;border-radius:5px;padding:7px 8px;text-align:center;border-left:3px solid #4a90d9}
+.mc.w{grid-column:1/-1}.mc.g{border-left-color:#3caf70}.mc.o{border-left-color:#f0a030}.mc.b{border-left-color:#4a90d9}.mc.p{border-left-color:#9060d0}
+.mv{font-size:17px;font-weight:800;line-height:1.2;color:#7eb8f7}
+.mc.g .mv{color:#3caf70}.mc.o .mv{color:#f0a030}.mc.p .mv{color:#9060d0}
+.ml{font-size:9px;color:#556070;margin-top:1px}
+
+/* ── CHART CARDS ── */
+.cc{background:#1a1d28;border:1px solid #2a2d3e;border-radius:6px;padding:10px}
+.ct{font-size:11px;font-weight:600;color:#8898bb;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.crow{display:flex;gap:8px}.crow .cc{flex:1;min-width:0}
+canvas{display:block;width:100%!important}
+.sub{font-size:10px;color:#4a5060;margin-top:4px}
+.wb{border-radius:4px;padding:6px 10px;font-size:11px;margin-top:5px;border-left:3px solid #f0a030;background:#2a1e0a;color:#f0a030}
+.wb.r{border-left-color:#e05050;background:#2a0a0a;color:#e05050}
+.wb.g{border-left-color:#3caf70;background:#0a2014;color:#3caf70}
+
+/* 차광 전용 */
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;margin-right:6px}
+.bg{background:#1a3a2a;color:#4caf7d}.by{background:#3a2f1a;color:#f0b93a}.br{background:#3a1a1a;color:#f07070}
+
+/* ── TOOLTIP ── */
+#tt{position:fixed;z-index:9999;pointer-events:none;background:rgba(8,10,18,.97);border:1px solid #3a70b0;border-radius:5px;padding:8px 11px;max-width:250px;font-size:11px;line-height:1.55;opacity:0;transition:opacity .12s;top:0;left:0}
+#tt b{color:#7eb8f7;display:block;margin-bottom:2px}
+#tt s{color:#8898b0;font-style:normal;text-decoration:none}
+[data-tip]{cursor:help}
+
+/* ── TAB PANELS ── */
+.panel-wrap{display:flex;flex:1;overflow:hidden}
+.tab-panel{display:none;flex:1;overflow:hidden;flex-direction:column}
+.tab-panel.active{display:flex}
+.tab-panel .main{flex:1}
+</style>
+</head>
+<body>
+<div id="tt"><b id="ttt"></b><s id="ttb"></s></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">TRF 광학 통합 분석기</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">📏 센서-스트립 거리</div>
+    <div class="tab" onclick="switchTab(1)">🛡 차광 분석</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 0 : 거리 시뮬레이터
+     ════════════════════════════════════════════ -->
+<div class="panel-wrap">
+<div class="tab-panel active" id="panel0">
+<div class="main">
+
+  <!-- sidebar -->
+  <div class="sidebar">
+    <div class="cg">
+      <div class="cg-t">거리 &amp; 광학계</div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="센서-스트립 거리 d|렌즈와 스트립 사이 거리(mm). 2배 멀면 신호 1/4 감소.">센서-스트립 거리 d</span>
+          <span class="cv" id="vd">5.0 mm</span>
+        </div>
+        <input type="range" id="rd" min="1" max="30" step="0.5" value="5" oninput="goD()">
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="렌즈 반경 r|집광 렌즈 반경(mm). r² 에 비례해 집광 효율 증가.">렌즈 반경 r</span>
+          <span class="cv" id="vr">3.0 mm</span>
+        </div>
+        <input type="range" id="rr" min="0.5" max="10" step="0.5" value="3" oninput="goD()">
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="광원 파워|UV LED 출력(상대값). 신호 세기에 선형 비례.">광원 파워 (a.u.)</span>
+          <span class="cv" id="vpw">80</span>
+        </div>
+        <input type="range" id="rpw" min="10" max="200" value="80" oninput="goD()">
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="T-line 반사율 R|Eu³⁺ 입자 반사율. 양성일수록 높음(0.05~0.9).">T-line 반사율 R</span>
+          <span class="cv" id="vR">0.40</span>
+        </div>
+        <input type="range" id="rR" min="0.05" max="0.90" step="0.05" value="0.40" oninput="goD()">
+      </div>
+    </div>
+    <div class="cg">
+      <div class="cg-t">스트립 구조</div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="T-line 폭|T-라인 폭(μm). 좁을수록 고분해능이나 신호 감소.">T-line 폭 (μm)</span>
+          <span class="cv" id="vtw">800</span>
+        </div>
+        <input type="range" id="rtw" min="200" max="2000" step="100" value="800" oninput="goD()">
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="T-C line 간격|T-라인과 C-라인 사이 거리(mm). 빔 스팟보다 커야 독립 측정 가능.">T-C line 간격 (mm)</span>
+          <span class="cv" id="vtc">3.0</span>
+        </div>
+        <input type="range" id="rtc" min="1" max="8" step="0.5" value="3" oninput="goD()">
+      </div>
+    </div>
+    <div class="cg">
+      <div class="cg-t">측정값</div>
+      <div class="mcards">
+        <div class="mc g" data-tip="집광 효율 η|η=r²/(4d²). 렌즈에 포집되는 빛의 비율.">
+          <div class="mv" id="meta">--</div><div class="ml">집광 효율 η</div>
+        </div>
+        <div class="mc o" data-tip="상대 신호 강도|파워×η×반사율.">
+          <div class="mv" id="msig">--</div><div class="ml">상대 신호 강도</div>
+        </div>
+        <div class="mc b" data-tip="개구수 NA|NA=r/√(r²+d²). 0.3 이상 양호.">
+          <div class="mv" id="mna">--</div><div class="ml">개구수 NA</div>
+        </div>
+        <div class="mc o" id="mcsep" data-tip="T/C 분리도|두 피크의 분리 정도. 80% 이상 양호.">
+          <div class="mv" id="msep">--</div><div class="ml">T/C 분리도</div>
+        </div>
+        <div class="mc b w" data-tip="빔 스팟 직경|스트립 위 빔 크기. T/C 간격보다 작아야 독립 측정 가능.">
+          <div class="mv" id="mspot">--</div><div class="ml">빔 스팟 직경</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- charts -->
+  <div class="content">
+    <div class="cc">
+      <div class="ct">광학 단면도 — 거리에 따른 집광 각도 변화</div>
+      <canvas id="copt"></canvas>
+    </div>
+    <div class="crow">
+      <div class="cc">
+        <div class="ct">거리 → 신호 강도 (역제곱 법칙)</div>
+        <canvas id="csig"></canvas>
+        <div class="sub">신호 ∝ 1/d²  —  거리 2배 → 신호 4배 감소</div>
+      </div>
+      <div class="cc">
+        <div class="ct">거리 → 집광 효율 η_COLLECT</div>
+        <canvas id="ceta"></canvas>
+        <div class="sub">η = r² / (4d²)  —  렌즈 클수록, 거리 짧을수록 유리</div>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="ct">T-LINE / C-LINE 검출기 수신 프로파일 (현재 거리 기준)</div>
+      <canvas id="cprof"></canvas>
+      <div id="wbox" class="wb">로딩중...</div>
+    </div>
+    <div class="cc">
+      <div class="ct">거리별 T-LINE / C-LINE 분리 능력 (CROSSTALK)</div>
+      <canvas id="cxtalk"></canvas>
+      <div class="sub">거리 멀수록 빔 퍼짐 → 두 라인 겹침 → Crosstalk 증가</div>
+    </div>
+  </div>
+
+</div><!-- main -->
+</div><!-- panel0 -->
+
+<!-- ════════════════════════════════════════════
+     TAB 1 : 차광 분석
+     ════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel1">
+<div class="main">
+
+  <!-- sidebar -->
+  <div class="sidebar">
+    <div class="cg">
+      <div class="cg-t">파라미터 설정</div>
+      <div class="ci">
+        <span class="cl" style="display:block;margin-bottom:4px" data-tip="광원 유형|종류에 따라 TRF 억제율과 필요 차광률이 달라집니다.">광원 유형</span>
+        <select id="sel_lt" onchange="goS()" data-tip="광원 유형 선택|자가형광: TRF 99% 억제. AC 형광등: TRF 40% 억제. DC 태양광/LED: TRF 억제 불가.">
+          <option value="strip">스트립 자가형광 (τ≈5ns)</option>
+          <option value="ac">AC 형광등 (100Hz)</option>
+          <option value="dc">DC 태양광 / LED</option>
+        </select>
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="주변광 강도|Eu 신호 대비 주변광 상대 세기. 100이면 주변광=Eu 신호 크기.">주변광 강도</span>
+          <span class="cv" id="vamb">30</span>
+        </div>
+        <input type="range" id="ramb" min="1" max="100" value="30" oninput="goS()" data-tip="주변광 강도 (1~100)|강할수록 더 높은 차광률이 필요합니다.">
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="물리적 차광률|케이스·암실 구조로 주변광을 차단하는 비율. 80%이면 100 중 80 차단.">차광률 %</span>
+          <span class="cv" id="vsh">80%</span>
+        </div>
+        <input type="range" id="rsh" min="0" max="99" value="80" oninput="goS()" data-tip="차광률 (0~99%)|0%: 개방. 80%: 일반 케이스. 95%: 양호. 99%: 정밀 암실.">
+      </div>
+      <div class="ci">
+        <div class="ch">
+          <span class="cl" data-tip="지연시간 t_d|AC 광원에서 t_d가 길면 배경 억제 개선. DC 광원에는 효과 없음.">t_d (μs)</span>
+          <span class="cv" id="vtd">100μs</span>
+        </div>
+        <input type="range" id="rtd" min="10" max="500" value="100" oninput="goS()" data-tip="지연시간 t_d (10~500μs)|AC 형광등에서 t_d를 길게 하면 깜빡임 주기 회피 가능.">
+      </div>
+    </div>
+
+    <div class="cg">
+      <div class="cg-t">측정값</div>
+      <div class="mcards">
+        <div class="mc g" data-tip="TRF 억제율|시간분해형광으로 억제 가능한 주변광 비율. 자가형광 99%, AC 40%, DC 0%.">
+          <div class="mv" id="mtrf">--</div><div class="ml">TRF 억제율</div>
+        </div>
+        <div class="mc o" data-tip="잔여 주변광|차광+TRF 후 남은 주변광. 이 값이 신호(100)보다 작을수록 좋음.">
+          <div class="mv" id="mamb">--</div><div class="ml">잔여 주변광</div>
+        </div>
+        <div class="mc b w" data-tip="최종 SNR|신호(100)/잔여주변광. ≥10 측정가능, ≥30 양호, ≥100 우수.">
+          <div class="mv" id="msnr" style="font-size:22px">--</div><div class="ml">최종 SNR</div>
+        </div>
+      </div>
+      <div id="rec_msg" style="margin-top:8px;background:#16192a;border-radius:4px;padding:8px;font-size:11px;line-height:1.8;color:#8898b0"></div>
+    </div>
+
+    <div class="cg">
+      <div class="cg-t">차광 필요성 요약</div>
+      <div style="font-size:11px;line-height:2.2;color:#8898b0">
+        <div data-tip="스트립 자가형광 → 차광 불필요|τ≈5ns 자가형광은 t_d 100μs면 완전 소멸. TRF만으로 99% 억제.">
+          <span class="badge bg">✓ TRF</span>자가형광 → 완전 억제
+        </div>
+        <div data-tip="AC 형광등 → TRF+차광 필요|100Hz AC는 TRF로 40% 억제, 나머지는 물리적 차광 필요.">
+          <span class="badge by">△ 부분</span>AC 형광등 → TRF+차광
+        </div>
+        <div data-tip="DC 태양광/LED → 차광 필수|연속광은 게이트에도 상존. TRF 억제 불가. 95% 이상 차광 필수.">
+          <span class="badge br">✗ 불가</span>DC 태양광 → 차광 필수(≥95%)
+        </div>
+      </div>
+      <div style="margin-top:10px;background:#16192a;border-radius:4px;padding:8px;font-size:11px;line-height:1.8;color:#6070a0">
+        <div style="color:#7eb8f7;font-weight:600;margin-bottom:2px">SNR 판정</div>
+        <div><span style="color:#f07070">■</span> &lt;10 : 측정 불가</div>
+        <div><span style="color:#f0b93a">■</span> 10~30 : 간신히 가능</div>
+        <div><span style="color:#4caf7d">■</span> 30~100 : 양호</div>
+        <div><span style="color:#7eb8f7">■</span> &gt;100 : 우수</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- charts -->
+  <div class="content">
+    <div class="crow">
+      <div class="cc" style="flex:1.3">
+        <div class="ct">광원 유형별 TRF 억제 vs 필요 차광</div>
+        <canvas id="cltypes" height="160"></canvas>
+      </div>
+      <div class="cc" style="flex:1">
+        <div class="ct">SNR vs 차광률 곡선</div>
+        <canvas id="cshield" height="160"></canvas>
+      </div>
+    </div>
+    <div class="crow">
+      <div class="cc">
+        <div class="ct">SNR vs 주변광 강도 (차광률별)</div>
+        <canvas id="camb" height="160"></canvas>
+      </div>
+      <div class="cc">
+        <div class="ct">TRF 타이밍과 주변광 관계</div>
+        <canvas id="ctiming" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- main -->
+</div><!-- panel1 -->
+</div><!-- panel-wrap -->
+
+<script>
+// ── TOOLTIP ─────────────────────────────────────────────────
+var tt=document.getElementById('tt'),ttt=document.getElementById('ttt'),ttb=document.getElementById('ttb');
+document.addEventListener('mouseover',function(e){
+  var el=e.target;
+  for(var i=0;i<6;i++){
+    if(!el||el===document.body)break;
+    if(el.getAttribute&&el.getAttribute('data-tip')){
+      var p=el.getAttribute('data-tip').split('|');
+      ttt.textContent=p[0]||'';ttb.textContent=p[1]||'';tt.style.opacity='1';return;
+    }
+    el=el.parentElement;
+  }
+  tt.style.opacity='0';
+});
+document.addEventListener('mousemove',function(e){
+  var W=tt.offsetWidth,H=tt.offsetHeight,vw=window.innerWidth,vh=window.innerHeight;
+  tt.style.left=Math.min(e.clientX+14,vw-W-8)+'px';
+  tt.style.top=Math.min(e.clientY+14,vh-H-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  if(!e.relatedTarget||!e.relatedTarget.closest('[data-tip]'))tt.style.opacity='0';
+});
+
+// ── TAB SWITCH ───────────────────────────────────────────────
+function switchTab(n){
+  var tabs=document.querySelectorAll('.tab');
+  var panels=document.querySelectorAll('.tab-panel');
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].classList.toggle('active',i===n);
+    panels[i].classList.toggle('active',i===n);
+  }
+  setTimeout(function(){if(n===0)goD();else goS();},80);
+}
+
+// ── COLOR ────────────────────────────────────────────────────
+var C={grid:'#252836',axis:'#3a3d52',txt:'#505868',txt2:'#8898bb',
+  blue:'#4a90d9',green:'#3caf70',orange:'#f0a030',purple:'#9060d0',red:'#e05050',yellow:'#f0c030'};
+
+function gv(id){return parseFloat(document.getElementById(id).value);}
+function sv(id,v){document.getElementById(id).textContent=v;}
+function pw(id){var el=document.getElementById(id);return Math.max(280,(el.parentElement.clientWidth||600)-20);}
+
+// ════════════════════════════════════════════
+// TAB 0 : 거리 시뮬레이터
+// ════════════════════════════════════════════
+function goD(){
+  var d=gv('rd'),r=gv('rr'),pw_=gv('rpw'),R=gv('rR'),tc=gv('rtc');
+  sv('vd',d.toFixed(1)+' mm');sv('vr',r.toFixed(1)+' mm');
+  sv('vpw',Math.round(pw_));sv('vR',R.toFixed(2));
+  sv('vtw',Math.round(gv('rtw')));sv('vtc',tc.toFixed(1));
+  var eta=r*r/(4*d*d),sig=pw_*eta*R,na=r/Math.sqrt(r*r+d*d);
+  var spot=2*(r+d*0.15),sigma=d*0.15;
+  var hv=tc/2,valley=Math.exp(-(hv*hv)/(2*sigma*sigma));
+  var sep=Math.max(0,Math.min(100,(1-valley)*100));
+  sv('meta',(eta*100).toFixed(2)+'%');sv('msig',sig.toFixed(1));sv('mna',na.toFixed(3));sv('mspot',spot.toFixed(2)+' mm');
+  var sepEl=document.getElementById('msep'),mcEl=document.getElementById('mcsep');
+  sepEl.textContent=Math.round(sep)+'%';
+  if(sep>80){sepEl.style.color=C.green;mcEl.style.borderLeftColor=C.green;}
+  else if(sep>50){sepEl.style.color=C.orange;mcEl.style.borderLeftColor=C.orange;}
+  else{sepEl.style.color=C.red;mcEl.style.borderLeftColor=C.red;}
+  var wb=document.getElementById('wbox');
+  if(sep<50){wb.className='wb r';wb.textContent='⚠ 분리도 '+Math.round(sep)+'% — T/C 구분 불가. 거리를 줄이거나 렌즈를 키우세요.';}
+  else if(sep<80){wb.className='wb';wb.textContent='△ 분리도 '+Math.round(sep)+'% — T/C 구분 약함.';}
+  else{wb.className='wb g';wb.textContent='✓ 분리도 '+Math.round(sep)+'% — T/C 명확히 분리됨.';}
+  dOpt(d,r,tc,na,spot);dSig(d,r,pw_,R);dEta(d,r);dProf(d,R,tc,sigma,sep);dXtalk(d,tc);
+}
+
+function axes(c,xs,xe,yb,yt){c.strokeStyle=C.axis;c.lineWidth=1;c.beginPath();c.moveTo(xs,yb);c.lineTo(xe,yb);c.stroke();c.beginPath();c.moveTo(xs,yt);c.lineTo(xs,yb);c.stroke();}
+function gridH(c,xs,xe,yb,yt,fracs,labels){for(var i=0;i<fracs.length;i++){var y=yb-(yb-yt)*fracs[i];c.strokeStyle=C.grid;c.lineWidth=1;c.beginPath();c.moveTo(xs,y);c.lineTo(xe,y);c.stroke();c.fillStyle=C.txt;c.font='9px Arial';c.textAlign='right';c.fillText(labels[i],xs-2,y+3);}}
+function curMark(c,xc,yc){c.fillStyle=C.yellow;c.beginPath();c.arc(xc,yc,5,0,2*Math.PI);c.fill();}
+function vline(c,xc,yt,yb){c.strokeStyle='rgba(240,192,48,.35)';c.lineWidth=1;c.setLineDash([3,3]);c.beginPath();c.moveTo(xc,yt);c.lineTo(xc,yb);c.stroke();c.setLineDash([]);}
+function xTicks(c,xs,xe,yb,dmin,dmax){var tk=[0,5,10,15,20,25,30];c.textAlign='center';c.fillStyle=C.txt;c.font='9px Arial';for(var i=0;i<tk.length;i++){var x=xs+(tk[i]-dmin)/(dmax-dmin)*(xe-xs);if(x<xs)continue;c.fillText(tk[i],x,yb+11);}c.fillStyle=C.txt2;c.textAlign='right';c.fillText('거리 d (mm)',xe,yb+22);}
+
+function dOpt(d,r,tc,na,spot){
+  var id='copt',W=pw(id),el=document.getElementById(id);el.width=W;el.height=130;
+  var c=el.getContext('2d');c.clearRect(0,0,W,130);
+  var cx=W*0.42,sy=14,sty=108,sc=Math.min(18,W*0.025);
+  c.fillStyle='#192214';c.fillRect(0,sty,W,22);c.fillStyle='#706050';c.font='9px Arial';c.textAlign='left';c.fillText('스트립 패드',8,sty+13);
+  var tcp=tc*sc*0.65;
+  c.fillStyle='rgba(240,160,48,.45)';c.fillRect(cx-tcp/2-5,sty,10,22);c.strokeStyle=C.orange;c.lineWidth=1.5;c.strokeRect(cx-tcp/2-5,sty,10,22);
+  c.fillStyle='rgba(74,144,217,.4)';c.fillRect(cx+tcp/2-5,sty,10,22);c.strokeStyle=C.blue;c.lineWidth=1.5;c.strokeRect(cx+tcp/2-5,sty,10,22);
+  c.fillStyle=C.orange;c.font='bold 10px Arial';c.textAlign='center';c.fillText('T',cx-tcp/2,sty-3);c.fillStyle=C.blue;c.fillText('C',cx+tcp/2,sty-3);
+  var srw=Math.min(r*sc*2.4,W*0.4);
+  c.fillStyle='#152038';c.fillRect(cx-srw/2,sy,srw,12);c.strokeStyle=C.blue;c.lineWidth=2;c.strokeRect(cx-srw/2,sy,srw,12);
+  c.fillStyle='#7eb8f7';c.font='9px Arial';c.textAlign='center';c.fillText('검출기 (r='+r+'mm)',cx,sy-3);
+  c.fillStyle='rgba(74,144,217,.07)';c.beginPath();c.moveTo(cx-srw/2,sy+12);c.lineTo(cx,sty);c.lineTo(cx+srw/2,sy+12);c.closePath();c.fill();
+  c.strokeStyle='rgba(74,144,217,.35)';c.lineWidth=1;c.beginPath();c.moveTo(cx-srw/2,sy+12);c.lineTo(cx,sty);c.stroke();c.beginPath();c.moveTo(cx+srw/2,sy+12);c.lineTo(cx,sty);c.stroke();
+  var sr=Math.max(3,spot*sc*0.5);
+  c.fillStyle='rgba(240,192,60,.15)';c.beginPath();c.arc(cx,sty,sr,0,2*Math.PI);c.fill();
+  c.strokeStyle='rgba(240,192,60,.55)';c.lineWidth=1;c.setLineDash([2,2]);c.beginPath();c.arc(cx,sty,sr,0,2*Math.PI);c.stroke();c.setLineDash([]);
+  c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText('빔Ø'+spot.toFixed(2)+'mm',cx+sr+3,sty+4);
+  var ax=cx+srw/2+20;c.strokeStyle='#4a6080';c.lineWidth=1;c.setLineDash([3,3]);c.beginPath();c.moveTo(ax,sy+12);c.lineTo(ax,sty);c.stroke();c.setLineDash([]);
+  c.fillStyle='#7090b0';c.font='10px Arial';c.textAlign='left';c.fillText('d='+d+'mm',ax+4,(sy+sty)/2-6);c.fillText('NA='+na.toFixed(3),ax+4,(sy+sty)/2+8);
+  c.fillStyle='#507090';c.font='9px Arial';c.textAlign='right';c.fillText('θ='+(Math.atan2(r,d)*180/Math.PI).toFixed(1)+'°',cx-srw/2-4,(sy+sty)/2+4);
+}
+function dSig(dc,r,pw_,R){
+  var id='csig',W=pw(id),el=document.getElementById(id);el.width=W;el.height=130;
+  var c=el.getContext('2d');c.clearRect(0,0,W,130);
+  var xs=50,xe=W-10,yb=112,yt=10,dm=0.5,dx=30,ref=pw_*(r*r/(4*dm*dm))*R;
+  gridH(c,xs,xe,yb,yt,[.25,.5,.75,1],[(ref*.25).toFixed(1),(ref*.5).toFixed(1),(ref*.75).toFixed(1),ref.toFixed(1)]);
+  axes(c,xs,xe,yb,yt);
+  c.strokeStyle=C.blue;c.lineWidth=2;c.beginPath();
+  for(var i=0;i<=200;i++){var di=dm+i*(dx-dm)/200,x=xs+i*(xe-xs)/200,y=yb-(yb-yt)*(pw_*(r*r/(4*di*di))*R/ref);i===0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+  var sc2=pw_*(r*r/(4*dc*dc))*R,xc=xs+(dc-dm)/(dx-dm)*(xe-xs),yc=yb-(yb-yt)*(sc2/ref);
+  vline(c,xc,yt,yb);curMark(c,xc,yc);c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText(sc2.toFixed(1),xc+7,yc-3);
+  xTicks(c,xs,xe,yb,dm,dx);
+}
+function dEta(dc,r){
+  var id='ceta',W=pw(id),el=document.getElementById(id);el.width=W;el.height=130;
+  var c=el.getContext('2d');c.clearRect(0,0,W,130);
+  var xs=54,xe=W-10,yb=112,yt=10,dm=0.5,dx=30,ref=r*r/(4*dm*dm);
+  gridH(c,xs,xe,yb,yt,[.25,.5,.75,1],[(ref*.25*100).toFixed(1)+'%',(ref*.5*100).toFixed(1)+'%',(ref*.75*100).toFixed(1)+'%',(ref*100).toFixed(1)+'%']);
+  axes(c,xs,xe,yb,yt);
+  c.strokeStyle=C.green;c.lineWidth=2;c.beginPath();
+  for(var i=0;i<=200;i++){var di=dm+i*(dx-dm)/200,x=xs+i*(xe-xs)/200,y=yb-(yb-yt)*((r*r/(4*di*di))/ref);i===0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+  var ec=r*r/(4*dc*dc),xc=xs+(dc-dm)/(dx-dm)*(xe-xs),yc=yb-(yb-yt)*(ec/ref);
+  vline(c,xc,yt,yb);curMark(c,xc,yc);c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText((ec*100).toFixed(2)+'%',xc+7,yc-3);
+  xTicks(c,xs,xe,yb,dm,dx);
+}
+function dProf(d,R,tc,sigma,sep){
+  var id='cprof',W=pw(id),el=document.getElementById(id);el.width=W;el.height=160;
+  var c=el.getContext('2d');c.clearRect(0,0,W,160);
+  var xs=54,xe=W-10,yb=140,yt=14,RNG=6;
+  var toX=function(p){return xs+(p+RNG)/(2*RNG)*(xe-xs);};
+  var gf=function(pos){var a=pos+tc/2,b=pos-tc/2;return 0.02+R*Math.exp(-(a*a)/(2*sigma*sigma))+0.5*Math.exp(-(b*b)/(2*sigma*sigma));};
+  var mv=gf(-tc/2)*1.06;
+  gridH(c,xs,xe,yb,yt,[.25,.5,.75,1],[(mv*.25).toFixed(3),(mv*.5).toFixed(3),(mv*.75).toFixed(3),mv.toFixed(3)]);
+  axes(c,xs,xe,yb,yt);
+  c.fillStyle='rgba(240,160,48,.09)';c.beginPath();c.moveTo(toX(-RNG),yb);
+  for(var i=0;i<=300;i++){var pos=-RNG+i*(2*RNG/300);c.lineTo(toX(pos),yb-(yb-yt)*gf(pos)/mv);}
+  c.lineTo(toX(RNG),yb);c.closePath();c.fill();
+  c.strokeStyle=C.orange;c.lineWidth=2.5;c.beginPath();
+  for(var i=0;i<=300;i++){var pos=-RNG+i*(2*RNG/300),x=toX(pos),y=yb-(yb-yt)*gf(pos)/mv;i===0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+  var xT=toX(-tc/2),xC=toX(tc/2);
+  c.strokeStyle='rgba(240,160,48,.45)';c.lineWidth=1;c.setLineDash([2,3]);c.beginPath();c.moveTo(xT,yt);c.lineTo(xT,yb);c.stroke();
+  c.strokeStyle='rgba(74,144,217,.45)';c.beginPath();c.moveTo(xC,yt);c.lineTo(xC,yb);c.stroke();c.setLineDash([]);
+  c.fillStyle=C.orange;c.font='bold 9px Arial';c.textAlign='center';c.fillText('T',xT,yt+9);c.fillStyle=C.blue;c.fillText('C',xC,yt+9);
+  var col=sep>80?C.green:sep>50?C.orange:C.red;
+  c.fillStyle=col;c.font='bold 11px Arial';c.textAlign='right';c.fillText('분리도: '+Math.round(sep)+'%',xe-4,yt+12);
+  c.textAlign='center';c.fillStyle=C.txt;c.font='9px Arial';
+  for(var v=-4;v<=4;v+=2){c.fillText(v+'mm',toX(v),yb+11);}
+  c.fillStyle=C.txt2;c.textAlign='right';c.fillText('스트립 위치 (mm)',xe,yb+22);
+}
+function dXtalk(dc,tc){
+  var id='cxtalk',W=pw(id),el=document.getElementById(id);el.width=W;el.height=155;
+  var c=el.getContext('2d');c.clearRect(0,0,W,155);
+  var xs=50,xe=W-10,yb=132,yt=10,dm=0.5,dx=30;
+  var refs=[[100,C.grid,'100%'],[70,'rgba(240,160,48,.28)','70%'],[30,'rgba(224,80,80,.25)','30%']];
+  for(var i=0;i<refs.length;i++){var y=yb-(yb-yt)*refs[i][0]/100;c.strokeStyle=refs[i][1];c.lineWidth=1;c.beginPath();c.moveTo(xs,y);c.lineTo(xe,y);c.stroke();c.fillStyle=refs[i][0]===70?C.orange:refs[i][0]===30?C.red:C.txt;c.font='9px Arial';c.textAlign='right';c.fillText(refs[i][2],xs-2,y+3);}
+  c.fillStyle='rgba(240,160,48,.6)';c.font='9px Arial';c.textAlign='left';c.fillText('양호 경계 70%',xs+4,yb-(yb-yt)*.70+10);
+  c.fillStyle='rgba(224,80,80,.6)';c.fillText('불가 경계 30%',xs+4,yb-(yb-yt)*.30+10);
+  axes(c,xs,xe,yb,yt);
+  c.fillStyle='rgba(144,96,208,.06)';c.beginPath();c.moveTo(xs,yb);
+  for(var i=0;i<=200;i++){var di=dm+i*(dx-dm)/200,si=di*0.15,hv=tc/2,vl=Math.exp(-(hv*hv)/(2*si*si)),sp=Math.max(0,Math.min(100,(1-vl)*100));c.lineTo(xs+i*(xe-xs)/200,yb-(yb-yt)*sp/100);}
+  c.lineTo(xe,yb);c.closePath();c.fill();
+  c.strokeStyle=C.purple;c.lineWidth=2.5;c.beginPath();
+  for(var i=0;i<=200;i++){var di=dm+i*(dx-dm)/200,si=di*0.15,hv=tc/2,vl=Math.exp(-(hv*hv)/(2*si*si)),sp=Math.max(0,Math.min(100,(1-vl)*100)),x=xs+i*(xe-xs)/200,y=yb-(yb-yt)*sp/100;i===0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+  var sc2=dc*0.15,hv2=tc/2,vl2=Math.exp(-(hv2*hv2)/(2*sc2*sc2)),sepc=Math.max(0,Math.min(100,(1-vl2)*100));
+  var xc=xs+(dc-dm)/(dx-dm)*(xe-xs),yc=yb-(yb-yt)*sepc/100;
+  vline(c,xc,yt,yb);curMark(c,xc,yc);c.fillStyle=C.yellow;c.font='9px Arial';c.textAlign='left';c.fillText(sepc.toFixed(1)+'%',xc+7,yc-3);
+  xTicks(c,xs,xe,yb,dm,dx);
+}
+
+// ════════════════════════════════════════════
+// TAB 1 : 차광 분석
+// ════════════════════════════════════════════
+var TRF_S={strip:0.999,ac:0.40,dc:0.0};
+
+function goS(){
+  var lt=document.getElementById('sel_lt').value;
+  var amb=parseInt(document.getElementById('ramb').value);
+  var sh=parseInt(document.getElementById('rsh').value);
+  var td=parseInt(document.getElementById('rtd').value);
+  sv('vamb',amb);sv('vsh',sh+'%');sv('vtd',td+'μs');
+  var ts=TRF_S[lt]||0;
+  var amb_a=amb*(1-sh/100)*(1-ts);
+  var snr=100/Math.max(0.1,amb_a);
+  sv('mtrf',(ts*100).toFixed(0)+'%');sv('mamb',amb_a.toFixed(2));
+  var snrEl=document.getElementById('msnr');
+  snrEl.textContent=snr>=100?snr.toFixed(0):snr.toFixed(1);
+  snrEl.style.color=snr<10?'#f07070':snr<30?'#f0b93a':snr<100?'#4caf7d':'#7eb8f7';
+  var rec={strip:'✅ TRF만으로 충분합니다. 물리적 차광은 선택 사항.',ac:'⚠️ TRF + 차광 80% 이상 권장.',dc:'🚨 차광 95% 이상 필수. TRF만으로는 DC 광원 억제 불가.'}[lt];
+  var qstr=snr<10?'차광률을 높이세요':snr<30?'차광 개선 권장':'적정 수준';
+  var qcol=snr<10?'#f07070':snr<30?'#f0b93a':'#4caf7d';
+  document.getElementById('rec_msg').innerHTML='<span style="color:#7eb8f7;font-weight:600">권장:</span> '+rec+'<br><span style="color:'+qcol+'">현재 SNR '+snrEl.textContent+' → '+qstr+'</span>';
+  dLtypes(lt);dShield(lt,amb,sh);dAmb(lt,amb);dTiming(lt,td);
+}
+
+function pwS(id){var el=document.getElementById(id);return Math.max(200,(el.parentElement.clientWidth||500)-20);}
+
+function dLtypes(curLt){
+  var id='cltypes',W=pwS(id),el=document.getElementById(id);el.width=W;el.height=160;
+  var c=el.getContext('2d');c.clearRect(0,0,W,160);
+  var types=[
+    {key:'strip',name:'스트립 자가형광',trf:99,sh:0,col:'#4caf7d'},
+    {key:'ac',name:'AC 형광등 100Hz',trf:40,sh:80,col:'#f0b93a'},
+    {key:'dc',name:'DC 태양광',trf:0,sh:95,col:'#f07070'},
+    {key:'dc',name:'DC LED',trf:0,sh:90,col:'#f07070'}
+  ];
+  var xS=120,bH=20,gap=12,bW=Math.min(120,(W-xS-20)/2);
+  c.fillStyle='#5a6070';c.font='9px Arial';
+  c.fillText('← TRF 억제율',xS,155);c.fillText('필요 차광률 →',xS+bW+12,155);
+  types.forEach(function(t,i){
+    var y=8+i*(bH+gap),hi=(t.key===curLt);
+    c.fillStyle=hi?'#d0d4e8':'#6070a0';c.font=(hi?'bold ':'')+'11px Arial';c.textAlign='right';c.fillText(t.name,xS-5,y+14);
+    c.fillStyle='#1e2130';c.fillRect(xS,y,bW,bH);
+    c.fillStyle=t.col+(hi?'cc':'66');c.fillRect(xS,y,t.trf*bW/100,bH);
+    c.fillStyle=hi?t.col:'#6070a0';c.font='10px Arial';c.textAlign='left';c.fillText('TRF '+t.trf+'%',xS+3,y+14);
+    c.fillStyle='#1e2130';c.fillRect(xS+bW+10,y,bW,bH);
+    c.fillStyle='#4060a0'+(hi?'cc':'66');c.fillRect(xS+bW+10,y,t.sh*bW/100,bH);
+    c.fillStyle=hi?'#8898bb':'#5060a0';c.fillText('차광 '+t.sh+'%',xS+bW+13,y+14);
+    if(hi){c.strokeStyle=t.col;c.lineWidth=1.5;c.strokeRect(xS-1,y-1,bW*2+12,bH+2);}
+  });
+}
+
+function dShield(lt,amb,sh){
+  var id='cshield',W=pwS(id),el=document.getElementById(id);el.width=W;el.height=160;
+  var c=el.getContext('2d');c.clearRect(0,0,W,160);
+  var xs=44,xe=W-12,yb=138,yt=12,ts=TRF_S[lt]||0;
+  [10,30,100].forEach(function(snr){
+    var y=yb-(yb-yt)*Math.min(snr/120,1);
+    c.strokeStyle='#252836';c.lineWidth=1;c.beginPath();c.moveTo(xs,y);c.lineTo(xe,y);c.stroke();
+    c.fillStyle='#444';c.font='9px Arial';c.textAlign='right';c.fillText(snr,xs-2,y+3);
+  });
+  axes(c,xs,xe,yb,yt);
+  var yth10=yb-(yb-yt)*Math.min(10/120,1),yth30=yb-(yb-yt)*Math.min(30/120,1);
+  c.strokeStyle='#f07070';c.lineWidth=1;c.setLineDash([4,3]);c.beginPath();c.moveTo(xs,yth10);c.lineTo(xe,yth10);c.stroke();
+  c.strokeStyle='#4caf7d';c.beginPath();c.moveTo(xs,yth30);c.lineTo(xe,yth30);c.stroke();c.setLineDash([]);
+  c.strokeStyle=C.blue;c.lineWidth=2;c.beginPath();
+  for(var i=0;i<=100;i++){var a=amb*(1-i/100)*(1-ts),snr=100/Math.max(0.01,a),x=xs+i*(xe-xs)/100,y=yb-(yb-yt)*Math.min(snr/120,1);i===0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+  var ac=amb*(1-sh/100)*(1-ts),snrc=100/Math.max(0.01,ac);
+  var xc=xs+sh*(xe-xs)/100,yc=yb-(yb-yt)*Math.min(snrc/120,1);
+  c.fillStyle=C.yellow;c.beginPath();c.arc(xc,yc,6,0,2*Math.PI);c.fill();
+  c.fillStyle=C.yellow;c.font='10px Arial';c.textAlign='left';c.fillText('SNR='+snrc.toFixed(1),xc+9,yc-4);
+  c.textAlign='center';c.fillStyle=C.txt;c.font='9px Arial';
+  [0,20,40,60,80,100].forEach(function(v){c.fillText(v,xs+v*(xe-xs)/100,yb+12);});
+  c.fillStyle=C.txt2;c.textAlign='right';c.fillText('차광률(%) →',xe,yb+22);
+}
+
+function dAmb(lt,curAmb){
+  var id='camb',W=pwS(id),el=document.getElementById(id);el.width=W;el.height=160;
+  var c=el.getContext('2d');c.clearRect(0,0,W,160);
+  var xs=44,xe=W-12,yb=138,yt=12,ts=TRF_S[lt]||0;
+  var shLv=[{s:0,col:'#f07070'},{s:50,col:'#f0b93a'},{s:80,col:'#60a0d0'},{s:95,col:'#4caf7d'},{s:99,col:'#7eb8f7'}];
+  [10,30,100].forEach(function(snr){var y=yb-(yb-yt)*Math.min(snr/120,1);c.strokeStyle='#252836';c.lineWidth=1;c.beginPath();c.moveTo(xs,y);c.lineTo(xe,y);c.stroke();c.fillStyle='#444';c.font='9px Arial';c.textAlign='right';c.fillText(snr,xs-2,y+3);});
+  axes(c,xs,xe,yb,yt);
+  shLv.forEach(function(sh){
+    c.strokeStyle=sh.col;c.lineWidth=1.5;c.beginPath();
+    for(var i=1;i<=100;i++){var a=i*(1-sh.s/100)*(1-ts),snr=100/Math.max(0.01,a),x=xs+(i-1)*(xe-xs)/99,y=yb-(yb-yt)*Math.min(snr/120,1);i===1?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();
+    var la=100*(1-sh.s/100)*(1-ts),ls=100/Math.max(0.01,la);
+    c.fillStyle=sh.col;c.font='9px Arial';c.textAlign='left';c.fillText(sh.s+'%',xe-28,yb-(yb-yt)*Math.min(ls/120,1)-2);
+  });
+  var xAmb=xs+(curAmb-1)*(xe-xs)/99;
+  c.strokeStyle='rgba(240,185,60,.55)';c.lineWidth=1;c.setLineDash([3,3]);c.beginPath();c.moveTo(xAmb,yt);c.lineTo(xAmb,yb);c.stroke();c.setLineDash([]);
+  c.textAlign='center';c.fillStyle=C.txt;c.font='9px Arial';
+  [1,20,40,60,80,100].forEach(function(v){c.fillText(v,xs+(v-1)*(xe-xs)/99,yb+12);});
+  c.fillStyle=C.txt2;c.textAlign='right';c.fillText('주변광 강도 →',xe,yb+22);
+}
+
+function dTiming(lt,td){
+  var id='ctiming',W=pwS(id),el=document.getElementById(id);el.width=W;el.height=160;
+  var c=el.getContext('2d');c.clearRect(0,0,W,160);
+  var xS=68,xE=W-12,yB=148,yT=10,total=1500;
+  var toX=function(t){return xS+(t/total)*(xE-xS);};
+  c.fillStyle='rgba(96,80,200,.7)';c.fillRect(toX(0),yT,toX(1000)-toX(0),18);
+  c.fillStyle='#b0a0e0';c.font='9px Arial';c.textAlign='left';c.fillText('UV 펄스',toX(0)+2,yT+13);
+  c.fillStyle='rgba(60,60,70,.4)';c.fillRect(toX(1000),yT,toX(1000+td)-toX(1000),18);
+  c.fillStyle='#666';c.fillText('지연 '+td+'μs',toX(1000)+2,yT+13);
+  var gW=Math.min(400,total-1000-td);
+  c.fillStyle='rgba(70,130,200,.15)';c.fillRect(toX(1000+td),yT,toX(1000+td+gW)-toX(1000+td),18);
+  c.strokeStyle='#7eb8f7';c.lineWidth=1;c.strokeRect(toX(1000+td),yT,toX(1000+td+gW)-toX(1000+td),18);
+  c.fillStyle='#7eb8f7';c.fillText('게이트',toX(1000+td)+2,yT+13);
+  var rows=[
+    {lbl:'Eu 신호',y:56,col:'#f0b93a',show:true},
+    {lbl:'자가형광',y:86,col:'#f07070',show:true},
+    {lbl:'DC 주변광',y:118,col:'#909090',show:lt==='dc'},
+    {lbl:'AC 광원',y:118,col:'#80b0d0',show:lt==='ac'}
+  ];
+  rows.forEach(function(row){
+    if(!row.show)return;
+    c.fillStyle='#7080a0';c.font='9px Arial';c.textAlign='right';c.fillText(row.lbl,xS-2,row.y+4);
+    c.strokeStyle=row.col;c.lineWidth=2;c.beginPath();
+    if(row.lbl==='Eu 신호'){for(var i=0;i<=300;i++){var t=1000+i*1.67,x=toX(t),y=row.y-22*Math.exp(-(t-1000)/600);i===0?c.moveTo(x,y):c.lineTo(x,y);}}
+    else if(row.lbl==='자가형광'){for(var i=0;i<=100;i++){var t=1000+i*0.5,x=toX(t),y=row.y-20*Math.exp(-(t-1000)/0.005);i===0?c.moveTo(x,y):c.lineTo(x,y);}}
+    else if(row.lbl==='DC 주변광'){c.moveTo(toX(0),row.y-12);c.lineTo(toX(total),row.y-12);}
+    else if(row.lbl==='AC 광원'){for(var i=0;i<=300;i++){var t2=i*(total/300),x=toX(t2),v=Math.max(0,Math.sin(2*Math.PI*t2/10000)),y=row.y-18*v;i===0?c.moveTo(x,y):c.lineTo(x,y);}}
+    c.stroke();
+  });
+  c.fillStyle='rgba(70,130,200,.05)';c.fillRect(toX(1000+td),yT,toX(1000+td+gW)-toX(1000+td),yB-yT);
+  c.font='10px Arial';c.textAlign='left';
+  if(lt==='dc'){c.fillStyle='#f07070';c.fillText('⚠ DC광은 게이트 내에도 상존 → TRF 억제 불가',toX(1000+td)+4,135);}
+  else if(lt==='ac'){c.fillStyle='#f0b93a';c.fillText('AC광은 주기적 → TRF로 부분 억제 가능',toX(1000+td)+4,135);}
+  else{c.fillStyle='#4caf7d';c.fillText('자가형광은 게이트 전에 완전 소멸 → TRF로 100% 억제',toX(1000+td)+4,100);}
+  c.strokeStyle='#333';c.lineWidth=1;c.beginPath();c.moveTo(xS,yB);c.lineTo(xE,yB);c.stroke();
+  c.fillStyle='#555';c.font='9px Arial';c.textAlign='right';c.fillText('μs →',xE,yB+11);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+window.onload=function(){
+  setTimeout(function(){goD();goS();setTimeout(function(){goD();goS();},200);},80);
+};
+window.onresize=function(){setTimeout(function(){goD();goS();},60);};
+</script>
+</body>
+</html>
