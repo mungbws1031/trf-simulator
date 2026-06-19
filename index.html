@@ -43,6 +43,8 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   <div class="tab" onclick="switchTab(4)">④ 시험결과 분석</div>
   <div class="tab" onclick="switchTab(5)">⑤ 센서-스트립 거리</div>
   <div class="tab" onclick="switchTab(6)">⑥ 차광 분석</div>
+  <div class="tab" onclick="switchTab(7)">⑦ 광학계 성능</div>
+  <div class="tab" onclick="switchTab(8)">⑧ 차광 중요성</div>
 </div>
 
 <!-- TAB1: TRF 원리 -->
@@ -281,6 +283,16 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   </div>
 </div>
 
+<!-- TAB7: 광학계 성능 시뮬레이터 -->
+<div id="t7" class="tabcontent" style="padding:0">
+  <iframe src="TRF_광학계_성능_시뮬레이터.html" style="width:100%;height:calc(100vh - 90px);border:none;display:block"></iframe>
+</div>
+
+<!-- TAB8: 차광 중요성 분석기 -->
+<div id="t8" class="tabcontent" style="padding:0">
+  <iframe src="TRF_차광중요성_분석기.html" style="width:100%;height:calc(100vh - 90px);border:none;display:block"></iframe>
+</div>
+
 <script>
 // ── 탭 전환 ─────────────────────────────────────────────────
 function switchTab(n) {
@@ -290,8 +302,8 @@ function switchTab(n) {
   for (var i = 0; i < contents.length; i++) { contents[i].classList.remove('active'); }
   tabs[n-1].classList.add('active');
   document.getElementById('t'+n).classList.add('active');
-  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6];
-  setTimeout(fn[n], 60);
+  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, null];
+  if (fn[n]) setTimeout(fn[n], 60);
 }
 
 // ── TAB1: TRF 원리 ──────────────────────────────────────────
