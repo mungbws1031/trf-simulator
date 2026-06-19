@@ -95,6 +95,14 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
       <div class="chart-desc">💡 Eu³⁺는 빛이 꺼진 후에도 600마이크로초 동안 빛나요. 일반 노이즈은 0.00001마이크로초면 꺼지는데, 이 엄청난 차이 덕분에 노이즈을 걸러낼 수 있어요.</div>
     </div>
   </div>
+  <!-- 타이밍 비교 카드 -->
+  <div class="row">
+    <div class="card" style="flex:1">
+      <h3>⏱ 언제 찍어야 할까? — delay 타이밍 비교</h3>
+      <canvas id="c_timing_cmp" width="860" height="220"></canvas>
+      <div class="chart-desc">💡 세 가지 타이밍을 비교해요. <b>너무 일찍</b> 게이트를 열면 배경 노이즈가 섞이고, <b>너무 늦게</b> 열면 Eu³⁺ 신호도 많이 사라져요. <b>적절한 타이밍</b>에서만 노이즈 없이 신호를 최대한 많이 잡을 수 있어요.</div>
+    </div>
+  </div>
   <div class="row">
     <div class="card" style="flex:1;min-width:260px">
       <h3>신호 수집 효율 η (t_d, t_g)</h3>
@@ -490,6 +498,153 @@ function switchTab(n) {
 }
 
 // ── TAB1: TRF 원리 ──────────────────────────────────────────
+// ── 타이밍 비교 ────────────────────────────────────────────────
+function drawTimingCmp() {
+  var cv = document.getElementById('c_timing_cmp');
+  if (!cv) return;
+  var c = cv.getContext('2d');
+  var W=860, H=220;
+  c.clearRect(0,0,W,H); c.fillStyle='#f4f7ff'; c.fillRect(0,0,W,H);
+
+  var tauBG=0.01, tauEu=80;
+  var scenarios = [
+    {label:'❌ 너무 일찍', delayEnd:5,  gateEnd:55, color:'#c03030', verdict:'노이즈가 섞여 신호가 오염돼요'},
+    {label:'✅ 적절한 타이밍', delayEnd:35, gateEnd:115, color:'#1a8040', verdict:'노이즈=0, 신호 최대 — 최적!'},
+    {label:'⚠️ 너무 늦게', delayEnd:100, gateEnd:160, color:'#c07818', verdict:'노이즈는 없지만 신호도 너무 줄었어요'}
+  ];
+
+  var panelW = Math.floor(W/3);
+  var totalT = 180, pulseEnd = 12;
+  var xO=28, xE=panelW-10, yB=H-38, yT=32;
+
+  scenarios.forEach(function(sc, si) {
+    var ox = si * panelW;  // 패널 x 오프셋
+    var px = function(t){ return ox + xO + (t/totalT)*(xE-xO); };
+    var py = function(amp){ return yB - amp; };
+
+    // 패널 배경
+    c.fillStyle = si===1 ? 'rgba(26,128,64,0.04)' : (si===0 ? 'rgba(192,48,48,0.03)' : 'rgba(192,120,24,0.03)');
+    c.fillRect(ox+1, 0, panelW-2, H);
+
+    // delay 구간 (회색)
+    var dxS = px(pulseEnd), dxE = px(sc.delayEnd);
+    c.fillStyle='rgba(140,140,160,0.18)'; c.fillRect(dxS, yT, dxE-dxS, yB-yT);
+
+    // gate 구간 (연초록)
+    var gxS = dxE, gxE = px(sc.gateEnd);
+    c.fillStyle='rgba(26,128,64,0.12)'; c.fillRect(gxS, yT, gxE-gxS, yB-yT);
+
+    // 격자
+    c.strokeStyle='#dde4f0'; c.lineWidth=0.5;
+    for(var i=1;i<=4;i++){var x=ox+xO+(xE-xO)*i/4; c.beginPath();c.moveTo(x,yT);c.lineTo(x,yB);c.stroke();}
+
+    // 시간축
+    c.strokeStyle='#b0b8d0'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(ox+xO,yB); c.lineTo(ox+xE,yB); c.stroke();
+
+    // UV LED 펄스
+    c.fillStyle='rgba(100,50,200,0.7)';
+    c.fillRect(px(0), yT+8, px(pulseEnd)-px(0), yB-yT-8);
+
+    // 배경 노이즈 곡선 (빨간)
+    c.strokeStyle='#e03030'; c.lineWidth=2;
+    c.beginPath();
+    for(var i=0;i<=200;i++){
+      var t=i*totalT/200;
+      var amp = t < pulseEnd ? 0 : 75*Math.exp(-(t-pulseEnd)/tauBG);
+      var x=px(t), y=py(amp);
+      if(i===0||t<pulseEnd) c.moveTo(x,y); else c.lineTo(x,y);
+    }
+    c.stroke();
+
+    // Eu³⁺ 곡선 (파란)
+    c.strokeStyle='#2060c0'; c.lineWidth=2;
+    c.beginPath();
+    for(var i=0;i<=200;i++){
+      var t=i*totalT/200;
+      var amp = t < pulseEnd ? 0 : 60*Math.exp(-(t-pulseEnd)/tauEu);
+      var x=px(t), y=py(amp);
+      if(i===0||t<pulseEnd) c.moveTo(x,y); else c.lineTo(x,y);
+    }
+    c.stroke();
+
+    // gate 내 Eu³⁺ 채우기
+    c.fillStyle='rgba(32,96,192,0.18)';
+    c.beginPath(); c.moveTo(gxS, yB);
+    for(var i=0;i<=200;i++){
+      var t=i*totalT/200;
+      if(t < sc.delayEnd || t > sc.gateEnd) continue;
+      var amp = 60*Math.exp(-(t-pulseEnd)/tauEu);
+      c.lineTo(px(t), py(amp));
+    }
+    c.lineTo(gxE, yB); c.closePath(); c.fill();
+
+    // gate 내 BG 채우기 (노이즈가 섞이면 빨간)
+    var bgAtDelay = 75*Math.exp(-(sc.delayEnd-pulseEnd)/tauBG);
+    if(bgAtDelay > 1) {
+      c.fillStyle='rgba(220,60,60,0.22)';
+      c.beginPath(); c.moveTo(gxS, yB);
+      for(var i=0;i<=200;i++){
+        var t=i*totalT/200;
+        if(t < sc.delayEnd || t > sc.gateEnd) continue;
+        var amp = 75*Math.exp(-(t-pulseEnd)/tauBG);
+        c.lineTo(px(t), py(amp));
+      }
+      c.lineTo(gxE, yB); c.closePath(); c.fill();
+    }
+
+    // delay / gate 브라켓
+    c.strokeStyle='#888'; c.lineWidth=1; c.setLineDash([2,2]);
+    c.beginPath(); c.moveTo(dxS,yT-2); c.lineTo(dxE,yT-2); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle='#666'; c.font='bold 9px sans-serif'; c.textAlign='center';
+    c.fillText('delay', (dxS+dxE)/2, yT-5);
+
+    c.strokeStyle='#1a8040'; c.lineWidth=1; c.setLineDash([2,2]);
+    c.beginPath(); c.moveTo(gxS,yT-2); c.lineTo(gxE,yT-2); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle='#1a6030'; c.font='bold 9px sans-serif'; c.textAlign='center';
+    c.fillText('gate', (gxS+gxE)/2, yT-5);
+
+    // S/N 계산
+    var euSignal=0, bgNoise=0;
+    for(var i=0;i<=500;i++){
+      var t=sc.delayEnd + i*(sc.gateEnd-sc.delayEnd)/500;
+      euSignal += 60*Math.exp(-(t-pulseEnd)/tauEu);
+      bgNoise  += 75*Math.exp(-(t-pulseEnd)/tauBG);
+    }
+    var snr = bgNoise>0.5 ? (euSignal/bgNoise).toFixed(0) : '>1000';
+
+    // 패널 제목
+    c.fillStyle = sc.color; c.font='bold 11px sans-serif'; c.textAlign='center';
+    c.fillText(sc.label, ox + panelW/2, 16);
+
+    // S/N 표시
+    c.fillStyle='#2a3460'; c.font='10px sans-serif';
+    c.fillText('S/N ≈ '+snr, ox + panelW/2, yB+14);
+
+    // 판정 텍스트
+    c.fillStyle=sc.color; c.font='10px sans-serif';
+    c.fillText(sc.verdict, ox + panelW/2, yB+26);
+
+    // 구분선
+    if(si < 2){
+      c.strokeStyle='#c8d0e8'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(ox+panelW, 0); c.lineTo(ox+panelW, H); c.stroke();
+    }
+  });
+
+  // 공통 범례
+  var lx=10, ly=H-12;
+  c.fillStyle='rgba(100,50,200,0.7)'; c.fillRect(lx,ly-5,12,6);
+  c.fillStyle='#555'; c.font='9px sans-serif'; c.textAlign='left'; c.fillText('UV',lx+15,ly);
+  lx+=36;
+  c.strokeStyle='#e03030'; c.lineWidth=2; c.beginPath(); c.moveTo(lx,ly-2); c.lineTo(lx+14,ly-2); c.stroke();
+  c.fillStyle='#555'; c.fillText('배경 노이즈',lx+18,ly);
+  lx+=72;
+  c.strokeStyle='#2060c0'; c.lineWidth=2; c.beginPath(); c.moveTo(lx,ly-2); c.lineTo(lx+14,ly-2); c.stroke();
+  c.fillStyle='#555'; c.fillText('Eu³⁺ 신호',lx+18,ly);
+}
 function drawPrinciple() {
   var cv = document.getElementById('c_principle');
   var c = cv.getContext('2d');
@@ -683,7 +838,8 @@ function drawSuppress() {
 }
 
 function drawTab1() {
-  drawPrinciple(); drawLifetime(); drawEta0(); drawSpectrum0(); drawSuppress();
+  drawPrinciple();
+  drawTimingCmp(); drawLifetime(); drawEta0(); drawSpectrum0(); drawSuppress();
 }
 
 // ── TAB2: 광학계 시뮬레이터 ────────────────────────────────
