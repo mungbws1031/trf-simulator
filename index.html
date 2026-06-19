@@ -394,12 +394,14 @@ function updateProgress() {
 
 <!-- TAB6: 차광 분석 -->
 <!-- TAB7: 광학계 성능 시뮬레이터 -->
-<div id="t7" class="tabcontent" style="padding:0">
+<div id="t7" class="tabcontent" style="padding:8px 16px 0">
+<div class="tab-purpose"><b>📌 이 탭의 목적: 광학 부품 조합에 따른 전체 성능 시뮬레이션</b>렌즈 NA, PD 감도, 필터 투과율, 형광체 양자 효율 등 각 부품을 바꿔가며 최종 SNR이 어떻게 달라지는지 확인해요. 어떤 부품이 성능에 가장 큰 영향을 주는지 파악하는 탭이에요.</div>
   <iframe src="TRF_광학계_성능_시뮬레이터.html" style="width:100%;height:calc(100vh - 90px);border:none;display:block"></iframe>
 </div>
 
 <!-- TAB8: 차광 중요성 분석기 -->
-<div id="t6" class="tabcontent" style="padding:0">
+<div id="t6" class="tabcontent" style="padding:8px 16px 0">
+<div class="tab-purpose"><b>📌 이 탭의 목적: 차광(빛 차단)이 TRF 성능에 얼마나 중요한지 확인</b>외부 빛(햇빛, 형광등 등)이 새어들면 신호가 얼마나 묻히는지, TRF 게이팅으로 어느 정도까지 억제 가능한지 보여줘요. 특히 DC 빛(햇빛·LED 직광)은 TRF로도 제거가 안 되기 때문에 하우징 차광 설계가 필수예요.</div>
   <iframe src="TRF_차광중요성_분석기.html" style="width:100%;height:calc(100vh - 90px);border:none;display:block"></iframe>
 </div>
 <!-- TAB8: 신호 검출 & 캘리브레이션 -->
