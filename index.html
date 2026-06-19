@@ -43,9 +43,9 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   <div class="tab" onclick="switchTab(3)">③ 스트립 밴드</div>
   <div class="tab" onclick="switchTab(4)">④ 광학계 체크리스트</div>
   <div class="tab" onclick="switchTab(5)">⑤ 센서-스트립 거리</div>
-  
+  <div class="tab" onclick="switchTab(6)">⑥ 차광 중요성</div>
   <div class="tab" onclick="switchTab(7)">⑦ 광학계 성능</div>
-  <div class="tab" onclick="switchTab(8)">⑧ 차광 중요성</div>
+  <div class="tab" onclick="switchTab(8)">⑧ 신호 검출 & 캘리브레이션</div>
 </div>
 
 <!-- TAB1: TRF 원리 -->
@@ -392,9 +392,49 @@ function updateProgress() {
 </div>
 
 <!-- TAB8: 차광 중요성 분석기 -->
-<div id="t8" class="tabcontent" style="padding:0">
+<div id="t6" class="tabcontent" style="padding:0">
   <iframe src="TRF_차광중요성_분석기.html" style="width:100%;height:calc(100vh - 90px);border:none;display:block"></iframe>
 </div>
+<!-- TAB8: 신호 검출 & 캘리브레이션 -->
+<div id="t8" class="tabcontent">
+<div class="row">
+  <div class="card" style="flex:1;min-width:280px">
+    <h3>PRF 펄스 반복 주파수 검토</h3>
+    <div class="ctrl"><label>지연시간 t_d (μs)<span class="val" id="v8_td">100</span></label><input type="range" id="r8_td" min="10" max="500" value="100" oninput="upd8()"></div>
+    <div class="ctrl"><label>게이트 폭 t_g (μs)<span class="val" id="v8_tg">600</span></label><input type="range" id="r8_tg" min="100" max="2000" value="600" oninput="upd8()"></div>
+    <div class="ctrl"><label>소광 여유 t_off (μs)<span class="val" id="v8_off">200</span></label><input type="range" id="r8_off" min="50" max="500" value="200" oninput="upd8()"></div>
+    <div id="prf_result" style="margin-top:8px;font-size:12px;line-height:1.8"></div>
+    <div class="chart-desc" style="margin-top:8px">펄스를 너무 빨리 반복하면 이전 Eu³⁺ 신호가 아직 남아있는 상태에서 다음 측정이 시작돼요. 충분히 기다렸다 다음 펄스를 쏘아야 신호가 안 겹쳐요.</div>
+  </div>
+  <div class="card" style="flex:1;min-width:280px">
+    <h3>TIA 이득 & 신호 레벨</h3>
+    <div class="ctrl"><label>수집 효율 η (%)<span class="val" id="v8_eta">0.5</span></label><input type="range" id="r8_eta" min="1" max="100" value="5" oninput="upd8()"></div>
+    <div class="ctrl"><label>광원 출력 (μW)<span class="val" id="v8_pow">100</span></label><input type="range" id="r8_pow" min="1" max="1000" value="100" oninput="upd8()"></div>
+    <div class="ctrl"><label>PD 감도 (A/W)<span class="val" id="v8_resp">0.30</span></label><input type="range" id="r8_resp" min="10" max="80" value="30" oninput="upd8()"></div>
+    <div class="ctrl"><label>TIA 이득 (MΩ)<span class="val" id="v8_gain">10</span></label><input type="range" id="r8_gain" min="1" max="100" value="10" oninput="upd8()"></div>
+    <div id="tia_result" style="margin-top:8px;font-size:12px;line-height:1.8"></div>
+    <div class="chart-desc">센서에서 나오는 아주 약한 전류를 TIA(증폭기)가 전압으로 키워줘요. 이득이 너무 낮으면 신호가 묻히고, 너무 높으면 포화돼요.</div>
+  </div>
+</div>
+<div class="row">
+  <div class="card" style="flex:1;min-width:340px">
+    <h3>LOD / LOQ 계산기</h3>
+    <div class="ctrl"><label>Blank 신호 평균 (RFU)<span class="val" id="v8_blank">5000</span></label><input type="range" id="r8_blank" min="100" max="50000" value="5000" oninput="upd8()"></div>
+    <div class="ctrl"><label>Blank 표준편차 σ<span class="val" id="v8_sigma">300</span></label><input type="range" id="r8_sigma" min="10" max="5000" value="300" oninput="upd8()"></div>
+    <div class="ctrl"><label>기울기 S (RFU/ng/mL)<span class="val" id="v8_slope">800</span></label><input type="range" id="r8_slope" min="10" max="5000" value="800" oninput="upd8()"></div>
+    <canvas id="c_lod" width="500" height="180"></canvas>
+    <div class="chart-desc">LOD는 잡음보다 3배 이상 높은 신호를 낼 수 있는 최소 농도예요. LOQ는 10배 기준이에요. 잡음이 클수록 LOD가 높아져요.</div>
+  </div>
+  <div class="card" style="flex:1;min-width:340px">
+    <h3>C밴드 내부 보정 효과</h3>
+    <div class="ctrl"><label>광원 변동폭 (%)<span class="val" id="v8_drift">20</span></label><input type="range" id="r8_drift" min="1" max="50" value="20" oninput="upd8()"></div>
+    <div class="ctrl"><label>온도 변화 (°C)<span class="val" id="v8_temp">10</span></label><input type="range" id="r8_temp" min="0" max="40" value="10" oninput="upd8()"></div>
+    <canvas id="c_correct" width="500" height="180"></canvas>
+    <div class="chart-desc">C밴드(대조선)는 농도와 무관하게 항상 일정 신호를 내야 해요. T/C 비율로 계산하면 광원이 흔들려도, 온도가 변해도 결과가 안정돼요.</div>
+  </div>
+</div>
+</div>
+
 
 <script>
 // ── 탭 전환 ─────────────────────────────────────────────────
@@ -405,7 +445,7 @@ function switchTab(n) {
   for (var i = 0; i < contents.length; i++) { contents[i].classList.remove('active'); }
   tabs[n-1].classList.add('active');
   document.getElementById('t'+n).classList.add('active');
-  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, null];
+  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, upd8, null];
   if (fn[n]) setTimeout(fn[n], 60);
 }
 
@@ -1102,6 +1142,7 @@ window.onload = function() {
     drawTab4();
     upd5();
     upd6();
+    upd8();
     // second pass to catch any layout-not-ready canvases
     setTimeout(function() {
       drawTab1();
@@ -1110,9 +1151,174 @@ window.onload = function() {
       drawTab4();
       upd5();
       upd6();
+    upd8();
     }, 300);
   }, 100);
 };
+
+// ── TAB8: 신호 검출 & 캘리브레이션 ─────────────────────────────
+function upd8() {
+  var td   = parseInt(document.getElementById('r8_td').value);
+  var tg   = parseInt(document.getElementById('r8_tg').value);
+  var toff = parseInt(document.getElementById('r8_off').value);
+  var etaPct = parseInt(document.getElementById('r8_eta').value)/10;
+  var pow  = parseInt(document.getElementById('r8_pow').value);
+  var resp = parseInt(document.getElementById('r8_resp').value)/100;
+  var gain = parseInt(document.getElementById('r8_gain').value);
+  var blank= parseInt(document.getElementById('r8_blank').value);
+  var sig  = parseInt(document.getElementById('r8_sigma').value);
+  var slope= parseInt(document.getElementById('r8_slope').value);
+  var drift= parseInt(document.getElementById('r8_drift').value);
+  var temp = parseInt(document.getElementById('r8_temp').value);
+
+  document.getElementById('v8_td').textContent  = td;
+  document.getElementById('v8_tg').textContent  = tg;
+  document.getElementById('v8_off').textContent = toff;
+  document.getElementById('v8_eta').textContent = etaPct.toFixed(1);
+  document.getElementById('v8_pow').textContent = pow;
+  document.getElementById('v8_resp').textContent= resp.toFixed(2);
+  document.getElementById('v8_gain').textContent= gain;
+  document.getElementById('v8_blank').textContent= blank;
+  document.getElementById('v8_sigma').textContent= sig;
+  document.getElementById('v8_slope').textContent= slope;
+  document.getElementById('v8_drift').textContent= drift;
+  document.getElementById('v8_temp').textContent= temp;
+
+  // PRF 계산
+  var totalCycle = td + tg + toff;
+  var maxPRF = Math.floor(1e6 / totalCycle);
+  var euRemain = Math.exp(-(toff)/600)*100;
+  var prfOK = euRemain < 1;
+  document.getElementById('prf_result').innerHTML =
+    '<div class="kv"><span>1사이클 총 시간</span><span class="val">'+ totalCycle +' μs</span></div>' +
+    '<div class="kv"><span>최대 PRF</span><span class="val">'+ maxPRF +' Hz</span></div>' +
+    '<div class="kv"><span>소광 후 잔류 신호</span><span class="val" style="color:'+(prfOK?'#1a8040':'#c03030')+'">'+ euRemain.toFixed(2) +'%</span></div>' +
+    '<div style="margin-top:6px;padding:7px 10px;background:'+(prfOK?'#eaf5ee':'#ffebeb')+';border-radius:6px;font-size:11px;color:'+(prfOK?'#1a6030':'#c03030')+'">'+(prfOK?'✅ 이전 신호 완전 소광 — PRF 적절':'⚠️ 잔류 신호 있음 — t_off 늘리거나 PRF 낮추세요')+'</div>';
+
+  // TIA 계산
+  var photoCurr = (pow*1e-6) * (etaPct/100) * resp * 1e9; // nA
+  var tiaOut = photoCurr * 1e-9 * gain * 1e6 * 1000; // mV
+  var saturated = tiaOut > 3300;
+  var tooDark = tiaOut < 0.1;
+  document.getElementById('tia_result').innerHTML =
+    '<div class="kv"><span>PD 광전류</span><span class="val">'+ photoCurr.toFixed(3) +' nA</span></div>' +
+    '<div class="kv"><span>TIA 출력 전압</span><span class="val" style="color:'+(saturated?'#c03030':tooDark?'#c07818':'#1a8040')+'">'+ tiaOut.toFixed(2) +' mV</span></div>' +
+    '<div style="margin-top:6px;padding:7px 10px;background:'+(saturated?'#ffebeb':tooDark?'#fff8e8':'#eaf5ee')+';border-radius:6px;font-size:11px;color:'+(saturated?'#c03030':tooDark?'#8a5a00':'#1a6030')+'">'+(saturated?'⚠️ TIA 포화 — 이득 낮추거나 광원 출력 감소':tooDark?'⚠️ 신호 너무 작음 — 이득 높이거나 광원 출력 증가':'✅ 적절한 신호 레벨')+'</div>';
+
+  // LOD 그래프
+  drawLOD(blank, sig, slope);
+  drawCorrect(drift, temp);
+}
+
+function drawLOD(blank, sigma, slope) {
+  var cv = document.getElementById('c_lod');
+  var c = cv.getContext('2d');
+  var W=500, H=180, xS=55, xE=W-20, yB=H-25, yT=15;
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#f4f7ff'; c.fillRect(0,0,W,H);
+
+  var LOD = 3*sigma/slope;
+  var LOQ = 10*sigma/slope;
+  var maxConc = LOQ*3;
+  var px = function(x){ return xS + (x/maxConc)*(xE-xS); };
+  var py = function(y){ var yMax=blank+slope*maxConc*0.5; var yMin=blank-sigma*2; return yB - (y-yMin)/(yMax-yMin)*(yB-yT); };
+
+  // 격자
+  c.strokeStyle='#c8d2e8'; c.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var x=xS+(xE-xS)*i/4; c.beginPath();c.moveTo(x,yT);c.lineTo(x,yB);c.stroke();}
+  for(var i=0;i<=3;i++){var y=yT+(yB-yT)*i/3; c.beginPath();c.moveTo(xS,y);c.lineTo(xE,y);c.stroke();}
+
+  // blank 영역 (±3σ)
+  var blankBand = (3*sigma/slope)*(xE-xS)/maxConc;
+  c.fillStyle='rgba(192,48,48,0.07)'; c.fillRect(xS, yT, blankBand, yB-yT);
+
+  // 검량선
+  c.strokeStyle='#2060c0'; c.lineWidth=2; c.beginPath();
+  for(var xi=0;xi<=100;xi++){
+    var cc=maxConc*xi/100, yy=blank+slope*cc;
+    var xp=px(cc), yp=py(yy);
+    if(xi===0) c.moveTo(xp,yp); else c.lineTo(xp,yp);
+  }
+  c.stroke();
+
+  // blank 기준선
+  c.strokeStyle='#7080a8'; c.lineWidth=1; c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(xS,py(blank)); c.lineTo(xE,py(blank)); c.stroke();
+  c.setLineDash([]);
+
+  // LOD/LOQ 수직선
+  if(LOD<maxConc){ c.strokeStyle='#c07818'; c.lineWidth=1.5; c.beginPath(); c.moveTo(px(LOD),yT); c.lineTo(px(LOD),yB); c.stroke(); c.fillStyle='#c07818'; c.font='bold 10px sans-serif'; c.textAlign='center'; c.fillText('LOD',px(LOD),yT+10); }
+  if(LOQ<maxConc){ c.strokeStyle='#1a8040'; c.lineWidth=1.5; c.beginPath(); c.moveTo(px(LOQ),yT); c.lineTo(px(LOQ),yB); c.stroke(); c.fillStyle='#1a8040'; c.font='bold 10px sans-serif'; c.textAlign='center'; c.fillText('LOQ',px(LOQ),yT+10); }
+
+  // 값 표시
+  c.fillStyle='#2a3460'; c.font='11px sans-serif'; c.textAlign='left';
+  c.fillText('LOD = '+LOD.toFixed(3)+' ng/mL  |  LOQ = '+LOQ.toFixed(3)+' ng/mL', xS, H-8);
+
+  // 축
+  c.strokeStyle='#9098c0'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('농도 (ng/mL)', (xS+xE)/2, yB+14);
+  c.save(); c.translate(12, (yT+yB)/2); c.rotate(-Math.PI/2); c.fillText('신호 (RFU)', 0, 0); c.restore();
+}
+
+function drawCorrect(drift, temp) {
+  var cv = document.getElementById('c_correct');
+  var c = cv.getContext('2d');
+  var W=500, H=180, xS=55, xE=W-20, yB=H-25, yT=15;
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#f4f7ff'; c.fillRect(0,0,W,H);
+
+  // 온도에 따른 수명 변화 (τ ≈ 600μs, -0.4%/°C)
+  var tauCorr = 600 * (1 - 0.004*temp);
+  var driftFrac = drift/100;
+  var concs = [0,0.01,0.05,0.1,0.5,1,5,10,50,100];
+  var N = concs.length;
+
+  var px = function(i){ return xS + i*(xE-xS)/(N-1); };
+  var rawT = function(cv,d){ return 50000/(1+Math.pow(cv/0.1,1.5))*(1+d); };
+  var rawC = function(d){ return 30000*(1+d); };
+  var corrected = function(cv,d){ return rawT(cv,d)/rawC(d)*30000; };
+
+  var yMax=55000, yMin=0;
+  var py = function(y){ return yB-(y-yMin)/(yMax-yMin)*(yB-yT); };
+
+  // 격자
+  c.strokeStyle='#c8d2e8'; c.lineWidth=0.5;
+  for(var i=0;i<N;i++){c.beginPath();c.moveTo(px(i),yT);c.lineTo(px(i),yB);c.stroke();}
+  for(var i=0;i<=4;i++){var y=yT+(yB-yT)*i/4;c.beginPath();c.moveTo(xS,y);c.lineTo(xE,y);c.stroke();}
+
+  // 보정 전 T 신호 (광원 변동 있음)
+  c.strokeStyle='#c03030'; c.lineWidth=1.5; c.setLineDash([4,2]);
+  c.beginPath();
+  for(var i=0;i<N;i++){ var y=rawT(concs[i],driftFrac); if(i===0) c.moveTo(px(i),py(y)); else c.lineTo(px(i),py(y)); }
+  c.stroke(); c.setLineDash([]);
+
+  // 보정 후 T 신호
+  c.strokeStyle='#1a8040'; c.lineWidth=2;
+  c.beginPath();
+  for(var i=0;i<N;i++){ var y=corrected(concs[i],driftFrac); if(i===0) c.moveTo(px(i),py(y)); else c.lineTo(px(i),py(y)); }
+  c.stroke();
+
+  // 기준(drift=0)
+  c.strokeStyle='#9098c0'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.beginPath();
+  for(var i=0;i<N;i++){ var y=rawT(concs[i],0); if(i===0) c.moveTo(px(i),py(y)); else c.lineTo(px(i),py(y)); }
+  c.stroke(); c.setLineDash([]);
+
+  // 범례
+  c.font='10px sans-serif'; c.textAlign='left';
+  c.fillStyle='#9098c0'; c.fillRect(xS+5,yT+5,14,2); c.fillText('기준',xS+22,yT+10);
+  c.fillStyle='#c03030'; c.fillRect(xS+55,yT+5,14,2); c.fillText('보정 전 (±'+drift+'%)',xS+72,yT+10);
+  c.fillStyle='#1a8040'; c.fillRect(xS+145,yT+5,14,2); c.fillText('C밴드 보정 후',xS+162,yT+10);
+
+  // τ 온도 보정 표시
+  c.fillStyle='#2a3460'; c.font='11px sans-serif';
+  c.fillText('τ('+temp+'°C) = '+tauCorr.toFixed(0)+'μs  |  η 변화: '+(-(600-tauCorr)/600*100).toFixed(1)+'%', xS, H-8);
+
+  // 축
+  c.strokeStyle='#9098c0'; c.lineWidth=1; c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('농도 (log scale)', (xS+xE)/2, yB+14);
+  c.save(); c.translate(12,(yT+yB)/2); c.rotate(-Math.PI/2); c.fillText('신호 (RFU)', 0, 0); c.restore();
+}
 </script>
 <div id="cl-tooltip"></div></body>
 </html>
