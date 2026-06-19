@@ -1,0 +1,714 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>TRF PD 센서 각도 수광 분석기</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#eef1fa;color:#1e2540;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+#topbar{background:#fff;border-bottom:1px solid #dde2f0;padding:10px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#topbar h1{font-size:15px;font-weight:700;color:#2060c0}
+#topbar p{font-size:11px;color:#9098c0;margin-left:4px}
+#main{display:flex;height:calc(100vh - 46px)}
+#sidebar{width:280px;min-width:280px;background:#fff;border-right:1px solid #dde2f0;padding:16px;overflow-y:auto}
+#content{flex:1;padding:16px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:16px}
+.card{background:#fff;border:1px solid #dde2f0;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(30,40,100,.05)}
+.card h3{font-size:11px;font-weight:700;color:#2060c0;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+.sec{margin-bottom:14px}
+.sec-title{font-size:10px;font-weight:700;color:#9098c0;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #eef1fa}
+.ctrl{margin-bottom:9px}
+.ctrl label{display:flex;justify-content:space-between;font-size:11px;color:#6878a8;margin-bottom:3px}
+.ctrl label .val{color:#2060c0;font-weight:700}
+input[type=range]{width:100%;accent-color:#2060c0;height:3px}
+select{width:100%;background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:6px;padding:5px 8px;font-size:12px;outline:none}
+canvas{display:block;border-radius:6px}
+.kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eef1fa;font-size:12px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:#6878a8}
+.kv .v{font-weight:700;color:#2060c0}
+.kv .v.green{color:#1a8040}
+.kv .v.red{color:#c03030}
+.kv .v.amber{color:#c07818}
+.pdtype-btn{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ptb{flex:1;min-width:60px;padding:5px 4px;border:1px solid #c8d0e8;border-radius:6px;font-size:10px;font-weight:700;text-align:center;cursor:pointer;background:#f4f7ff;color:#6878a8;transition:all .15s}
+.ptb.active{background:#2060c0;color:#fff;border-color:#2060c0}
+.warn{background:#fff8e8;border:1px solid #f0c060;border-radius:6px;padding:8px 10px;font-size:11px;color:#8a5a00;margin-top:8px}
+.good{background:#eaf5ee;border:1px solid #90d0a8;border-radius:6px;padding:8px 10px;font-size:11px;color:#1a6030;margin-top:8px}
+.concl{margin-top:10px;padding:10px 12px;background:#f0f4ff;border-left:3px solid #2060c0;border-radius:0 6px 6px 0;font-size:12px;line-height:1.7;color:#2a3460}
+.concl b{color:#1e4ab0}.concl .w{color:#b06010;font-weight:700}.concl .g{color:#1a7030;font-weight:700}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <h1>📡 PD 센서 각도 수광 분석기</h1>
+  <p>구형/평면 포토다이오드 수광 각도 특성 × TRF 신호 수집 시뮬레이터</p>
+</div>
+<div id="main">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sec">
+      <div class="sec-title">PD 센서 형태</div>
+      <div class="pdtype-btn">
+        <div class="ptb active" onclick="setPD('flat')">평면형</div>
+        <div class="ptb" onclick="setPD('hemi')">반구형</div>
+        <div class="ptb" onclick="setPD('lens')">렌즈형</div>
+        <div class="ptb" onclick="setPD('cosine')">Cos²형</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#f4f7ff;border-radius:6px;border:1px solid #e0e5f5;font-size:11px;color:#6878a8" id="pd_desc"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">PD 파라미터</div>
+      <div class="ctrl"><label>수광 면적 지름 d_pd<span class="val" id="v_diam">3.0</span>mm</label><input type="range" id="r_diam" min="10" max="80" value="30" oninput="go()"></div>
+      <div class="ctrl"><label>반수광각 θ½<span class="val" id="v_half">60</span>°</label><input type="range" id="r_half" min="10" max="89" value="60" oninput="go()"></div>
+      <div class="ctrl"><label>반사율 반사 n (돔)<span class="val" id="v_nr">1.50</span></label><input type="range" id="r_nr" min="100" max="200" value="150" oninput="go()"></div>
+      <div class="ctrl"><label>응답도 R (A/W)<span class="val" id="v_resp">0.50</span></label><input type="range" id="r_resp" min="10" max="100" value="50" oninput="go()"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">광학 배치</div>
+      <div class="ctrl"><label>센서-스트립 거리 d<span class="val" id="v_dist">10</span>mm</label><input type="range" id="r_dist" min="2" max="30" value="10" oninput="go()"></div>
+      <div class="ctrl"><label>T-C 밴드 간격<span class="val" id="v_tc">4</span>mm</label><input type="range" id="r_tc" min="1" max="12" value="4" oninput="go()"></div>
+      <div class="ctrl"><label>PD 중심 오프셋<span class="val" id="v_off">0</span>mm</label><input type="range" id="r_off" min="-60" max="60" value="0" oninput="go()"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">결과 요약</div>
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div id="content">
+    <!-- 극좌표 각도 응답 -->
+    <div class="card">
+      <h3>극좌표 각도 응답 패턴</h3>
+      <canvas id="c_polar" width="460" height="400"></canvas>
+      <div class="concl" id="concl_polar"></div>
+    </div>
+    <!-- 단면 구조도 -->
+    <div class="card">
+      <h3>PD 단면 구조 & 수광 각도</h3>
+      <canvas id="c_cross" width="460" height="400"></canvas>
+      <div class="concl" id="concl_cross"></div>
+    </div>
+    <!-- 각도별 수집 효율 -->
+    <div class="card">
+      <h3>입사각 θ vs 수광 효율 S(θ)</h3>
+      <canvas id="c_angular" width="460" height="300"></canvas>
+      <div class="concl" id="concl_angular"></div>
+    </div>
+    <!-- T/C 균일도 -->
+    <div class="card">
+      <h3>T/C 밴드 각도 보정 필요량</h3>
+      <canvas id="c_tc" width="460" height="300"></canvas>
+      <div class="concl" id="concl_tc"></div>
+    </div>
+    <!-- η vs 거리 비교 -->
+    <div class="card" style="grid-column:1/3">
+      <h3>거리별 수집 효율 η — PD 형태별 비교</h3>
+      <canvas id="c_eta" width="940" height="240"></canvas>
+      <div class="concl" id="concl_eta"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var PD_TYPE = 'flat';
+
+var PD_DESC = {
+  flat:   '평면 PD: Lambert cosine law 적용. 법선 방향(0°) 최대, 90°에서 0. 소형·저가. 경사 입사 시 감도 급감.',
+  hemi:   '반구형 돔 PD: 돔이 모든 방향 광선을 법선으로 굴절 → 넓은 수광각. NA 증가. 경사 보정 우수.',
+  lens:   '렌즈 집광형 PD: 좁은 각도 범위를 집중 수집. θ½ 좁지만 정면 감도 극대화. T/C 혼선 최소.',
+  cosine: 'Cosine² 형: 평면형보다 더 좁은 수광각. θ½ 약 45°. 정면 집중형 설계.'
+};
+
+function setPD(t) {
+  PD_TYPE = t;
+  document.querySelectorAll('.ptb').forEach(function(b){ b.classList.remove('active'); });
+  event.target.classList.add('active');
+  go();
+}
+
+// 각도별 감도 함수 S(theta_deg) → 0~1
+function S(theta_deg) {
+  var t = theta_deg * Math.PI / 180;
+  var half = parseInt(document.getElementById('r_half').value);
+  var nr   = parseInt(document.getElementById('r_nr').value) / 100;
+  switch(PD_TYPE) {
+    case 'flat':
+      return Math.max(0, Math.cos(t));
+    case 'hemi':
+      // 반구형: 돔이 법선 굴절 → 수광각 내에서 균일, 임계각 이후 급감
+      // 임계각 = arcsin(1/n) (돔 내부에서 TIR), 유효 수광각은 n배 확장
+      var critAngle = Math.asin(1/nr) * 180/Math.PI;
+      var effHalf = Math.min(89, half);
+      if (theta_deg > effHalf) return 0;
+      // 돔 안에서 cos(굴절각) 적용 (스넬 법칙)
+      var sinRef = Math.sin(t) / nr;
+      if (sinRef > 1) return 0;
+      var tRef = Math.asin(sinRef);
+      // Fresnel 투과율 근사 (평균 편광)
+      var cosI = Math.cos(t), cosT = Math.cos(tRef);
+      var Rs = Math.pow((cosI - nr*cosT)/(cosI + nr*cosT), 2);
+      var Rp = Math.pow((nr*cosI - cosT)/(nr*cosI + cosT), 2);
+      var T_fres = 1 - (Rs+Rp)/2;
+      return T_fres * Math.cos(tRef);  // 굴절 후 평면 PD의 cos 응답
+    case 'lens':
+      // 렌즈형: Gaussian 집광, θ½ 이내에서 집중 수집
+      var sigma = half / 1.1774; // FWHM→sigma
+      return Math.exp(-t*t*180*180/(Math.PI*Math.PI*2*sigma*sigma));
+    case 'cosine':
+      return Math.max(0, Math.pow(Math.cos(t), 2));
+    default:
+      return Math.max(0, Math.cos(t));
+  }
+}
+
+// 수집 효율 η: 반구 적분 (수치)
+function calcEta(diam_mm, dist_mm) {
+  var r = diam_mm/2;
+  // 고체각 기반: η = (1 - cos θ_max)/2, θ_max = arctan(r/d)
+  var thetaMax = Math.atan(r/dist_mm);
+  // 각도 응답 가중 적분
+  var sum = 0, total = 0;
+  for (var i=0; i<=90; i++) {
+    var theta = i * Math.PI/180;
+    var dOmega = Math.sin(theta); // sin θ dθ (0~π/2)
+    sum   += S(i) * dOmega;
+    total += dOmega;
+  }
+  var angularEff = sum/total;
+  var geomEta = (1 - Math.cos(thetaMax))/2;
+  return angularEff * geomEta;
+}
+
+function go() {
+  var diam = parseInt(document.getElementById('r_diam').value)/10;
+  var half = parseInt(document.getElementById('r_half').value);
+  var nr   = parseInt(document.getElementById('r_nr').value)/100;
+  var resp = parseInt(document.getElementById('r_resp').value)/100;
+  var dist = parseInt(document.getElementById('r_dist').value);
+  var tc   = parseInt(document.getElementById('r_tc').value);
+  var off  = parseInt(document.getElementById('r_off').value)/10;
+
+  document.getElementById('v_diam').textContent = diam.toFixed(1);
+  document.getElementById('v_half').textContent = half;
+  document.getElementById('v_nr').textContent   = nr.toFixed(2);
+  document.getElementById('v_resp').textContent = resp.toFixed(2);
+  document.getElementById('v_dist').textContent = dist;
+  document.getElementById('v_tc').textContent   = tc;
+  document.getElementById('v_off').textContent  = (off).toFixed(1);
+
+  document.getElementById('pd_desc').textContent = PD_DESC[PD_TYPE];
+
+  // T-band: PD 정중앙 아래 (또는 오프셋 고려)
+  var thetaT = Math.atan(Math.abs(off)/dist) * 180/Math.PI;
+  // C-band: T에서 tc만큼 떨어짐
+  var thetaC = Math.atan(Math.abs(off + tc)/dist) * 180/Math.PI;
+
+  var sT = S(thetaT), sC = S(thetaC);
+  var ratio = sT > 0 ? (sC/sT) : 0;
+  var eta = calcEta(diam, dist);
+
+  // 결과
+  var html = '';
+  html += '<div class="kv"><span class="k">T밴드 입사각</span><span class="v">'+thetaT.toFixed(1)+'°</span></div>';
+  html += '<div class="kv"><span class="k">C밴드 입사각</span><span class="v">'+thetaC.toFixed(1)+'°</span></div>';
+  html += '<div class="kv"><span class="k">S(T밴드)</span><span class="v green">'+sT.toFixed(3)+'</span></div>';
+  html += '<div class="kv"><span class="k">S(C밴드)</span><span class="v '+(sC>0.8*sT?'green':sC>0.5*sT?'amber':'red')+'">'+sC.toFixed(3)+'</span></div>';
+  html += '<div class="kv"><span class="k">C/T 감도 비율</span><span class="v '+(ratio>0.9?'green':ratio>0.7?'amber':'red')+'">'+( ratio*100).toFixed(1)+'%</span></div>';
+  html += '<div class="kv"><span class="k">수집 효율 η</span><span class="v">'+(eta*100).toFixed(3)+'%</span></div>';
+  html += '<div class="kv"><span class="k">유효 전류 (μW입력)</span><span class="v">'+(resp*eta*1e6*1e-6*1000).toFixed(2)+' nA</span></div>';
+  document.getElementById('results').innerHTML = html;
+
+  // 보정 경고
+  var warnEl = document.getElementById('results');
+  var msg = '';
+  if (ratio < 0.7) msg = '<div class="warn">⚠ C/T 감도 비율 '+( ratio*100).toFixed(0)+'% — 각도 보정 필수. PD를 T-C 중간에 배치하거나 반구형 PD 사용 권장.</div>';
+  else if (ratio < 0.9) msg = '<div class="warn">△ C/T 감도 비율 '+( ratio*100).toFixed(0)+'% — 소프트웨어 보정 권장.</div>';
+  else msg = '<div class="good">✓ C/T 감도 균일성 양호 ('+( ratio*100).toFixed(0)+'%)</div>';
+  document.getElementById('results').innerHTML = html + msg;
+
+  drawPolar();
+  drawCross(diam, dist, tc, off, thetaT, thetaC);
+  drawAngular();
+  drawTC(dist, tc, off);
+  drawEtaCompare(diam, dist);
+  updateConclusions(diam, half, nr, dist, tc, off, thetaT, thetaC, sT, sC, ratio, eta);
+}
+
+function updateConclusions(diam, half, nr, dist, tc, off, thetaT, thetaC, sT, sC, ratio, eta) {
+  var PD_NAMES = {flat:'평면형', hemi:'반구형 돔', lens:'렌즈형', cosine:'Cos²형'};
+  var name = PD_NAMES[PD_TYPE];
+
+  // 극좌표 결론
+  var s30 = S(30), s60 = S(60), s45 = S(45);
+  var polar_eval = '';
+  if (PD_TYPE === 'hemi') {
+    polar_eval = '반구형 돔은 모든 방향 광선을 굴절시켜 수광 균일성이 우수합니다.';
+  } else if (PD_TYPE === 'flat') {
+    polar_eval = '평면형은 경사 입사 시 cos(θ) 비례로 감도가 빠르게 감소합니다.';
+  } else if (PD_TYPE === 'lens') {
+    polar_eval = '렌즈형은 θ½ 내에서 집광 효과로 감도가 집중되고, 외부는 급감합니다.';
+  } else {
+    polar_eval = 'Cos²형은 법선 방향에 매우 집중되고 45° 이상에서 50% 이하로 급감합니다.';
+  }
+  document.getElementById('concl_polar').innerHTML =
+    '<b>📌 결론:</b> ' + name + '의 반수광각 θ½ = <b>' + half + '°</b>.<br>' +
+    '30° 입사 시 감도 <b class="' + (s30>0.8?'g':'w') + '">' + (s30*100).toFixed(0) + '%</b>, ' +
+    '45° 입사 시 <b class="' + (s45>0.6?'g':'w') + '">' + (s45*100).toFixed(0) + '%</b>, ' +
+    '60° 입사 시 <b class="' + (s60>0.4?'g':'w') + '">' + (s60*100).toFixed(0) + '%</b>.<br>' + polar_eval;
+
+  // 단면 구조 결론
+  var cross_tc_eval = ratio > 0.9 ? '<span class="g">T·C 밴드 신호 균형 양호</span>' :
+                      ratio > 0.7 ? '<span class="w">C 밴드 각도 보정 권장</span>' :
+                                    '<span class="w">C 밴드 신호 손실 심각 — 정렬 개선 필요</span>';
+  document.getElementById('concl_cross').innerHTML =
+    '<b>📌 결론:</b> PD 오프셋 <b>' + off.toFixed(1) + 'mm</b>, T-C 간격 <b>' + tc + 'mm</b>.<br>' +
+    'T 밴드 입사각 <b>' + thetaT.toFixed(1) + '°</b> → 감도 <b class="' + (sT>0.8?'g':'w') + '">' + (sT*100).toFixed(0) + '%</b> | ' +
+    'C 밴드 입사각 <b>' + thetaC.toFixed(1) + '°</b> → 감도 <b class="' + (sC>0.8?'g':'w') + '">' + (sC*100).toFixed(0) + '%</b>.<br>' +
+    'C/T 신호비 <b>' + (ratio*100).toFixed(1) + '%</b> → ' + cross_tc_eval + '.';
+
+  // 각도 vs 수집 효율 결론
+  var ang_flat30 = Math.max(0, Math.cos(30*Math.PI/180))*100;
+  var prevType = PD_TYPE;
+  var ang_at30 = s30*100, ang_at60 = s60*100;
+  var ang_eval = (ang_at30 > 70) ? '경사 입사에 강함' : (ang_at30 > 50 ? '중간 정도의 각도 허용성' : '경사 입사에 취약');
+  document.getElementById('concl_angular').innerHTML =
+    '<b>📌 결론:</b> ' + name + ' 30° 입사 → <b class="' + (ang_at30>70?'g':'w') + '">' + ang_at30.toFixed(0) + '%</b>, ' +
+    '60° 입사 → <b class="' + (ang_at60>50?'g':'w') + '">' + ang_at60.toFixed(0) + '%</b> (평면형 기준 ' + ang_flat30.toFixed(0) + '% vs 50%).<br>' +
+    '→ ' + name + '은(는) <b>' + ang_eval + '</b>. ' +
+    (PD_TYPE==='hemi' ? '반구형 돔이 TRF LFA에서 가장 균일한 수광 특성을 제공합니다.' :
+     PD_TYPE==='flat' ? '평면형 PD를 사용 시 T-C 밴드를 PD 정중앙에 정렬하는 것이 중요합니다.' :
+     '렌즈/Cos² 형태는 집광 효율은 높지만 정밀한 광축 정렬이 필수입니다.');
+
+  // T/C 균일도 결론
+  var loss = (1 - ratio)*100;
+  var tc_eval = loss < 5 ? '<span class="g">보정 불필요</span>' :
+                loss < 20 ? '<span class="w">소프트웨어 보정 권장</span>' :
+                             '<span class="w">하드웨어 재설계 필요</span>';
+  document.getElementById('concl_tc').innerHTML =
+    '<b>📌 결론:</b> T-C 간격 <b>' + tc + 'mm</b>, PD 오프셋 <b>' + off.toFixed(1) + 'mm</b> 조건.<br>' +
+    'C 밴드 신호 손실량 <b class="' + (loss<10?'g':'w') + '">' + loss.toFixed(1) + '%</b> → ' + tc_eval + '.<br>' +
+    (loss >= 10 ? 'PD를 T-C 밴드 중앙(' + (tc/2).toFixed(1) + 'mm 위치)에 배치하면 손실 최소화 가능.' :
+                  'T-C 밴드가 PD 수광 범위 내에 균형 있게 배치되어 있습니다.');
+
+  // 거리별 η 결론
+  var etaFlat = (function() {
+    var prevT = PD_TYPE; PD_TYPE='flat';
+    var v = calcEta(diam, dist); PD_TYPE=prevT; return v;
+  })();
+  var etaHemi = (function() {
+    var prevT = PD_TYPE; PD_TYPE='hemi';
+    var v = calcEta(diam, dist); PD_TYPE=prevT; return v;
+  })();
+  var gain = etaFlat > 0 ? (etaHemi/etaFlat - 1)*100 : 0;
+  var eta_eval = eta*100 < 1 ? '신호 손실이 매우 큼. 거리를 줄이거나 집광 렌즈 추가 권장.' :
+                 eta*100 < 5 ? '개선 여지 있음. PD 면적 확대 또는 거리 단축 검토.' : '충분한 수집 효율.';
+  document.getElementById('concl_eta').innerHTML =
+    '<b>📌 결론:</b> PD-스트립 거리 <b>' + dist + 'mm</b>에서 현재 PD(' + name + ') 수집 효율 η = <b class="' + (eta*100>3?'g':'w') + '">' + (eta*100).toFixed(3) + '%</b>.<br>' +
+    '평면형 기준 η = ' + (etaFlat*100).toFixed(3) + '%, 반구형 기준 η = ' + (etaHemi*100).toFixed(3) + '% ' +
+    '(반구형이 평면형 대비 <b>' + gain.toFixed(0) + '%</b> 향상).<br>' +
+    '→ ' + eta_eval;
+}
+
+// ── 극좌표 각도 응답 ──────────────────────────────────────────
+function drawPolar() {
+  var c = document.getElementById('c_polar').getContext('2d');
+  var W=460, H=400, cx=230, cy=280, R=175;
+  c.clearRect(0,0,W,H);
+
+  // 배경 호 (그리드)
+  [0.25,0.5,0.75,1.0].forEach(function(r){
+    c.beginPath(); c.arc(cx,cy,R*r,Math.PI,0); c.strokeStyle='#e0e5f5'; c.lineWidth=1; c.stroke();
+    c.fillStyle='#a0a8c8'; c.font='9px sans-serif'; c.textAlign='right';
+    c.fillText((r*100).toFixed(0)+'%', cx-R*r-3, cy+4);
+  });
+  // 각도 선
+  [-60,-30,0,30,60,90].forEach(function(deg){
+    var rad = deg*Math.PI/180;
+    c.strokeStyle='#e0e5f5'; c.lineWidth=1; c.setLineDash([3,3]);
+    c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx+R*Math.sin(rad)*1.05, cy-R*Math.cos(rad)*1.05); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle='#8898c0'; c.font='9px sans-serif'; c.textAlign='center';
+    var lx=cx+R*1.12*Math.sin(rad), ly=cy-R*1.12*Math.cos(rad);
+    c.fillText(deg+'°', lx, ly+4);
+  });
+  // 기준축
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(cx-R*1.1,cy); c.lineTo(cx+R*1.1,cy); c.stroke();
+  c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx,cy-R*1.05); c.stroke();
+
+  // 비교: 평면형(점선)
+  if (PD_TYPE !== 'flat') {
+    var origType = PD_TYPE; PD_TYPE='flat';
+    c.strokeStyle='#c8d0e8'; c.lineWidth=1; c.setLineDash([4,3]);
+    c.beginPath();
+    for(var deg=-90;deg<=90;deg++){
+      var s=S(deg), rad=deg*Math.PI/180, x=cx+R*s*Math.sin(rad), y=cy-R*s*Math.cos(rad);
+      if(deg===-90)c.moveTo(x,y); else c.lineTo(x,y);
+    }c.stroke(); c.setLineDash([]);
+    c.fillStyle='#c8d0e8'; c.font='9px sans-serif'; c.textAlign='left'; c.fillText('평면형 기준',cx+4,cy-8);
+    PD_TYPE=origType;
+  }
+
+  // 현재 PD 응답 (채움)
+  var colors={flat:'#2272cc',hemi:'#1a8040',lens:'#c07818',cosine:'#6040b8'};
+  var col=colors[PD_TYPE];
+  c.fillStyle=col+'22';
+  c.beginPath();
+  c.moveTo(cx,cy);
+  for(var deg=-90;deg<=90;deg++){
+    var s=S(deg), rad=deg*Math.PI/180, x=cx+R*s*Math.sin(rad), y=cy-R*s*Math.cos(rad);
+    c.lineTo(x,y);
+  }c.closePath(); c.fill();
+
+  c.strokeStyle=col; c.lineWidth=2.5;
+  c.beginPath();
+  for(var deg=-90;deg<=90;deg++){
+    var s=S(deg), rad=deg*Math.PI/180, x=cx+R*s*Math.sin(rad), y=cy-R*s*Math.cos(rad);
+    if(deg===-90)c.moveTo(x,y); else c.lineTo(x,y);
+  }c.stroke();
+
+  // θ½ 표시
+  var half=parseInt(document.getElementById('r_half').value);
+  var s50=S(half)*R, rad50=half*Math.PI/180;
+  c.fillStyle=col; c.beginPath(); c.arc(cx+s50*Math.sin(rad50),cy-s50*Math.cos(rad50),4,0,Math.PI*2); c.fill();
+  c.fillStyle=col; c.font='bold 10px sans-serif'; c.textAlign='left';
+  c.fillText('θ½='+half+'°',cx+s50*Math.sin(rad50)+6,cy-s50*Math.cos(rad50));
+
+  // 레이블
+  var names={flat:'평면형 PD',hemi:'반구형 돔 PD',lens:'렌즈 집광형 PD',cosine:'Cosine² PD'};
+  c.fillStyle=col; c.font='bold 11px sans-serif'; c.textAlign='center';
+  c.fillText(names[PD_TYPE],cx,H-8);
+}
+
+// ── 단면 구조도 ───────────────────────────────────────────────
+function drawCross(diam, dist, tc, off, thetaT, thetaC) {
+  var c = document.getElementById('c_cross').getContext('2d');
+  var W=460, H=400;
+  c.clearRect(0,0,W,H);
+
+  var stripY=H-30, pdY=40, cx=W/2;
+  var scale=10; // 1mm = 10px
+
+  // 스트립
+  c.fillStyle='#c8b89a'; c.fillRect(20,stripY,W-40,18);
+  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='left'; c.fillText('스트립',24,stripY+12);
+
+  // T/C 밴드 위치 계산
+  var pdCenterX = cx + off*scale;
+  var tBandX = pdCenterX;          // T 정중앙 (offset 포함)
+  var cBandX = pdCenterX + tc*scale;
+
+  // T-밴드
+  c.fillStyle='rgba(192,48,48,0.8)'; c.fillRect(tBandX-4,stripY,8,18);
+  c.fillStyle='#c03030'; c.font='bold 9px sans-serif'; c.textAlign='center'; c.fillText('T',tBandX,stripY-3);
+  // C-밴드
+  c.fillStyle='rgba(32,100,200,0.8)'; c.fillRect(cBandX-4,stripY,8,18);
+  c.fillStyle='#2060c0'; c.font='bold 9px sans-serif'; c.textAlign='center'; c.fillText('C',cBandX,stripY-3);
+  // T-C 간격 표시
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1; c.setLineDash([2,2]);
+  c.beginPath(); c.moveTo(tBandX,stripY-14); c.lineTo(cBandX,stripY-14); c.stroke(); c.setLineDash([]);
+  c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(tc+'mm',(tBandX+cBandX)/2,stripY-16);
+
+  // PD 위치
+  var pdDrawY = pdY + (stripY-pdY-60)*(1-dist/30); // dist=30mm시 상단, 2mm시 하단 근처
+  pdDrawY = pdY + dist*scale*0.5;
+  if (pdDrawY > stripY-50) pdDrawY = stripY-50;
+
+  var pdRad = diam/2*scale*0.7;
+
+  // PD 형태별 그리기
+  if (PD_TYPE==='flat') {
+    c.fillStyle='#e4eeff'; c.strokeStyle='#2060c0'; c.lineWidth=2;
+    c.fillRect(pdCenterX-pdRad,pdDrawY-5,pdRad*2,10);
+    c.strokeRect(pdCenterX-pdRad,pdDrawY-5,pdRad*2,10);
+    c.fillStyle='#2060c0'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('PD (평면)',pdCenterX,pdDrawY-9);
+    // 감도 방향 표시 (법선 아래방향만)
+    drawArrow(c,pdCenterX,pdDrawY+6,pdCenterX,stripY-8,'#2060c0',1.5);
+  } else if (PD_TYPE==='hemi') {
+    // 반구형 돔
+    c.fillStyle='rgba(34,114,204,0.12)'; c.strokeStyle='#2060c0'; c.lineWidth=2;
+    c.beginPath(); c.arc(pdCenterX,pdDrawY,pdRad,Math.PI,0); c.lineTo(pdCenterX-pdRad,pdDrawY); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle='#e4eeff'; c.fillRect(pdCenterX-pdRad,pdDrawY-3,pdRad*2,6);
+    c.strokeRect(pdCenterX-pdRad,pdDrawY-3,pdRad*2,6);
+    c.fillStyle='#2060c0'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('PD (반구형)',pdCenterX,pdDrawY-pdRad-5);
+  } else if (PD_TYPE==='lens') {
+    // 렌즈형
+    c.fillStyle='rgba(192,120,24,0.12)'; c.strokeStyle='#c07818'; c.lineWidth=2;
+    c.beginPath(); c.ellipse(pdCenterX,pdDrawY-3,pdRad,pdRad*0.4,0,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle='#e4eeff'; c.fillRect(pdCenterX-pdRad*0.6,pdDrawY-1,pdRad*1.2,5);
+    c.strokeRect(pdCenterX-pdRad*0.6,pdDrawY-1,pdRad*1.2,5);
+    c.fillStyle='#c07818'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('PD (렌즈형)',pdCenterX,pdDrawY-pdRad*0.4-8);
+  } else {
+    c.fillStyle='#f0eaff'; c.strokeStyle='#6040b8'; c.lineWidth=2;
+    c.fillRect(pdCenterX-pdRad,pdDrawY-5,pdRad*2,10); c.strokeRect(pdCenterX-pdRad,pdDrawY-5,pdRad*2,10);
+    c.fillStyle='#6040b8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('PD (Cos²)',pdCenterX,pdDrawY-9);
+  }
+
+  // T-밴드 광선
+  var sTval = S(thetaT);
+  drawLightRay(c, tBandX, stripY, pdCenterX, pdDrawY, sTval, '#c03030', 'T ('+thetaT.toFixed(1)+'°)');
+  // C-밴드 광선
+  var sCval = S(thetaC);
+  drawLightRay(c, cBandX, stripY, pdCenterX, pdDrawY, sCval, '#2060c0', 'C ('+thetaC.toFixed(1)+'°)');
+
+  // 거리 표시
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1; c.setLineDash([2,3]);
+  c.beginPath(); c.moveTo(20,pdDrawY); c.lineTo(20,stripY); c.stroke(); c.setLineDash([]);
+  c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='center'; c.save();
+  c.translate(12,(pdDrawY+stripY)/2); c.rotate(-Math.PI/2); c.fillText('d='+parseInt(document.getElementById('r_dist').value)+'mm',0,0); c.restore();
+}
+
+function drawArrow(c,x1,y1,x2,y2,col,lw) {
+  c.strokeStyle=col; c.lineWidth=lw;
+  c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+  var ang=Math.atan2(y2-y1,x2-x1);
+  c.fillStyle=col; c.beginPath(); c.moveTo(x2,y2);
+  c.lineTo(x2-7*Math.cos(ang-0.4),y2-7*Math.sin(ang-0.4));
+  c.lineTo(x2-7*Math.cos(ang+0.4),y2-7*Math.sin(ang+0.4)); c.closePath(); c.fill();
+}
+
+function drawLightRay(c,x1,y1,x2,y2,strength,col,lbl) {
+  var alpha=Math.max(0.1,strength);
+  c.strokeStyle=col.replace('#','rgba(').replace(/([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i,function(_,r,g,b){
+    return parseInt(r,16)+','+parseInt(g,16)+','+parseInt(b,16)+','+alpha.toFixed(2)+')';
+  });
+  // fallback
+  c.strokeStyle=col; c.globalAlpha=alpha;
+  c.lineWidth=1.5+strength*2; c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke(); c.setLineDash([]);
+  c.globalAlpha=1;
+  c.fillStyle=col; c.font='8px sans-serif'; c.textAlign='center';
+  var mx=(x1+x2)/2+8, my=(y1+y2)/2;
+  c.fillText(lbl,mx+5,my);
+}
+
+// ── 각도별 수광 효율 ──────────────────────────────────────────
+function drawAngular() {
+  var c = document.getElementById('c_angular').getContext('2d');
+  var W=460, H=300, xS=40, xE=W-15, yB=H-22, yT=12;
+  c.clearRect(0,0,W,H);
+
+  // 그리드
+  [0.25,0.5,0.75,1.0].forEach(function(v){
+    var y=yB-(yB-yT)*v;
+    c.strokeStyle='#e8edf8'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
+    c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='right';
+    c.fillText((v*100).toFixed(0)+'%',xS-4,y+4);
+  });
+  [0,15,30,45,60,75,90].forEach(function(deg){
+    var x=xS+deg*(xE-xS)/90;
+    c.strokeStyle='#e8edf8'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(x,yT); c.lineTo(x,yB); c.stroke();
+    c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='center';
+    c.fillText(deg+'°',x,yB+12);
+  });
+
+  // 모든 PD 타입 비교
+  var types=['flat','hemi','lens','cosine'];
+  var colors={'flat':'#2272cc','hemi':'#1a8040','lens':'#c07818','cosine':'#6040b8'};
+  var names={'flat':'평면형','hemi':'반구형','lens':'렌즈형','cosine':'Cos²'};
+  var origType = PD_TYPE;
+
+  types.forEach(function(tp){
+    PD_TYPE=tp;
+    c.strokeStyle=colors[tp]; c.lineWidth=(tp===origType?2.5:1.2);
+    if(tp!==origType) c.setLineDash([4,3]);
+    c.beginPath();
+    for(var deg=0;deg<=90;deg++){
+      var x=xS+deg*(xE-xS)/90, y=yB-(yB-yT)*S(deg);
+      if(deg===0)c.moveTo(x,y); else c.lineTo(x,y);
+    }c.stroke(); c.setLineDash([]);
+    // 레이블
+    var lx=xE-5, ls=S(90)*0;
+    var ly=yB-(yB-yT)*S(60)+types.indexOf(tp)*12-20;
+    c.fillStyle=colors[tp]; c.font=(tp===origType?'bold ':'')+'9px sans-serif'; c.textAlign='right';
+    c.fillText(names[tp],xE-2,yT+(types.indexOf(tp))*14+12);
+  });
+  PD_TYPE=origType;
+
+  // 현재 T/C 입사각 마커
+  var thetaT=parseFloat(document.querySelectorAll('[id^=v5]') ? '0':'0')||0;
+  var dist=parseInt(document.getElementById('r_dist').value);
+  var tc=parseInt(document.getElementById('r_tc').value);
+  var off=parseInt(document.getElementById('r_off').value)/10;
+  var tT=Math.atan(Math.abs(off)/dist)*180/Math.PI;
+  var tC=Math.atan(Math.abs(off+tc)/dist)*180/Math.PI;
+
+  [
+    {deg:tT, col:'#c03030', lbl:'T'},
+    {deg:tC, col:'#2060c0', lbl:'C'}
+  ].forEach(function(pt){
+    var x=xS+pt.deg*(xE-xS)/90, y=yB-(yB-yT)*S(pt.deg);
+    c.strokeStyle=pt.col; c.lineWidth=1; c.setLineDash([3,3]);
+    c.beginPath(); c.moveTo(x,yT); c.lineTo(x,yB); c.stroke(); c.setLineDash([]);
+    c.fillStyle=pt.col; c.beginPath(); c.arc(x,y,5,0,Math.PI*2); c.fill();
+    c.fillStyle=pt.col; c.font='bold 10px sans-serif'; c.textAlign='center';
+    c.fillText(pt.lbl,x,yT+10);
+  });
+
+  // 축 라벨
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
+  c.fillStyle='#8898c0'; c.font='10px sans-serif'; c.textAlign='center';
+  c.fillText('입사각 θ (°)',W/2,H-4);
+  c.save(); c.translate(12,(yT+yB)/2); c.rotate(-Math.PI/2);
+  c.fillText('감도 S(θ)',0,0); c.restore();
+}
+
+// ── T/C 각도 보정 분석 ────────────────────────────────────────
+function drawTC(dist, tc, off) {
+  var c = document.getElementById('c_tc').getContext('2d');
+  var W=340, H=220, xS=45, xE=W-15, yB=H-22, yT=12;
+  c.clearRect(0,0,W,H);
+
+  // 오프셋 범위에 따른 C/T 비율
+  var types=['flat','hemi','lens','cosine'];
+  var colors=['#2272cc','#1a8040','#c07818','#6040b8'];
+  var names=['평면형','반구형','렌즈형','Cos²'];
+  var origType=PD_TYPE;
+  var offRange=[-8,8]; // mm
+
+  // 그리드
+  [0.5,0.75,1.0].forEach(function(v){
+    var y=yB-(yB-yT)*v;
+    c.strokeStyle='#e8edf8'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
+    c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='right';
+    c.fillText((v*100).toFixed(0)+'%',xS-4,y+4);
+  });
+
+  // 수직 기준선 (off=0)
+  var x0=xS+(0-offRange[0])*(xE-xS)/(offRange[1]-offRange[0]);
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.beginPath(); c.moveTo(x0,yT); c.lineTo(x0,yB); c.stroke(); c.setLineDash([]);
+
+  // 90% 기준선
+  var y90=yB-(yB-yT)*0.9;
+  c.strokeStyle='#c03030'; c.lineWidth=1; c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(xS,y90); c.lineTo(xE,y90); c.stroke(); c.setLineDash([]);
+  c.fillStyle='#c03030'; c.font='9px sans-serif'; c.textAlign='right'; c.fillText('90%',xS-4,y90+4);
+
+  types.forEach(function(tp,ti){
+    PD_TYPE=tp;
+    c.strokeStyle=colors[ti]; c.lineWidth=(tp===origType?2.5:1.2);
+    if(tp!==origType) c.setLineDash([4,3]);
+    c.beginPath();
+    for(var oi=0;oi<=80;oi++){
+      var ov=offRange[0]+oi*(offRange[1]-offRange[0])/80;
+      var tT=Math.atan(Math.abs(ov)/dist)*180/Math.PI;
+      var tC=Math.atan(Math.abs(ov+tc)/dist)*180/Math.PI;
+      var sT=S(tT), sC=S(tC);
+      var ratio=sT>0?sC/sT:0;
+      var x=xS+oi*(xE-xS)/80, y=yB-(yB-yT)*Math.min(ratio,1.2);
+      if(oi===0)c.moveTo(x,y); else c.lineTo(x,y);
+    }c.stroke(); c.setLineDash([]);
+    c.fillStyle=colors[ti]; c.font=(tp===origType?'bold ':'')+'9px sans-serif'; c.textAlign='left';
+    c.fillText(names[ti],xE-45,yT+ti*13+10);
+  });
+  PD_TYPE=origType;
+
+  // 현재 오프셋 마커
+  var curOff=parseInt(document.getElementById('r_off').value)/10;
+  var xCur=xS+(curOff-offRange[0])*(xE-xS)/(offRange[1]-offRange[0]);
+  c.strokeStyle='#f07030'; c.lineWidth=2; c.setLineDash([3,2]);
+  c.beginPath(); c.moveTo(xCur,yT); c.lineTo(xCur,yB); c.stroke(); c.setLineDash([]);
+  c.fillStyle='#f07030'; c.font='9px sans-serif'; c.textAlign='center';
+  c.fillText('현재\n'+curOff.toFixed(1)+'mm',xCur,yT+8);
+
+  // 축
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
+  [-6,-4,-2,0,2,4,6].forEach(function(v){
+    var x=xS+(v-offRange[0])*(xE-xS)/(offRange[1]-offRange[0]);
+    c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(v,x,yB+12);
+  });
+  c.fillStyle='#8898c0'; c.font='10px sans-serif'; c.textAlign='center';
+  c.fillText('PD 중심 오프셋 (mm)', W/2, H-4);
+  c.save(); c.translate(12,(yT+yB)/2); c.rotate(-Math.PI/2);
+  c.fillText('C/T 감도 비율',0,0); c.restore();
+}
+
+// ── η vs 거리 비교 ────────────────────────────────────────────
+function drawEtaCompare(diam, curDist) {
+  var c = document.getElementById('c_eta').getContext('2d');
+  var W=940, H=240, xS=50, xE=W-20, yB=H-22, yT=12;
+  c.clearRect(0,0,W,H);
+
+  var types=['flat','hemi','lens','cosine'];
+  var colors=['#2272cc','#1a8040','#c07818','#6040b8'];
+  var names=['평면형','반구형','렌즈형','Cos²'];
+  var origType=PD_TYPE;
+  var maxDist=30, maxEta=0;
+
+  // 먼저 maxEta 계산
+  types.forEach(function(tp){
+    PD_TYPE=tp;
+    for(var d=1;d<=maxDist;d++){
+      var e=calcEta(diam,d); if(e>maxEta)maxEta=e;
+    }
+  });
+  maxEta=Math.max(maxEta*1.2, 0.001);
+  PD_TYPE=origType;
+
+  // 그리드
+  [0.25,0.5,0.75,1.0].forEach(function(v){
+    var y=yB-(yB-yT)*v;
+    c.strokeStyle='#e8edf8'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
+    c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='right';
+    c.fillText((v*maxEta*100).toFixed(3)+'%',xS-4,y+4);
+  });
+  [5,10,15,20,25,30].forEach(function(d){
+    var x=xS+(d-1)*(xE-xS)/(maxDist-1);
+    c.strokeStyle='#e8edf8'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(x,yT); c.lineTo(x,yB); c.stroke();
+    c.fillStyle='#9098c0'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(d+'mm',x,yB+12);
+  });
+
+  types.forEach(function(tp,ti){
+    PD_TYPE=tp;
+    c.strokeStyle=colors[ti]; c.lineWidth=(tp===origType?2.5:1.5);
+    if(tp!==origType) c.setLineDash([5,3]);
+    c.beginPath();
+    for(var di=0;di<=100;di++){
+      var d=1+di*(maxDist-1)/100, e=calcEta(diam,d);
+      var x=xS+(d-1)*(xE-xS)/(maxDist-1), y=yB-(yB-yT)*e/maxEta;
+      if(di===0)c.moveTo(x,y); else c.lineTo(x,y);
+    }c.stroke(); c.setLineDash([]);
+    // 현재 거리 점 찍기
+    var etaCur=calcEta(diam,curDist);
+    var xc=xS+(curDist-1)*(xE-xS)/(maxDist-1), yc=yB-(yB-yT)*etaCur/maxEta;
+    if(tp===origType){
+      c.fillStyle=colors[ti]; c.beginPath(); c.arc(xc,yc,5,0,Math.PI*2); c.fill();
+      c.fillStyle=colors[ti]; c.font='bold 10px sans-serif'; c.textAlign='left';
+      c.fillText((etaCur*100).toFixed(3)+'%',xc+7,yc);
+    }
+    c.fillStyle=colors[ti]; c.font=(tp===origType?'bold ':'')+'10px sans-serif'; c.textAlign='left';
+    c.fillText(names[ti], xE-55, yT+ti*14+12);
+  });
+  PD_TYPE=origType;
+
+  // 현재 거리 수직선
+  var xd=xS+(curDist-1)*(xE-xS)/(maxDist-1);
+  c.strokeStyle='#f07030'; c.lineWidth=1.5; c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(xd,yT); c.lineTo(xd,yB); c.stroke(); c.setLineDash([]);
+
+  c.strokeStyle='#c8d0e8'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
+  c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
+  c.fillStyle='#8898c0'; c.font='10px sans-serif'; c.textAlign='center';
+  c.fillText('센서-스트립 거리 (mm)', W/2, H-4);
+  c.save(); c.translate(14,(yT+yB)/2); c.rotate(-Math.PI/2);
+  c.fillText('수집 효율 η', 0, 0); c.restore();
+}
+
+window.onload = function(){
+  setTimeout(function(){ go(); setTimeout(go, 200); }, 80);
+};
+</script>
+</body>
+</html>
