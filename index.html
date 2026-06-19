@@ -52,17 +52,17 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB1: TRF 원리 -->
 <div id="t1" class="tabcontent active">
-<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 번쩍 켰다가 끄고, 잠깐 기다린 다음에 신호를 재면 왜 더 정확한지 알려주는 탭이에요. 배경 잡음은 이미 꺼진 다음에 우리가 원하는 형광 신호만 남거든요.</div>
+<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 번쩍 켰다가 끄고, 잠깐 기다린 다음에 신호를 재면 왜 더 정확한지 알려주는 탭이에요. 배경 노이즈은 이미 꺼진 다음에 우리가 원하는 형광 신호만 남거든요.</div>
   <div class="row">
     <div class="card" style="flex:1;min-width:300px">
       <h3>TRF 타이밍 원리</h3>
       <canvas id="c_principle" width="520" height="170"></canvas>
-      <div class="chart-desc">💡 UV LED 번쩍 → 잠깐 기다림 → 측정 시작. 파란선(잡음)은 이미 꺼지고 빨간선(우리 신호)만 남아있을 때 재는 거예요.</div>
+      <div class="chart-desc">💡 UV LED 번쩍 → 잠깐 기다림 → 측정 시작. 파란선(노이즈)은 이미 꺼지고 빨간선(우리 신호)만 남아있을 때 재는 거예요.</div>
     </div>
     <div class="card" style="flex:1;min-width:260px">
       <h3>형광 수명 비교</h3>
       <canvas id="c_lifetime" width="340" height="170"></canvas>
-      <div class="chart-desc">💡 Eu³⁺는 빛이 꺼진 후에도 600마이크로초 동안 빛나요. 일반 잡음은 0.00001마이크로초면 꺼지는데, 이 엄청난 차이 덕분에 잡음을 걸러낼 수 있어요.</div>
+      <div class="chart-desc">💡 Eu³⁺는 빛이 꺼진 후에도 600마이크로초 동안 빛나요. 일반 노이즈은 0.00001마이크로초면 꺼지는데, 이 엄청난 차이 덕분에 노이즈을 걸러낼 수 있어요.</div>
     </div>
   </div>
   <div class="row">
@@ -79,7 +79,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <div class="card" style="flex:1;min-width:220px">
       <h3>TRF 배경광 억제 효과</h3>
       <canvas id="c_suppress" width="280" height="160"></canvas>
-      <div class="chart-desc">💡 TRF가 각 빛 종류마다 얼마나 잡음을 없애주는지 보여요. 자가형광은 거의 다 없애지만, 햇빛처럼 항상 켜져 있는 빛은 아무리 해도 없앨 수 없어요.</div>
+      <div class="chart-desc">💡 TRF가 각 빛 종류마다 얼마나 노이즈을 없애주는지 보여요. 자가형광은 거의 다 없애지만, 햇빛처럼 항상 켜져 있는 빛은 아무리 해도 없앨 수 없어요.</div>
     </div>
   </div>
   <div class="row">
@@ -102,7 +102,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB2: 광학계 시뮬레이터 -->
 <div id="t2" class="tabcontent">
-<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 끈 다음 얼마나 기다릴지, 얼마나 오래 잴지를 슬라이더로 조절해볼 수 있어요. 기다리는 시간이 너무 길면 신호가 줄고, 너무 짧으면 잡음이 섞여요. 가장 좋은 조합을 직접 찾아보세요.</div>
+<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 끈 다음 얼마나 기다릴지, 얼마나 오래 잴지를 슬라이더로 조절해볼 수 있어요. 기다리는 시간이 너무 길면 신호가 줄고, 너무 짧으면 노이즈이 섞여요. 가장 좋은 조합을 직접 찾아보세요.</div>
   <div class="row">
     <div class="card" style="width:220px">
       <h3>파라미터</h3>
@@ -129,12 +129,12 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
         <div class="card" style="flex:1">
           <h3>수집 효율 η vs t_d</h3>
           <canvas id="c_etacurve" width="300" height="140"></canvas>
-      <div class="chart-desc">💡 기다리는 시간이 길수록 잡음은 줄지만 우리 신호도 같이 줄어요. 잡음은 없애면서 신호는 최대한 살리는 딱 맞는 기다림 시간을 이 그래프에서 찾아요.</div>
+      <div class="chart-desc">💡 기다리는 시간이 길수록 노이즈은 줄지만 우리 신호도 같이 줄어요. 노이즈은 없애면서 신호는 최대한 살리는 딱 맞는 기다림 시간을 이 그래프에서 찾아요.</div>
         </div>
         <div class="card" style="flex:1">
           <h3>SNR 비교</h3>
           <canvas id="c_snr2" width="200" height="140"></canvas>
-      <div class="chart-desc">💡 TRF와 일반 형광 측정의 신호 선명도(S/N)를 비교해요. TRF가 잡음을 거의 없애기 때문에 신호가 훨씬 또렷하게 나와요.</div>
+      <div class="chart-desc">💡 TRF와 일반 형광 측정의 신호 선명도(S/N)를 비교해요. TRF가 노이즈을 거의 없애기 때문에 신호가 훨씬 또렷하게 나와요.</div>
         </div>
       </div>
       <div class="row">
@@ -230,7 +230,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <div class="cl-section">
       <h3><span class="num">1</span> 광원 (Excitation Source)</h3>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="형광 물질을 빛나게 하는 UV 파장(340nm)이 맞는지 확인해요. 파장이 다르면 아예 발광이 안 돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>UV LED 파장 확인: Eu³⁺ = <b>340 nm</b> (UV LED 또는 펄스 레이저)<span class="sub">빛의 색깔이 맞아야 형광물질이 반응해요</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 아주 짧게 번쩍여야 배경 잡음을 걸러낼 수 있어요. 길면 TRF 효과가 없어져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>펄스 폭 설정: <b>τ_pulse ≪ τ_fl</b><span class="formula">Eu³⁺ τ = 600 μs → 펄스 폭 &lt; 50 μs</span><span class="sub">빛을 길게 켜면 잡음 제거 효과가 줄어요</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 아주 짧게 번쩍여야 배경 노이즈을 걸러낼 수 있어요. 길면 TRF 효과가 없어져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>펄스 폭 설정: <b>τ_pulse ≪ τ_fl</b><span class="formula">Eu³⁺ τ = 600 μs → 펄스 폭 &lt; 50 μs</span><span class="sub">빛을 길게 켜면 노이즈 제거 효과가 줄어요</span></label></div>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 너무 빨리 번쩍이면 이전 측정 신호가 남아서 겹쳐요. 충분히 쉬어야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>광원 반복 주파수 결정 (1/PRF &gt; t_d + t_g)<span class="sub">이전 신호가 완전히 꺼진 다음에 다시 켜야 해요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="너무 세면 형광 물질이 파괴되거나 센서가 포화돼요. 적당한 세기를 찾아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>광원 출력 파워 설정 (μW ~ mW 범위)<span class="sub">너무 세게 쏘면 형광물질이 망가지거나 센서가 포화돼요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="UV 조명 빛이 센서에 직접 닿으면 안 돼요. 필터로 조명 빛은 막고 형광만 통과시켜요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>UV LED 빛 차단 필터 (Notch / Short-pass) 선정<span class="sub">UV 빛이 센서에 직접 닿으면 신호가 완전히 묻혀요</span></label></div>
@@ -240,7 +240,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <div class="cl-section">
       <h3><span class="num">2</span> 집광 광학계 (Collection Optics)</h3>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서를 스트립에 가까이 놓을수록 더 많은 빛을 모아요. 가까울수록 신호가 세져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD-스트립 거리 d 최적화<span class="formula">η = (1 − d/√(r²+d²)) / 2</span><span class="sub">가까울수록 신호가 세지지만 물리적으로 닿을 수 있어요</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서 크기가 클수록 신호가 강해요. 다만 센서가 너무 크면 잡음도 같이 커져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 수광 면적 r 결정 (수집 효율 직결)<span class="sub">센서가 클수록 신호도 세지지만 잡음도 같이 커져요</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서 크기가 클수록 신호가 강해요. 다만 센서가 너무 크면 노이즈도 같이 커져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 수광 면적 r 결정 (수집 효율 직결)<span class="sub">센서가 클수록 신호도 세지지만 노이즈도 같이 커져요</span></label></div>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="T선(측정선)과 C선(대조선) 둘 다 센서 시야각 안에 들어와야 정확히 읽혀요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>T / C 밴드 위치가 PD 수광각 내에 모두 포함되는지 확인<span class="sub">T선과 C선이 둘 다 센서 시야 안에 들어와야 해요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="돔형 센서는 비스듬한 빛도 잘 받아요. T·C 선 간격이 넓으면 돔형이 훨씬 유리해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 형태 선정: 평면형 vs 반구형 돔<span class="sub">T선과 C선이 멀리 있으면 돔형 센서가 더 잘 잡아요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="렌즈를 쓰면 빛을 더 모을 수 있지만, 위치가 조금만 틀려도 신호가 확 줄어요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>집광 렌즈 사용 시 NA 및 작동 거리 확인<span class="sub">렌즈를 쓰면 더 많이 모이지만 위치를 정확히 맞춰야 해요</span></label></div>
@@ -250,9 +250,9 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <!-- 3. 타이밍 제어 -->
     <div class="cl-section">
       <h3><span class="num">3</span> 타이밍 제어 (TRF Gate Control)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="UV 끄고 바로 재지 말고 잠깐 기다리세요. 잡음(자가형광)이 먼저 꺼지거든요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>지연시간 t_d 설정 (자가형광 완전 소광 후 게이트 개방)<span class="formula">권장: t_d = 50 ~ 200 μs (자가형광 τ ≈ 1~10 ns → 완전 소광)</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="UV 끄고 바로 재지 말고 잠깐 기다리세요. 노이즈(자가형광)이 먼저 꺼지거든요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>지연시간 t_d 설정 (자가형광 완전 소광 후 게이트 개방)<span class="formula">권장: t_d = 50 ~ 200 μs (자가형광 τ ≈ 1~10 ns → 완전 소광)</span></label></div>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="기다린 다음 얼마나 오래 측정할지 정해요. 길수록 더 많은 신호를 모아요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>게이트 폭 t_g 설정 (신호 수집 효율 η 결정)<span class="formula">η = e^(−t_d/τ) × (1 − e^(−t_g/τ)), τ = 600 μs</span><span class="sub">1200마이크로초 동안 재면 신호의 86%를 모을 수 있어요</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="기다리는 시간과 측정 시간의 균형이 중요해요. 최적 조합에서 S/N이 최대가 돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>t_d / t_g 최적 조합으로 S/N 비 최대화 확인<span class="sub">기다림 시간을 늘리면 잡음도 줄고 신호도 줄어요. 균형점을 찾아야 해요</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="기다리는 시간과 측정 시간의 균형이 중요해요. 최적 조합에서 S/N이 최대가 돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>t_d / t_g 최적 조합으로 S/N 비 최대화 확인<span class="sub">기다림 시간을 늘리면 노이즈도 줄고 신호도 줄어요. 균형점을 찾아야 해요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="측정 시작 타이밍이 매번 조금씩 달라지면 결과가 들쭉날쭉해져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>게이트 신호 지터(jitter) ≤ 1 μs 이내 확인<span class="sub">측정 시작 시간이 매번 달라지면 결과가 들쭉날쭉해요</span></label></div>
       <div class="cl-item" onclick="toggleCL(this)" data-tip="같은 측정을 여러 번 반복해서 평균 내면 신호가 훨씬 선명해져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>누적 횟수(N) 설정으로 S/N 향상 (√N 비례)<span class="sub">100번 측정해서 평균 내면 신호가 10배 선명해져요</span></label></div>
     </div>
@@ -262,7 +262,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
       <h3><span class="num">4</span> 차광 구조 설계 (Shielding)</h3>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="햇빛이나 형광등이 새어들면 신호가 묻혀요. 특히 DC 빛은 TRF로도 제거 못해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>하우징 외부광 완전 차단 구조 (암실 조건 확보)<span class="sub">햇빛은 항상 켜져 있어서 타이밍 기술로는 절대 없앨 수 없어요</span></label></div>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="카트리지 넣는 틈새로 빛이 새어들면 안 돼요. 구조를 잘 막아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>스트립 삽입 시 광 유입 경로 차단 (슬롯 구조)<span class="sub">스트립 넣는 틈새로 빛이 새어들지 않는지 꼼꼼히 확인해요</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="내부가 반들반들하면 빛이 튕겨 잡음이 돼요. 무광 검정 코팅으로 처리하세요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>내부 반사·산란 경로 흡광 처리 (무광 흑색 코팅)<span class="sub">내부가 반들반들하면 빛이 튕겨 잡음이 돼요. 무광 검정으로 처리해요</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="내부가 반들반들하면 빛이 튕겨 노이즈이 돼요. 무광 검정 코팅으로 처리하세요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>내부 반사·산란 경로 흡광 처리 (무광 흑색 코팅)<span class="sub">내부가 반들반들하면 빛이 튕겨 노이즈이 돼요. 무광 검정으로 처리해요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="UV 조명 빛이 센서에 직접 닿으면 안 돼요. 가림막으로 경로를 물리적으로 분리해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>UV LED 빛과 발광 경로 물리적 분리 확인<span class="sub">UV 빛이 센서에 직접 닿지 않도록 가림막으로 막아야 해요</span></label></div>
       <div class="cl-item" onclick="toggleCL(this)" data-tip="형광등 빛은 TRF로 95% 정도 줄일 수 있어요. 단, 완전히 없애진 못해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>형광 AC 광원(형광등) 환경 대응 확인<span class="sub">형광등은 대부분 없앨 수 있지만 100%는 안 돼요</span></label></div>
     </div>
@@ -270,7 +270,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <!-- 5. 신호 검출 및 처리 -->
     <div class="cl-section">
       <h3><span class="num">5</span> 신호 검출 및 처리 (Signal Detection)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서는 빛이 없어도 약한 전류가 흘러요. 이게 측정 신호보다 작아야 정확하게 읽혀요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 암전류 및 잡음 레벨 사양 확인<span class="sub">센서는 빛이 없어도 혼자 약한 신호를 내요. 우리 신호가 이보다 훨씬 커야 해요</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서는 빛이 없어도 약한 전류가 흘러요. 이게 측정 신호보다 작아야 정확하게 읽혀요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 암전류 및 노이즈 레벨 사양 확인<span class="sub">센서는 빛이 없어도 혼자 약한 신호를 내요. 우리 신호가 이보다 훨씬 커야 해요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="센서의 아주 약한 전류를 전압으로 크게 키워주는 증폭기예요. 이득 설계가 중요해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>트랜스임피던스 앰프(TIA) 이득 및 대역폭 설계<span class="sub">약한 전류를 크게 키우는 증폭기예요. 너무 크게 키우면 포화돼요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="아날로그 신호를 숫자로 바꾸는 장치예요. 비트가 높을수록 더 세밀하게 읽어요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>ADC 비트 수 및 샘플링 속도 결정<span class="sub">아날로그 신호를 숫자로 바꿔요. 정밀도가 높을수록 좋아요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="C선(대조선)을 기준으로 T선을 보정하면 광원 세기가 변해도 결과가 안정돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>C 밴드 신호로 내부 보정 (Internal Control)<span class="sub">C선 신호로 T선을 나눠주면 빛 세기가 변해도 결과가 안정돼요</span></label></div>
@@ -433,7 +433,7 @@ function updateProgress() {
     <div class="ctrl"><label>Blank 표준편차 σ<span class="val" id="v8_sigma">300</span></label><input type="range" id="r8_sigma" min="10" max="5000" value="300" oninput="upd8()"></div>
     <div class="ctrl"><label>기울기 S (RFU/ng/mL)<span class="val" id="v8_slope">800</span></label><input type="range" id="r8_slope" min="10" max="5000" value="800" oninput="upd8()"></div>
     <canvas id="c_lod" width="500" height="180"></canvas>
-    <div class="chart-desc">LOD는 잡음보다 3배 이상 높은 신호를 낼 수 있는 최소 농도예요. LOQ는 10배 기준이에요. 잡음이 클수록 LOD가 높아져요.</div>
+    <div class="chart-desc">LOD는 노이즈보다 3배 이상 높은 신호를 낼 수 있는 최소 농도예요. LOQ는 10배 기준이에요. 노이즈이 클수록 LOD가 높아져요.</div>
   </div>
   <div class="card" style="flex:1;min-width:340px">
     <h3>C밴드 내부 보정 효과</h3>
