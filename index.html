@@ -20,6 +20,8 @@ body{background:#eef1fa;color:#1e2540;font-family:'Segoe UI',sans-serif;font-siz
 .card h3{font-size:11px;color:#2060c0;letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase}
 canvas{display:block;background:#f4f7ff;border-radius:6px;border:1px solid #e4e8f8}
 .chart-desc{margin-top:8px;padding:8px 10px;background:#f8f9ff;border-left:3px solid #aabce8;border-radius:0 6px 6px 0;font-size:11px;color:#4a5480;line-height:1.65}
+.tab-purpose{background:#e8eeff;border:1px solid #c0ccf0;border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:12px;color:#2a3460;line-height:1.7}
+.tab-purpose b{color:#1e4ab0;font-size:13px;display:block;margin-bottom:3px}
 label{color:#6878a8;font-size:11px}
 input[type=range]{width:100%;accent-color:#2060c0;margin:3px 0}
 select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4px;padding:3px 6px;font-size:12px}
@@ -50,6 +52,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB1: TRF 원리 -->
 <div id="t1" class="tabcontent active">
+<div class="tab-purpose"><b>📌 이 탭의 목적: TRF 기본 원리 이해</b>TRF(시간분해형광)가 어떻게 배경 잡음을 없애고 Eu³⁺ 신호만 뽑아내는지 원리를 시각적으로 보여줘요. UV LED를 번쩍인 뒤 잠깐 기다렸다가 측정하면 왜 정확해지는지 이해하는 탭이에요.</div>
   <div class="row">
     <div class="card" style="flex:1;min-width:300px">
       <h3>TRF 타이밍 원리</h3>
@@ -99,6 +102,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB2: 광학계 시뮬레이터 -->
 <div id="t2" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭의 목적: 최적 타이밍 파라미터 찾기</b>지연시간(t_d)과 게이트 폭(t_g)을 슬라이더로 바꿔가며 신호 수집 효율(η)과 S/N이 최대가 되는 조합을 직접 찾아보는 탭이에요.</div>
   <div class="row">
     <div class="card" style="width:220px">
       <h3>파라미터</h3>
@@ -146,6 +150,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB3: 스트립 밴드 -->
 <div id="t3" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭의 목적: 스트립 밴드 신호 패턴 확인</b>샘플 농도가 달라질 때 T밴드·C밴드 신호가 어떻게 변하는지, 실물 스트립이 어떻게 보이는지 시뮬레이션해요. 경쟁 면역분석이라 농도가 높을수록 T선이 옅어지는 패턴을 확인하세요.</div>
   <div class="row">
     <div class="card" style="width:200px">
       <h3>파라미터</h3>
@@ -179,6 +184,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB4: 시험결과 분석 -->
 <div id="t4" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭의 목적: 광학계 설계 전 필수 점검</b>TRF 광학계를 설계하거나 검토할 때 빠뜨리면 안 되는 항목들을 체크리스트로 정리했어요. 항목을 클릭하면 체크되고, 완성도가 자동 계산돼요. 마우스를 올리면 쉬운 설명이 나와요.</div>
 <style>
 .cl-section{background:#fff;border:1px solid #dde2f0;border-radius:10px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(30,40,100,.06)}
 .cl-section h3{font-size:12px;font-weight:700;color:#2060c0;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
@@ -331,6 +337,7 @@ function updateProgress() {
 </script>
 </div>
 <div id="t5" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭의 목적: PD 센서와 스트립 간 최적 거리 찾기</b>PD(광센서)를 스트립에서 얼마나 떨어뜨려야 신호가 가장 잘 잡히는지 시뮬레이션해요. 너무 가까우면 T·C 신호가 섞이고, 너무 멀면 신호가 약해지는 최적점을 찾아줘요.</div>
   <div class="row">
     <div class="card" style="width:220px">
       <h3>파라미터</h3>
@@ -397,6 +404,7 @@ function updateProgress() {
 </div>
 <!-- TAB8: 신호 검출 & 캘리브레이션 -->
 <div id="t8" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭의 목적: 신호 검출 회로 및 캘리브레이션 설계 검토</b>체크리스트 섹션5·6에서 다루는 항목 — TIA 증폭기 이득, 펄스 반복 주파수, LOD/LOQ 계산, C밴드 보정 효과 — 을 직접 슬라이더로 조절하며 시뮬레이션하는 탭이에요.</div>
 <div class="row">
   <div class="card" style="flex:1;min-width:280px">
     <h3>PRF 펄스 반복 주파수 검토</h3>
