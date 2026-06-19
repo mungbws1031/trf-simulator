@@ -42,7 +42,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   <div class="tab" onclick="switchTab(3)">③ 스트립 밴드</div>
   <div class="tab" onclick="switchTab(4)">④ 광학계 체크리스트</div>
   <div class="tab" onclick="switchTab(5)">⑤ 센서-스트립 거리</div>
-  <div class="tab" onclick="switchTab(6)">⑥ 차광 분석</div>
+  
   <div class="tab" onclick="switchTab(7)">⑦ 광학계 성능</div>
   <div class="tab" onclick="switchTab(8)">⑧ 차광 중요성</div>
 </div>
@@ -367,39 +367,6 @@ function updateProgress() {
 </div>
 
 <!-- TAB6: 차광 분석 -->
-<div id="t6" class="tabcontent">
-  <div class="row">
-    <div class="card" style="width:220px">
-      <h3>파라미터</h3>
-      <div class="ctrl"><label>광원 종류: <select id="r6_lt" onchange="upd6()"><option value="strip">스트립 자가형광</option><option value="ac">AC 형광등</option><option value="dc">DC 태양광/LED</option></select></label></div>
-      <div class="ctrl"><label>주변광 Ib: <span class="val" id="v6_amb">30</span></label><input type="range" id="r6_amb" min="1" max="100" value="30" oninput="upd6()"></div>
-      <div class="ctrl"><label>차광률: <span class="val" id="v6_sh">80</span>%</label><input type="range" id="r6_sh" min="0" max="100" value="80" oninput="upd6()"></div>
-      <div class="ctrl"><label>지연 t_d: <span class="val" id="v6_td">100</span> μs</label><input type="range" id="r6_td" min="10" max="500" value="100" oninput="upd6()"></div>
-      <div style="margin-top:10px;padding:8px;background:#f0f4ff;border-radius:6px;border:1px solid #dde2f0" id="shield_result"></div>
-    </div>
-    <div style="flex:1;min-width:300px">
-      <div class="card" style="margin-bottom:12px">
-        <h3>광원별 TRF 억제 / 필요 차광</h3>
-        <canvas id="c_ltypes6" width="460" height="160"></canvas>
-      </div>
-      <div class="card" style="margin-bottom:12px">
-        <h3>차광률 vs SNR</h3>
-        <canvas id="c_shield6" width="460" height="130"></canvas>
-      </div>
-      <div class="row">
-        <div class="card" style="flex:1">
-          <h3>주변광 강도 vs SNR</h3>
-          <canvas id="c_amb6" width="300" height="120"></canvas>
-        </div>
-        <div class="card" style="flex:1">
-          <h3>TRF 타이밍 억제</h3>
-          <canvas id="c_timing6" width="300" height="120"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- TAB7: 광학계 성능 시뮬레이터 -->
 <div id="t7" class="tabcontent" style="padding:0">
   <iframe src="TRF_광학계_성능_시뮬레이터.html" style="width:100%;height:calc(100vh - 90px);border:none;display:block"></iframe>
