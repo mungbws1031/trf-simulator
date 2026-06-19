@@ -173,6 +173,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 .cl-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #f0f3fa;cursor:pointer;transition:background .1s;border-radius:4px}
 .cl-item:last-child{border-bottom:none}
 .cl-item:hover{background:#f7f9ff}
+#cl-tooltip{position:fixed;background:#1e2540;color:#fff;font-size:12px;padding:8px 12px;border-radius:8px;max-width:280px;line-height:1.6;pointer-events:none;z-index:9999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.25);border-left:3px solid #4090e0}
 .cl-item input[type=checkbox]{width:16px;height:16px;accent-color:#2060c0;margin-top:1px;flex-shrink:0;cursor:pointer}
 .cl-item label{font-size:12px;color:#2a3460;cursor:pointer;line-height:1.5;flex:1}
 .cl-item label .sub{font-size:11px;color:#9098c0;display:block;margin-top:1px}
@@ -209,68 +210,83 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <!-- 1. 광원 설계 -->
     <div class="cl-section">
       <h3><span class="num">1</span> 광원 (Excitation Source)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>여기 파장 확인: Eu³⁺ = <b>340 nm</b> (UV LED 또는 펄스 레이저)<span class="sub">형광체 흡수 피크와 광원 스펙트럼 일치 여부</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>펄스 폭 설정: <b>τ_pulse ≪ τ_fl</b><span class="formula">Eu³⁺ τ = 600 μs → 펄스 폭 &lt; 50 μs</span><span class="sub">펄스가 넓으면 지연 게이팅 효과 반감</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>광원 반복 주파수 결정 (1/PRF &gt; t_d + t_g)<span class="sub">신호 중첩 없이 완전 소광 후 다음 펄스 인가</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>광원 출력 파워 설정 (μW ~ mW 범위)<span class="sub">과도한 출력은 포토블리칭 및 PD 포화 유발</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>여기광 차단 필터 (Notch / Short-pass) 선정<span class="sub">340 nm 여기광이 PD에 도달하지 않도록 OD ≥ 5 이상 차단</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="형광 물질을 빛나게 하는 UV 파장(340nm)이 맞는지 확인해요. 파장이 다르면 아예 발광이 안 돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>여기 파장 확인: Eu³⁺ = <b>340 nm</b> (UV LED 또는 펄스 레이저)<span class="sub">형광체 흡수 피크와 광원 스펙트럼 일치 여부</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 아주 짧게 번쩍여야 배경 잡음을 걸러낼 수 있어요. 길면 TRF 효과가 없어져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>펄스 폭 설정: <b>τ_pulse ≪ τ_fl</b><span class="formula">Eu³⁺ τ = 600 μs → 펄스 폭 &lt; 50 μs</span><span class="sub">펄스가 넓으면 지연 게이팅 효과 반감</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 너무 빨리 번쩍이면 이전 측정 신호가 남아서 겹쳐요. 충분히 쉬어야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>광원 반복 주파수 결정 (1/PRF &gt; t_d + t_g)<span class="sub">신호 중첩 없이 완전 소광 후 다음 펄스 인가</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="너무 세면 형광 물질이 파괴되거나 센서가 포화돼요. 적당한 세기를 찾아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>광원 출력 파워 설정 (μW ~ mW 범위)<span class="sub">과도한 출력은 포토블리칭 및 PD 포화 유발</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="UV 조명 빛이 센서에 직접 닿으면 안 돼요. 필터로 조명 빛은 막고 형광만 통과시켜요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>여기광 차단 필터 (Notch / Short-pass) 선정<span class="sub">340 nm 여기광이 PD에 도달하지 않도록 OD ≥ 5 이상 차단</span></label></div>
     </div>
 
     <!-- 2. 집광 광학계 -->
     <div class="cl-section">
       <h3><span class="num">2</span> 집광 광학계 (Collection Optics)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>PD-스트립 거리 d 최적화<span class="formula">η = (1 − d/√(r²+d²)) / 2</span><span class="sub">거리가 짧을수록 η 증가, 단 기계적 간섭 고려</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>PD 수광 면적 r 결정 (수집 효율 직결)<span class="sub">r 증가 → η 급증. 단 PD 잡음(암전류)도 면적 비례 증가</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>T / C 밴드 위치가 PD 수광각 내에 모두 포함되는지 확인<span class="sub">PD 중심축에서 T·C 모두의 입사각 ≤ θ½</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>PD 형태 선정: 평면형 vs 반구형 돔<span class="sub">T-C 간격이 넓을수록 반구형/렌즈형이 유리 (경사 보정)</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>집광 렌즈 사용 시 NA 및 작동 거리 확인<span class="sub">NA 증가 → η 증가, 단 심도(DOF) 감소</span></label></div>
-      <div class="cl-item" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>발광 파장 대역 통과 필터 (BPF) 선정: <b>615 ± 10 nm</b><span class="sub">필터 통과율 ≥ 80%, OD ≥ 4 이상의 여기광 차단</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서를 스트립에 가까이 놓을수록 더 많은 빛을 모아요. 가까울수록 신호가 세져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD-스트립 거리 d 최적화<span class="formula">η = (1 − d/√(r²+d²)) / 2</span><span class="sub">거리가 짧을수록 η 증가, 단 기계적 간섭 고려</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서 크기가 클수록 신호가 강해요. 다만 센서가 너무 크면 잡음도 같이 커져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 수광 면적 r 결정 (수집 효율 직결)<span class="sub">r 증가 → η 급증. 단 PD 잡음(암전류)도 면적 비례 증가</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="T선(측정선)과 C선(대조선) 둘 다 센서 시야각 안에 들어와야 정확히 읽혀요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>T / C 밴드 위치가 PD 수광각 내에 모두 포함되는지 확인<span class="sub">PD 중심축에서 T·C 모두의 입사각 ≤ θ½</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="돔형 센서는 비스듬한 빛도 잘 받아요. T·C 선 간격이 넓으면 돔형이 훨씬 유리해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 형태 선정: 평면형 vs 반구형 돔<span class="sub">T-C 간격이 넓을수록 반구형/렌즈형이 유리 (경사 보정)</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="렌즈를 쓰면 빛을 더 모을 수 있지만, 위치가 조금만 틀려도 신호가 확 줄어요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>집광 렌즈 사용 시 NA 및 작동 거리 확인<span class="sub">NA 증가 → η 증가, 단 심도(DOF) 감소</span></label></div>
+      <div class="cl-item" onclick="toggleCL(this)" data-tip="형광 물질이 내는 빛(615nm 주황색)만 통과시켜요. 나머지 빛은 다 막아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>발광 파장 대역 통과 필터 (BPF) 선정: <b>615 ± 10 nm</b><span class="sub">필터 통과율 ≥ 80%, OD ≥ 4 이상의 여기광 차단</span></label></div>
     </div>
 
     <!-- 3. 타이밍 제어 -->
     <div class="cl-section">
       <h3><span class="num">3</span> 타이밍 제어 (TRF Gate Control)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>지연시간 t_d 설정 (자가형광 완전 소광 후 게이트 개방)<span class="formula">권장: t_d = 50 ~ 200 μs (자가형광 τ ≈ 1~10 ns → 완전 소광)</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>게이트 폭 t_g 설정 (신호 수집 효율 η 결정)<span class="formula">η = e^(−t_d/τ) × (1 − e^(−t_g/τ)), τ = 600 μs</span><span class="sub">t_g = 2τ = 1200 μs 시 약 86% 수집 효율 (t_d 손실 제외)</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>t_d / t_g 최적 조합으로 S/N 비 최대화 확인<span class="sub">t_d 증가 → 잡음 감소 but 신호도 감소. 최적점 시뮬레이션 필요</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>게이트 신호 지터(jitter) ≤ 1 μs 이내 확인<span class="sub">지터가 크면 실효 t_d가 불안정 → 재현성 저하</span></label></div>
-      <div class="cl-item" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>누적 횟수(N) 설정으로 S/N 향상 (√N 비례)<span class="sub">N=100회 누적 시 S/N 10배 향상 가능</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="UV 끄고 바로 재지 말고 잠깐 기다리세요. 잡음(자가형광)이 먼저 꺼지거든요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>지연시간 t_d 설정 (자가형광 완전 소광 후 게이트 개방)<span class="formula">권장: t_d = 50 ~ 200 μs (자가형광 τ ≈ 1~10 ns → 완전 소광)</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="기다린 다음 얼마나 오래 측정할지 정해요. 길수록 더 많은 신호를 모아요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>게이트 폭 t_g 설정 (신호 수집 효율 η 결정)<span class="formula">η = e^(−t_d/τ) × (1 − e^(−t_g/τ)), τ = 600 μs</span><span class="sub">t_g = 2τ = 1200 μs 시 약 86% 수집 효율 (t_d 손실 제외)</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="기다리는 시간과 측정 시간의 균형이 중요해요. 최적 조합에서 S/N이 최대가 돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>t_d / t_g 최적 조합으로 S/N 비 최대화 확인<span class="sub">t_d 증가 → 잡음 감소 but 신호도 감소. 최적점 시뮬레이션 필요</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="측정 시작 타이밍이 매번 조금씩 달라지면 결과가 들쭉날쭉해져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>게이트 신호 지터(jitter) ≤ 1 μs 이내 확인<span class="sub">지터가 크면 실효 t_d가 불안정 → 재현성 저하</span></label></div>
+      <div class="cl-item" onclick="toggleCL(this)" data-tip="같은 측정을 여러 번 반복해서 평균 내면 신호가 훨씬 선명해져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>누적 횟수(N) 설정으로 S/N 향상 (√N 비례)<span class="sub">N=100회 누적 시 S/N 10배 향상 가능</span></label></div>
     </div>
 
     <!-- 4. 차광 구조 -->
     <div class="cl-section">
       <h3><span class="num">4</span> 차광 구조 설계 (Shielding)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>하우징 외부광 완전 차단 구조 (암실 조건 확보)<span class="sub">DC 광원(태양광/LED) 유입 시 TRF 게이팅으로 제거 불가</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>스트립 삽입 시 광 유입 경로 차단 (슬롯 구조)<span class="sub">카트리지 삽입 간극, 슬롯 단부 등 광 누설 경로 점검</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>내부 반사·산란 경로 흡광 처리 (무광 흑색 코팅)<span class="sub">내부 반사광이 PD에 도달하면 배경 신호 증가</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>여기광과 발광 경로 물리적 분리 확인<span class="sub">여기광 산란이 PD에 입사하지 않도록 격벽/구조 설계</span></label></div>
-      <div class="cl-item" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>형광 AC 광원(형광등) 환경 대응 확인<span class="sub">AC 구동 형광등은 TRF로 약 5% 수준까지 억제 가능 (DC 베이스라인은 억제 불가)</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="햇빛이나 형광등이 새어들면 신호가 묻혀요. 특히 DC 빛은 TRF로도 제거 못해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>하우징 외부광 완전 차단 구조 (암실 조건 확보)<span class="sub">DC 광원(태양광/LED) 유입 시 TRF 게이팅으로 제거 불가</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="카트리지 넣는 틈새로 빛이 새어들면 안 돼요. 구조를 잘 막아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>스트립 삽입 시 광 유입 경로 차단 (슬롯 구조)<span class="sub">카트리지 삽입 간극, 슬롯 단부 등 광 누설 경로 점검</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="내부가 반들반들하면 빛이 튕겨 잡음이 돼요. 무광 검정 코팅으로 처리하세요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>내부 반사·산란 경로 흡광 처리 (무광 흑색 코팅)<span class="sub">내부 반사광이 PD에 도달하면 배경 신호 증가</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="UV 조명 빛이 센서에 직접 닿으면 안 돼요. 가림막으로 경로를 물리적으로 분리해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>여기광과 발광 경로 물리적 분리 확인<span class="sub">여기광 산란이 PD에 입사하지 않도록 격벽/구조 설계</span></label></div>
+      <div class="cl-item" onclick="toggleCL(this)" data-tip="형광등 빛은 TRF로 95% 정도 줄일 수 있어요. 단, 완전히 없애진 못해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>형광 AC 광원(형광등) 환경 대응 확인<span class="sub">AC 구동 형광등은 TRF로 약 5% 수준까지 억제 가능 (DC 베이스라인은 억제 불가)</span></label></div>
     </div>
 
     <!-- 5. 신호 검출 및 처리 -->
     <div class="cl-section">
       <h3><span class="num">5</span> 신호 검출 및 처리 (Signal Detection)</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>PD 암전류 및 잡음 레벨 사양 확인<span class="sub">신호가 암전류 잡음보다 충분히 커야 함 (S/N ≥ 10 이상)</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>트랜스임피던스 앰프(TIA) 이득 및 대역폭 설계<span class="sub">이득 = 신호 레벨에 맞게, BW ≥ 1/t_g</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>ADC 비트 수 및 샘플링 속도 결정<span class="sub">12~16 bit, 게이트 폭 내 충분한 샘플 수 확보</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>C 밴드 신호로 내부 보정 (Internal Control)<span class="sub">C 밴드 = 기준값, T/C 비율로 농도 산출 → 광원 변동 보정</span></label></div>
-      <div class="cl-item" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>온도 보상 설계 (Eu³⁺ 수명 온도 의존성)<span class="sub">온도 ±10°C 당 수명 약 3~5% 변동 → 온도 센서 연동 보정</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="센서는 빛이 없어도 약한 전류가 흘러요. 이게 측정 신호보다 작아야 정확하게 읽혀요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>PD 암전류 및 잡음 레벨 사양 확인<span class="sub">신호가 암전류 잡음보다 충분히 커야 함 (S/N ≥ 10 이상)</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="센서의 아주 약한 전류를 전압으로 크게 키워주는 증폭기예요. 이득 설계가 중요해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>트랜스임피던스 앰프(TIA) 이득 및 대역폭 설계<span class="sub">이득 = 신호 레벨에 맞게, BW ≥ 1/t_g</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="아날로그 신호를 숫자로 바꾸는 장치예요. 비트가 높을수록 더 세밀하게 읽어요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>ADC 비트 수 및 샘플링 속도 결정<span class="sub">12~16 bit, 게이트 폭 내 충분한 샘플 수 확보</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="C선(대조선)을 기준으로 T선을 보정하면 광원 세기가 변해도 결과가 안정돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>C 밴드 신호로 내부 보정 (Internal Control)<span class="sub">C 밴드 = 기준값, T/C 비율로 농도 산출 → 광원 변동 보정</span></label></div>
+      <div class="cl-item" onclick="toggleCL(this)" data-tip="온도에 따라 형광 수명이 달라져요. 온도 센서를 달아서 자동으로 보정해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>온도 보상 설계 (Eu³⁺ 수명 온도 의존성)<span class="sub">온도 ±10°C 당 수명 약 3~5% 변동 → 온도 센서 연동 보정</span></label></div>
     </div>
 
     <!-- 6. 캘리브레이션 -->
     <div class="cl-section">
       <h3><span class="num">6</span> 캘리브레이션 & 검증</h3>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>검량선 작성: 최소 5 농도 포인트 (희석 계열)<span class="sub">blank 포함, log-log 또는 4PL 피팅</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>LOD / LOQ 산출 및 임상 컷오프 대비 여유 확인<span class="formula">LOD = blank_mean + 3σ</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>재현성 검증 (CV ≤ 10% @ 중간 농도, n ≥ 10)<span class="sub">일내/일간 반복성 모두 확인</span></label></div>
-      <div class="cl-item warn" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>간섭물질 테스트 (빌리루빈, 헤모글로빈, 지질 등)<span class="sub">고농도 간섭물 존재 시 신호 편향 여부 확인</span></label></div>
-      <div class="cl-item" onclick="toggleCL(this)"><input type="checkbox"><span class="cl-star">★</span><label>장기 안정성 및 로트 간 재현성 확인<span class="sub">시약 배치 간 CV ≤ 15% 권장</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="알고 있는 농도로 먼저 측정해서 기준 그래프를 만들어야 모르는 농도를 계산할 수 있어요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>검량선 작성: 최소 5 농도 포인트 (희석 계열)<span class="sub">blank 포함, log-log 또는 4PL 피팅</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="이 기기가 얼마나 낮은 농도까지 잡을 수 있는지 확인해요. 임상 기준보다 충분히 낮아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>LOD / LOQ 산출 및 임상 컷오프 대비 여유 확인<span class="formula">LOD = blank_mean + 3σ</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="같은 샘플로 10번 재도 결과가 비슷하게 나와야 믿을 수 있어요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>재현성 검증 (CV ≤ 10% @ 중간 농도, n ≥ 10)<span class="sub">일내/일간 반복성 모두 확인</span></label></div>
+      <div class="cl-item warn" onclick="toggleCL(this)" data-tip="피 속의 빌리루빈·지방 등이 결과에 영향 주지 않는지 확인해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>간섭물질 테스트 (빌리루빈, 헤모글로빈, 지질 등)<span class="sub">고농도 간섭물 존재 시 신호 편향 여부 확인</span></label></div>
+      <div class="cl-item" onclick="toggleCL(this)" data-tip="생산 배치가 달라도 결과가 비슷하게 나와야 해요. 로트 간 편차를 꼭 확인하세요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>장기 안정성 및 로트 간 재현성 확인<span class="sub">시약 배치 간 CV ≤ 15% 권장</span></label></div>
     </div>
 
   </div><!-- end checklist -->
 </div><!-- end flex wrapper -->
 
 <script>
+var _tt = null;
+function showTip(e, el) {
+  var tip = el.getAttribute("data-tip");
+  if (!tip) return;
+  var t = document.getElementById("cl-tooltip");
+  t.textContent = tip; t.style.display = "block";
+  moveTip(e);
+}
+function moveTip(e) {
+  var t = document.getElementById("cl-tooltip");
+  var x = e.clientX + 14, y = e.clientY - 10;
+  if (x + 290 > window.innerWidth) x = e.clientX - 300;
+  t.style.left = x + "px"; t.style.top = y + "px";
+}
+function hideTip() { document.getElementById("cl-tooltip").style.display = "none"; }
 function toggleCL(item) {
   var cb = item.querySelector('input[type=checkbox]');
   cb.checked = !cb.checked;
@@ -1112,5 +1128,5 @@ window.onload = function() {
   }, 100);
 };
 </script>
-</body>
+<div id="cl-tooltip"></div></body>
 </html>
