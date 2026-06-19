@@ -55,9 +55,39 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 <div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 번쩍 켰다가 끄고, 잠깐 기다린 다음에 신호를 재면 왜 더 정확한지 알려주는 탭이에요. 배경 노이즈은 이미 꺼진 다음에 우리가 원하는 형광 신호만 남거든요.</div>
   <div class="row">
     <div class="card" style="flex:1;min-width:300px">
-      <h3>TRF 타이밍 원리</h3>
-      <canvas id="c_principle" width="520" height="170"></canvas>
-      <div class="chart-desc">💡 UV LED 번쩍 → 잠깐 기다림 → 측정 시작. 파란선(노이즈)은 이미 꺼지고 빨간선(우리 신호)만 남아있을 때 재는 거예요.</div>
+      <h3>TRF 타이밍 원리 — 왜 기다렸다가 재는가?</h3>
+
+      <!-- 개념 설명 -->
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px;background:#fff8e8;border:1px solid #f0d080;border-radius:8px;padding:10px 12px;font-size:12px;color:#5a4000;line-height:1.7">
+          <b style="color:#8a5a00">🔥 불꽃놀이 비유</b><br>
+          불꽃이 터지는 순간엔 사방이 환해서 별이 안 보여요. 잠깐 기다리면 불꽃 잔광은 사라지고 오래가는 별만 남아요. TRF는 바로 이 타이밍에 셔터를 여는 방식이에요.
+        </div>
+        <div style="flex:2;min-width:280px;background:#f0f4ff;border:1px solid #c0ccf0;border-radius:8px;padding:10px 12px;font-size:12px;color:#2a3460;line-height:1.7">
+          <b style="color:#1e4ab0">⏱ 핵심 원리</b><br>
+          모든 형광 물질은 빛을 받으면 잠깐 빛나다 꺼져요. 꺼지는 데 걸리는 시간이 물질마다 달라요.<br>
+          &bull; <b>배경 노이즈</b> (생체분자, 산란광): <b style="color:#c03030">나노초(0.000001ms)</b> 만에 즉시 꺼짐<br>
+          &bull; <b>Eu³⁺ (란타나이드)</b>: <b style="color:#2060c0">600마이크로초</b> — 배경보다 <b>1만~100만 배</b> 오래 빛남<br>
+          → UV LED를 끈 다음 잠깐 기다리면 배경은 이미 0, Eu³⁺만 남아있어요. 그때 재면 노이즈 없이 신호만 측정돼요.
+        </div>
+      </div>
+
+      <!-- 타이밍 다이어그램 -->
+      <canvas id="c_principle" width="700" height="260"></canvas>
+
+      <!-- 파라미터 설명 -->
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px;background:#f4f0ff;border-left:3px solid #6040c0;border-radius:0 6px 6px 0;padding:8px 10px;font-size:11px;color:#3a2880;line-height:1.6">
+          <b>① Delay (t_d)</b><br>펄스 끝나고 기다리는 시간.<br>너무 짧으면 배경 노이즈 섞이고, 너무 길면 Eu³⁺ 신호도 깎여요.<br><span style="color:#6878a8">보통 50~200 μs</span>
+        </div>
+        <div style="flex:1;min-width:160px;background:#f0fff4;border-left:3px solid #1a8040;border-radius:0 6px 6px 0;padding:8px 10px;font-size:11px;color:#1a4030;line-height:1.6">
+          <b>② Gate width (t_g)</b><br>실제로 신호를 재는 시간창.<br>넓을수록 광자를 많이 모아요.<br><span style="color:#6878a8">보통 400~1200 μs</span>
+        </div>
+        <div style="flex:1;min-width:160px;background:#fff0f8;border-left:3px solid #c03080;border-radius:0 6px 6px 0;padding:8px 10px;font-size:11px;color:#601040;line-height:1.6">
+          <b>③ Cycle 반복</b><br>이 펄스→delay→gate 사이클을 초당 수백~수천 번 반복해 누적해요.<br><span style="color:#6878a8">SNR ∝ √N (반복 횟수)</span>
+        </div>
+      </div>
+      <div class="chart-desc">💡 게이트 구간(초록)을 보면 배경 노이즈(빨간선)는 이미 바닥에 붙어있고, Eu³⁺(파란선)만 위에 떠있어요. 그 구간에서 광자를 세니까 측정값이 거의 신호 전부가 돼요.</div>
     </div>
     <div class="card" style="flex:1;min-width:260px">
       <h3>형광 수명 비교</h3>
@@ -461,43 +491,118 @@ function switchTab(n) {
 
 // ── TAB1: TRF 원리 ──────────────────────────────────────────
 function drawPrinciple() {
-  var c = document.getElementById('c_principle').getContext('2d');
-  var W = 520, H = 170;
+  var cv = document.getElementById('c_principle');
+  var c = cv.getContext('2d');
+  var W=700, H=260;
   c.clearRect(0,0,W,H);
-  var phases = [{label:'UV 펄스',x:30,w:20,color:'#6030d0'},{label:'지연 t_d',x:55,w:80,color:'#333'},{label:'게이트 t_g',x:140,w:160,color:'#ddeeff'},{label:'다음 펄스',x:340,w:20,color:'#6030d0'}];
-  // timeline
-  c.strokeStyle='#c8d2e8'; c.lineWidth=1;
-  c.beginPath(); c.moveTo(20,H-30); c.lineTo(W-10,H-30); c.stroke();
-  c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.fillText('시간 →',W-40,H-22);
-  // UV pulse
-  c.fillStyle='#6030d0'; c.fillRect(30,H-80,20,50);
-  c.fillStyle='#8060e8'; c.font='9px sans-serif'; c.fillText('UV',33,H-83);
-  // background signal (decaying)
-  c.strokeStyle='#c03030'; c.lineWidth=1.5;
+  c.fillStyle='#f4f7ff'; c.fillRect(0,0,W,H);
+
+  var xO=60, xE=W-20, yB=H-40, yT=24;
+  var tauBG=0.008, tauEu=80; // 상대 단위 (화면 스케일)
+  var totalT=220; // 화면 시간축 단위
+  var pulseEnd=18, delayEnd=55, gateEnd=160;
+
+  // ── 배경 구간 색 ──
+  // delay 구간 (회색)
+  var dxS = xO + (pulseEnd/totalT)*(xE-xO);
+  var dxE = xO + (delayEnd/totalT)*(xE-xO);
+  c.fillStyle='rgba(160,160,180,0.15)';
+  c.fillRect(dxS, yT, dxE-dxS, yB-yT);
+
+  // gate 구간 (초록)
+  var gxS = dxE;
+  var gxE = xO + (gateEnd/totalT)*(xE-xO);
+  c.fillStyle='rgba(26,128,64,0.10)';
+  c.fillRect(gxS, yT, gxE-gxS, yB-yT);
+
+  // ── 격자 ──
+  c.strokeStyle='#dde4f0'; c.lineWidth=0.5;
+  for(var i=1;i<=6;i++){var x=xO+(xE-xO)*i/6; c.beginPath();c.moveTo(x,yT);c.lineTo(x,yB);c.stroke();}
+  for(var i=1;i<=3;i++){var y=yT+(yB-yT)*i/3; c.beginPath();c.moveTo(xO,y);c.lineTo(xE,y);c.stroke();}
+
+  // ── 시간축 ──
+  c.strokeStyle='#9098c0'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(xO,yB); c.lineTo(xE,yB); c.stroke();
+  c.fillStyle='#7080a8'; c.font='bold 10px sans-serif'; c.textAlign='right';
+  c.fillText('시간 →', xE, yB+14);
+
+  // ── UV LED 펄스 ──
+  var pxS = xO, pxE = xO + (pulseEnd/totalT)*(xE-xO);
+  var grad = c.createLinearGradient(pxS,0,pxE,0);
+  grad.addColorStop(0,'rgba(120,60,220,0.9)'); grad.addColorStop(1,'rgba(120,60,220,0.3)');
+  c.fillStyle = grad;
+  c.fillRect(pxS, yT+10, pxE-pxS, yB-yT-10);
+  c.fillStyle='#6030c0'; c.font='bold 10px sans-serif'; c.textAlign='center';
+  c.fillText('UV LED', (pxS+pxE)/2, yT+6);
+
+  // ── 배경 노이즈 곡선 (빨간, 거의 즉시 꺼짐) ──
+  c.strokeStyle='#e03030'; c.lineWidth=2.5;
   c.beginPath();
-  for (var i = 0; i <= 200; i++) { var x=50+i*1.3, t=i/30, y=(H-30)-40*Math.exp(-t*2); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
+  for(var i=0;i<=280;i++){
+    var t=i*totalT/280;
+    var x=xO+(t/totalT)*(xE-xO);
+    var amp = t < pulseEnd ? 0 : 90*Math.exp(-(t-pulseEnd)/tauBG);
+    var y = yB - amp;
+    if(i===0||t<pulseEnd) c.moveTo(x,y); else c.lineTo(x,y);
+  }
   c.stroke();
-  c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경 형광',52,H-68);
-  // delay bracket
-  c.strokeStyle='#888'; c.lineWidth=1; c.setLineDash([2,2]);
-  c.beginPath(); c.moveTo(50,H-90); c.lineTo(130,H-90); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.fillText('t_d',82,H-93);
-  // Eu signal during gate
-  c.fillStyle='rgba(34,114,204,0.15)'; c.fillRect(130,H-85,160,55);
-  c.strokeStyle='#2272cc'; c.lineWidth=2;
+
+  // ── Eu³⁺ 신호 곡선 (파란, 천천히 꺼짐) ──
+  c.strokeStyle='#2060c0'; c.lineWidth=2.5;
   c.beginPath();
-  for (var i = 0; i <= 160; i++) { var x=130+i, t=i/80, y=(H-30)-55*Math.exp(-t*0.4); if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
+  for(var i=0;i<=280;i++){
+    var t=i*totalT/280;
+    var x=xO+(t/totalT)*(xE-xO);
+    var amp = t < pulseEnd ? 0 : 70*Math.exp(-(t-pulseEnd)/tauEu);
+    var y = yB - amp;
+    if(i===0||t<pulseEnd) c.moveTo(x,y); else c.lineTo(x,y);
+  }
   c.stroke();
-  c.fillStyle='#2272cc'; c.font='9px sans-serif'; c.fillText('Eu³⁺ 신호',135,H-87);
-  // gate bracket
-  c.strokeStyle='#1a8040'; c.lineWidth=1;
-  c.beginPath(); c.moveTo(130,H-95); c.lineTo(290,H-95); c.stroke();
-  c.beginPath(); c.moveTo(130,H-98); c.lineTo(130,H-92); c.stroke();
-  c.beginPath(); c.moveTo(290,H-98); c.lineTo(290,H-92); c.stroke();
-  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('t_g (게이트)',180,H-98);
-  // labels bottom
-  c.fillStyle='#7080a8'; c.font='9px sans-serif';
-  c.fillText('0',30,H-18); c.fillText('50μs',80,H-18); c.fillText('100μs',130,H-18); c.fillText('300μs',270,H-18); c.fillText('500μs',450,H-18);
+
+  // ── delay 브라켓 ──
+  c.strokeStyle='#8888aa'; c.lineWidth=1.2; c.setLineDash([3,2]);
+  c.beginPath(); c.moveTo(dxS,yT-4); c.lineTo(dxE,yT-4); c.stroke();
+  c.setLineDash([]);
+  c.beginPath(); c.moveTo(dxS,yT-8); c.lineTo(dxS,yT); c.stroke();
+  c.beginPath(); c.moveTo(dxE,yT-8); c.lineTo(dxE,yT); c.stroke();
+  c.fillStyle='#666688'; c.font='bold 10px sans-serif'; c.textAlign='center';
+  c.fillText('← delay (t_d) →', (dxS+dxE)/2, yT-7);
+
+  // ── gate 브라켓 ──
+  c.strokeStyle='#1a8040'; c.lineWidth=1.5; c.setLineDash([3,2]);
+  c.beginPath(); c.moveTo(gxS,yT-4); c.lineTo(gxE,yT-4); c.stroke();
+  c.setLineDash([]);
+  c.beginPath(); c.moveTo(gxS,yT-8); c.lineTo(gxS,yT); c.stroke();
+  c.beginPath(); c.moveTo(gxE,yT-8); c.lineTo(gxE,yT); c.stroke();
+  c.fillStyle='#1a6030'; c.font='bold 10px sans-serif'; c.textAlign='center';
+  c.fillText('←  gate 측정창 (t_g)  →', (gxS+gxE)/2, yT-7);
+
+  // ── gate 영역 강조 표시 ──
+  c.strokeStyle='rgba(26,128,64,0.4)'; c.lineWidth=1; c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(gxS,yT); c.lineTo(gxS,yB); c.stroke();
+  c.beginPath(); c.moveTo(gxE,yT); c.lineTo(gxE,yB); c.stroke();
+  c.setLineDash([]);
+
+  // ── 배경=0 강조 텍스트 (gate 내) ──
+  c.fillStyle='rgba(192,48,48,0.7)'; c.font='bold 9px sans-serif'; c.textAlign='center';
+  c.fillText('배경 노이즈 ≈ 0', (gxS+gxE)/2, yB-6);
+
+  // ── 범례 ──
+  var lx=xO+5, ly=yT+8;
+  c.fillStyle='#6030c0'; c.fillRect(lx,ly,20,3); 
+  c.fillStyle='#6030c0'; c.font='10px sans-serif'; c.textAlign='left'; c.fillText('UV LED 펄스',lx+24,ly+4);
+  ly+=14;
+  c.strokeStyle='#e03030'; c.lineWidth=2.5; c.beginPath(); c.moveTo(lx,ly+1); c.lineTo(lx+20,ly+1); c.stroke();
+  c.fillStyle='#c03030'; c.fillText('배경 노이즈 (ns 단위로 즉시 꺼짐)',lx+24,ly+4);
+  ly+=14;
+  c.strokeStyle='#2060c0'; c.lineWidth=2.5; c.beginPath(); c.moveTo(lx,ly+1); c.lineTo(lx+20,ly+1); c.stroke();
+  c.fillStyle='#2060c0'; c.fillText('Eu³⁺ 신호 (600 μs 동안 천천히 꺼짐)',lx+24,ly+4);
+  ly+=14;
+  c.fillStyle='rgba(160,160,180,0.4)'; c.fillRect(lx,ly-1,20,8);
+  c.fillStyle='#556688'; c.fillText('delay — 배경이 꺼질 때까지 기다림',lx+24,ly+6);
+  ly+=14;
+  c.fillStyle='rgba(26,128,64,0.2)'; c.fillRect(lx,ly-1,20,8);
+  c.fillStyle='#1a6030'; c.fillText('gate — 여기서만 광자를 셈 → 신호만 남음',lx+24,ly+6);
 }
 
 function drawLifetime() {
