@@ -5,25 +5,25 @@
 <title>차광(遮光)이 TRF에서 얼마나 중요한가?</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0c12;color:#c8ccd8;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
-#header{padding:16px 22px 10px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1a1d28}
-#header h1{font-size:19px;font-weight:700;color:#fff}
-.badge{background:#1e2130;border:1px solid #2a2d3a;border-radius:20px;padding:4px 12px;font-size:11px;color:#888}
+body{background:#eef1fa;color:#1e2540;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+#header{padding:16px 22px 10px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #dde2f0}
+#header h1{font-size:19px;font-weight:700;color:#1e2540}
+.badge{background:#f0f4ff;border:1px solid #dde2f0;border-radius:20px;padding:4px 12px;font-size:11px;color:#6878a8}
 #main{display:flex;flex:1}
-#sidebar{width:240px;min-width:240px;padding:12px;border-right:1px solid #1a1d28;background:#08090f;overflow-y:auto}
+#sidebar{width:240px;min-width:240px;padding:12px;border-right:1px solid #dde2f0;background:#f4f6fc;overflow-y:auto}
 #content{flex:1;padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
-.card{background:#0f1118;border:1px solid #1a1d28;border-radius:10px;padding:14px}
-.sec-title{font-size:11px;font-weight:700;color:#666;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+.card{background:#ffffff;border:1px solid #dde2f0;border-radius:10px;padding:14px}
+.sec-title{font-size:11px;font-weight:700;color:#7080a8;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
 .ctrl{margin-bottom:10px}
-.ctrl label{display:flex;justify-content:space-between;font-size:11px;color:#777;margin-bottom:4px}
-.ctrl label .val{color:#c8ccd8;font-weight:700}
-input[type=range]{width:100%;height:3px;appearance:none;background:#1e2130;border-radius:2px;cursor:pointer}
+.ctrl label{display:flex;justify-content:space-between;font-size:11px;color:#6878a8;margin-bottom:4px}
+.ctrl label .val{color:#1e2540;font-weight:700}
+input[type=range]{width:100%;height:3px;appearance:none;background:#f0f4ff;border-radius:2px;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:#7eb8f7;cursor:pointer}
-select{width:100%;background:#08090f;color:#c8ccd8;border:1px solid #1e2130;border-radius:6px;padding:6px 8px;font-size:12px;outline:none}
-.result-item{background:#08090f;border:1px solid #1a1d28;border-radius:8px;padding:10px;margin-bottom:8px;text-align:center}
+select{width:100%;background:#f4f6fc;color:#1e2540;border:1px solid #dde2f0;border-radius:6px;padding:6px 8px;font-size:12px;outline:none}
+.result-item{background:#f4f6fc;border:1px solid #dde2f0;border-radius:8px;padding:10px;margin-bottom:8px;text-align:center}
 .result-item .rv{font-size:22px;font-weight:700;margin-bottom:2px}
-.result-item .rk{font-size:10px;color:#555}
-.warn{border:1px solid #5a1a1a;background:#200a0a;border-radius:8px;padding:10px;font-size:11px;color:#f07070;margin-top:8px}
+.result-item .rk{font-size:10px;color:#7080a8}
+.warn{border:1px solid #f0b0b0;background:#fff0f0;border-radius:8px;padding:10px;font-size:11px;color:#c03030;margin-top:8px}
 .row2{display:flex;gap:12px}
 .row2 .card{flex:1}
 canvas{display:block}
@@ -40,7 +40,7 @@ canvas{display:block}
     <div class="card" style="margin-bottom:10px">
       <div class="sec-title">주변광 조건</div>
       <div class="ctrl">
-        <label style="margin-bottom:6px;display:block;color:#777;font-size:11px">주변광 종류</label>
+        <label style="margin-bottom:6px;display:block;color:#6878a8;font-size:11px">주변광 종류</label>
         <select id="r_lt" onchange="go()">
           <option value="fl">형광등 (실내)</option>
           <option value="sun">직사광선</option>
@@ -62,7 +62,7 @@ canvas{display:block}
       <div class="sec-title">결과</div>
       <div class="result-item"><div class="rv" id="r_snr" style="color:#f0b93a">-</div><div class="rk">SNR (현재 조건)</div></div>
       <div class="result-item"><div class="rv" id="r_res" style="color:#f07070">-</div><div class="rk">잔류 주변광 (a.u.)</div></div>
-      <div class="result-item"><div class="rv" id="r_eu" style="color:#7eb8f7">-</div><div class="rk">Eu 신호 (게이트 내)</div></div>
+      <div class="result-item"><div class="rv" id="r_eu" style="color:#2060c0">-</div><div class="rk">Eu 신호 (게이트 내)</div></div>
       <div class="result-item"><div class="rv" id="r_sup" style="color:#b080ff">-</div><div class="rk">주변광 TRF 억제율</div></div>
       <div class="warn" id="r_warn" style="display:none"></div>
     </div>
@@ -72,7 +72,7 @@ canvas{display:block}
   <div id="content">
     <!-- TRF 억제 카드 -->
     <div class="card">
-      <div class="sec-title" style="color:#7eb8f7">TRF 게이팅으로 억제되는 것 VS 안 되는 것</div>
+      <div class="sec-title" style="color:#2060c0">TRF 게이팅으로 억제되는 것 VS 안 되는 것</div>
       <canvas id="c_cards" width="860" height="130"></canvas>
     </div>
     <!-- 타이밍 + SNR 비교 -->
@@ -101,11 +101,11 @@ canvas{display:block}
 
 <script>
 var LT_PROPS = {
-  fl:  {name:'형광등',    trf:0.05, need:0.80, color:'#f0b93a', dc:false}, // AC 성분 일부 억제 ~5% (DC 기저 제거 불가)
-  sun: {name:'직사광선',  trf:0.00, need:0.99, color:'#f07070', dc:true},
-  ac:  {name:'LED AC',   trf:0.05, need:0.80, color:'#f0b93a', dc:false}, // DC 기저 억제 불가, AC 깜박임만 ~5%
-  dc:  {name:'LED DC',   trf:0.00, need:0.95, color:'#f07070', dc:true},
-  self:{name:'자체형광',  trf:0.95, need:0.00, color:'#4caf7d', dc:false}
+  fl:  {name:'형광등',    trf:0.05, need:0.80, color:'#c07818', dc:false}, // AC 성분 일부 억제 ~5% (DC 기저 제거 불가)
+  sun: {name:'직사광선',  trf:0.00, need:0.99, color:'#c03030', dc:true},
+  ac:  {name:'LED AC',   trf:0.05, need:0.80, color:'#c07818', dc:false}, // DC 기저 억제 불가, AC 깜박임만 ~5%
+  dc:  {name:'LED DC',   trf:0.00, need:0.95, color:'#c03030', dc:true},
+  self:{name:'자체형광',  trf:0.95, need:0.00, color:'#1a8040', dc:false}
 };
 
 function go() {
@@ -155,12 +155,13 @@ function drawCards(curLt) {
   c.clearRect(0,0,W,H);
 
   var cards = [
-    {key:'self', title:'스트립 자체 형광', sub:'(단수명 ns)', note:'TRF 게이트가 끝\n나기 전에 소멸', verdict:'✓ TRF로 억제 가능', vc:'#4caf7d', bg:'#0a1f12', border:'#1a4a28'},
-    {key:'ac',   title:'형광등 AC 깜박임', sub:'(100Hz)',      note:'게이트 구간에도 D\nC 성분 잔존',   verdict:'△ 부분 억제',        vc:'#f0b93a', bg:'#1f1a08', border:'#4a3a10'},
-    {key:'sun',  title:'직사광선',          sub:'(연속 DC)',    note:'시간 게이팅으로 제\n기 불가',       verdict:'✗ 차광 필요',        vc:'#f07070', bg:'#1f0808', border:'#4a1818'},
-    {key:'dc',   title:'LED 조명',          sub:'(DC 연속)',    note:'속정 구간 내내 배\n경으로 작용',    verdict:'✗ 차광 필요',        vc:'#f07070', bg:'#1f0808', border:'#4a1818'}
+    {key:'self', title:'스트립 자체 형광', sub:'(단수명 ns)', note:'TRF 게이트가 끝\n나기 전에 소멸', verdict:'✓ TRF로 억제 가능', vc:'#1a8040', bg:'#e6f4ea', border:'#a0d0a8'},
+    {key:'ac',   title:'형광등 AC 깜박임', sub:'(100Hz)',      note:'게이트 구간에도 D\nC 성분 잔존',   verdict:'△ 부분 억제',        vc:'#c07818', bg:'#fffbea', border:'#e0c860'},
+    {key:'sun',  title:'직사광선',          sub:'(연속 DC)',    note:'시간 게이팅으로 제\n기 불가',       verdict:'✗ 차광 필요',        vc:'#c03030', bg:'#fff0f0', border:'#f0b0b0'},
+    {key:'dc',   title:'LED 조명',          sub:'(DC 연속)',    note:'속정 구간 내내 배\n경으로 작용',    verdict:'✗ 차광 필요',        vc:'#c03030', bg:'#fff0f0', border:'#f0b0b0'}
   ];
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var cw=(W-20)/4, gap=6;
   cards.forEach(function(card, i) {
     var x=10+i*(cw+gap), isActive=(card.key===curLt);
@@ -172,11 +173,11 @@ function drawCards(curLt) {
 
     c.fillStyle=card.vc; c.font='bold 13px sans-serif'; c.textAlign='center';
     c.fillText(card.title, x+cw/2-gap/2, 26);
-    c.fillStyle='#666'; c.font='11px sans-serif';
+    c.fillStyle='#7080a8'; c.font='11px sans-serif';
     c.fillText(card.sub, x+cw/2-gap/2, 42);
 
     var lines=card.note.split('\n');
-    c.fillStyle='#555'; c.font='10px sans-serif';
+    c.fillStyle='#7080a8'; c.font='10px sans-serif';
     lines.forEach(function(l,li){c.fillText(l, x+cw/2-gap/2, 62+li*13);});
 
     c.fillStyle=card.vc; c.font='bold 11px sans-serif';
@@ -197,6 +198,7 @@ function drawTiming(td, tg, lt) {
   var W=480, H=180;
   c.clearRect(0,0,W,H);
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var rows=[
     {label:'UV 펄스', y:20},
     {label:'배경형광', y:60},
@@ -209,15 +211,15 @@ function drawTiming(td, tg, lt) {
 
   // gate bg
   c.fillStyle='rgba(76,175,121,0.07)'; c.fillRect(gateX1,5,gateX2-gateX1,H-10);
-  c.strokeStyle='#2a5a3a'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.strokeStyle='#70b080'; c.lineWidth=1; c.setLineDash([3,3]);
   c.beginPath(); c.moveTo(gateX1,5); c.lineTo(gateX1,H-5); c.stroke();
   c.beginPath(); c.moveTo(gateX2,5); c.lineTo(gateX2,H-5); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#4caf7d'; c.font='10px sans-serif'; c.textAlign='center';
+  c.fillStyle='#1a8040'; c.font='10px sans-serif'; c.textAlign='center';
   c.fillText('측정 게이트',(gateX1+gateX2)/2,14); c.textAlign='left';
 
   rows.forEach(function(row){
-    c.fillStyle='#333'; c.font='10px sans-serif'; c.fillText(row.label, 0, row.y+10);
-    c.strokeStyle='#1a1d28'; c.lineWidth=1;
+    c.fillStyle='#7080a8'; c.font='10px sans-serif'; c.fillText(row.label, 0, row.y+10);
+    c.strokeStyle='#c8d2e8'; c.lineWidth=1;
     c.beginPath(); c.moveTo(xS,row.y+10); c.lineTo(xE,row.y+10); c.stroke();
   });
 
@@ -226,30 +228,30 @@ function drawTiming(td, tg, lt) {
   c.fillStyle='#b090ff'; c.font='9px sans-serif'; c.fillText('ON',xS+3,rows[0].y+14);
 
   // background fluorescence — decays fast
-  c.strokeStyle='#7eb8f7'; c.lineWidth=1.5; c.beginPath();
+  c.strokeStyle='#2060c0'; c.lineWidth=1.5; c.beginPath();
   for(var i=0;i<=300;i++){var t=i*4,x=xS+i*(xE-xS)/300,v=Math.exp(-t/20),y=rows[1].y+18-v*14;if(i===0)c.moveTo(x,y);else c.lineTo(x,y);}c.stroke();
-  c.fillStyle='#7eb8f7'; c.font='9px sans-serif'; c.fillText('급방 꺼짐 → TRF 억제✓',gateX1+4,rows[1].y+8);
+  c.fillStyle='#2060c0'; c.font='9px sans-serif'; c.fillText('급방 꺼짐 → TRF 억제✓',gateX1+4,rows[1].y+8);
 
   // ambient light — constant (DC) or ripple (AC)
   var lp=LT_PROPS[document.getElementById('r_lt').value];
-  c.strokeStyle='#f0b93a'; c.lineWidth=1.5; c.beginPath();
+  c.strokeStyle='#c07818'; c.lineWidth=1.5; c.beginPath();
   for(var i=0;i<=300;i++){
     var t=i*4,x=xS+i*(xE-xS)/300;
     var v=lp.dc?1:0.6+0.4*Math.abs(Math.sin(2*Math.PI*t/10000));
     var y=rows[2].y+18-v*14;
     if(i===0)c.moveTo(x,y);else c.lineTo(x,y);
   }c.stroke();
-  c.fillStyle='#f07070'; c.font='9px sans-serif'; c.fillText('형광등 → 게이트에도 남음 X',gateX1+4,rows[2].y+8);
+  c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('형광등 → 게이트에도 남음 X',gateX1+4,rows[2].y+8);
 
   // Eu signal
-  c.strokeStyle='#4caf7d'; c.lineWidth=2; c.beginPath();
+  c.strokeStyle='#1a8040'; c.lineWidth=2; c.beginPath();
   for(var i=0;i<=300;i++){
     var t=i*4,x=xS+i*(xE-xS)/300;
     var onset=td; var v=t<onset?0:Math.exp(-(t-onset)/600)*0.9;
     var y=rows[3].y+18-v*14;
     if(i===0)c.moveTo(x,y);else c.lineTo(x,y);
   }c.stroke();
-  c.fillStyle='#4caf7d'; c.font='9px sans-serif'; c.fillText('Eu 천천히 감쇠 → 측정!',gateX1+4,rows[3].y+8);
+  c.fillStyle='#1a8040'; c.font='9px sans-serif'; c.fillText('Eu 천천히 감쇠 → 측정!',gateX1+4,rows[3].y+8);
 }
 
 function drawBar(amb, sig, td, tg, lt) {
@@ -257,6 +259,7 @@ function drawBar(amb, sig, td, tg, lt) {
   var W=320, H=180;
   c.clearRect(0,0,W,H);
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var levels=[0,50,80,95,99];
   var lp=LT_PROPS[lt];
   var xS=40,xE=W-20,yB=H-20,yT=20;
@@ -267,7 +270,7 @@ function drawBar(amb, sig, td, tg, lt) {
     return eu/Math.max(0.1,ambA);
   });
   var maxSnr=Math.max.apply(null,snrs)*1.15;
-  var colors=['#f07070','#f07070','#f0b93a','#7eb8f7','#4caf7d'];
+  var colors=['#c03030','#c03030','#c07818','#2060c0','#1a8040'];
   var bw=(xE-xS)/(levels.length)-6;
 
   levels.forEach(function(sh,i){
@@ -277,18 +280,18 @@ function drawBar(amb, sig, td, tg, lt) {
     c.fillRect(x,yB-h,bw,h); c.strokeRect(x,yB-h,bw,h);
     c.fillStyle=colors[i]; c.font='bold 10px sans-serif'; c.textAlign='center';
     c.fillText(snrs[i].toFixed(1),x+bw/2,yB-h-4);
-    c.fillStyle='#666'; c.font='9px sans-serif';
+    c.fillStyle='#7080a8'; c.font='9px sans-serif';
     c.fillText(sh+'%',x+bw/2,yB+12);
   });
 
   // SNR=3 line
   var y3=yB-(yB-yT)*3/maxSnr;
   if(y3>yT&&y3<yB){
-    c.strokeStyle='#f07070'; c.lineWidth=1; c.setLineDash([3,3]);
+    c.strokeStyle='#c03030'; c.lineWidth=1; c.setLineDash([3,3]);
     c.beginPath(); c.moveTo(xS,y3); c.lineTo(xE,y3); c.stroke(); c.setLineDash([]);
-    c.fillStyle='#f07070'; c.font='9px sans-serif'; c.textAlign='left'; c.fillText('SNR=3',xS+2,y3-3);
+    c.fillStyle='#c03030'; c.font='9px sans-serif'; c.textAlign='left'; c.fillText('SNR=3',xS+2,y3-3);
   }
-  c.fillStyle='#555'; c.font='10px sans-serif'; c.textAlign='center'; c.fillText('차광 수준',W/2,H-4);
+  c.fillStyle='#7080a8'; c.font='10px sans-serif'; c.textAlign='center'; c.fillText('차광 수준',W/2,H-4);
   c.textAlign='left';
 }
 
@@ -297,33 +300,34 @@ function drawCurve(curAmb, curSh, sig, td, tg, lt) {
   var W=860, H=180;
   c.clearRect(0,0,W,H);
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var xS=45, xE=W-20, yB=H-22, yT=12;
   var lp=LT_PROPS[lt];
   var eu=sig*Math.exp(-td/600)*(1-Math.exp(-tg/600));
-  var shLevels=[{sh:0,c:'#f07070'},{sh:50,c:'#f0b93a'},{sh:80,c:'#4060c0'},{sh:95,c:'#4caf7d'},{sh:99,c:'#888'}];
+  var shLevels=[{sh:0,c:'#c03030'},{sh:50,c:'#c07818'},{sh:80,c:'#4060c0'},{sh:95,c:'#1a8040'},{sh:99,c:'#888'}];
   var maxSNR=50;
 
   // grid
   [0,11,22,34,45].forEach(function(v){
     var y=yB-(yB-yT)*v/maxSNR;
-    c.strokeStyle='#141620'; c.lineWidth=1;
+    c.strokeStyle='#c8d2e8'; c.lineWidth=1;
     c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
-    c.fillStyle='#444'; c.font='9px sans-serif'; c.textAlign='right'; c.fillText(v,xS-4,y+4);
+    c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='right'; c.fillText(v,xS-4,y+4);
   });
   [0,20,40,60,80,100].forEach(function(v){
     var x=xS+v*(xE-xS)/100;
-    c.strokeStyle='#141620'; c.lineWidth=1;
+    c.strokeStyle='#c8d2e8'; c.lineWidth=1;
     c.beginPath(); c.moveTo(x,yT); c.lineTo(x,yB); c.stroke();
-    c.fillStyle='#444'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(v,x,yB+13);
+    c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(v,x,yB+13);
   });
 
-  c.strokeStyle='#2a2d3a'; c.lineWidth=1;
+  c.strokeStyle='#c8d2e8'; c.lineWidth=1;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
 
   // dashed cursor
   var cx=xS+curAmb*(xE-xS)/100;
-  c.strokeStyle='#f0b93a'; c.lineWidth=1; c.setLineDash([4,3]);
+  c.strokeStyle='#c07818'; c.lineWidth=1; c.setLineDash([4,3]);
   c.beginPath(); c.moveTo(cx,yT); c.lineTo(cx,yB); c.stroke(); c.setLineDash([]);
 
   shLevels.forEach(function(sl){
@@ -340,7 +344,7 @@ function drawCurve(curAmb, curSh, sig, td, tg, lt) {
     c.fillText(sl.sh+'%',xS+li*160+4,yT+10);
   });
 
-  c.fillStyle='#555'; c.font='10px sans-serif'; c.textAlign='center'; c.fillText('주변광 강도 →',W/2,H-4);
+  c.fillStyle='#7080a8'; c.font='10px sans-serif'; c.textAlign='center'; c.fillText('주변광 강도 →',W/2,H-4);
   c.textAlign='left';
 }
 
@@ -350,40 +354,41 @@ function drawTypes() {
   c.clearRect(0,0,W,H);
 
   var types=[
-    {name:'직사광선',  trf:0,  need:99, tc:'#f07070', nc:'#f07070'},
-    {name:'형광등',    trf:15, need:80, tc:'#f0b93a', nc:'#f07070'},
-    {name:'LED (AC)', trf:5,  need:80, tc:'#f0b93a', nc:'#f07070'},
-    {name:'LED (DC)', trf:0,  need:95, tc:'#f07070', nc:'#f07070'},
-    {name:'스트립 자체형광', trf:95, need:0, tc:'#4caf7d', nc:'#4caf7d'}
+    {name:'직사광선',  trf:0,  need:99, tc:'#c03030', nc:'#c03030'},
+    {name:'형광등',    trf:15, need:80, tc:'#c07818', nc:'#c03030'},
+    {name:'LED (AC)', trf:5,  need:80, tc:'#c07818', nc:'#c03030'},
+    {name:'LED (DC)', trf:0,  need:95, tc:'#c03030', nc:'#c03030'},
+    {name:'스트립 자체형광', trf:95, need:0, tc:'#1a8040', nc:'#1a8040'}
   ];
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var midX=W/2, leftW=midX-100, rightW=midX-100;
   var rowH=26, yS=18;
 
   // headers
-  c.fillStyle='#555'; c.font='bold 10px sans-serif'; c.textAlign='center';
+  c.fillStyle='#7080a8'; c.font='bold 10px sans-serif'; c.textAlign='center';
   c.fillText('TRF 억제율',midX/2,12);
   c.fillText('필요 차광 수준',midX+midX/2,12);
 
   types.forEach(function(t,i){
     var y=yS+i*rowH;
     // name
-    c.fillStyle='#777'; c.font='11px sans-serif'; c.textAlign='right';
+    c.fillStyle='#7080a8'; c.font='11px sans-serif'; c.textAlign='right';
     c.fillText(t.name, midX-leftW-8, y+16);
 
     // TRF bar
     var tw=t.trf/100*leftW;
-    c.fillStyle='#1a1d28'; c.fillRect(midX-leftW,y+4,leftW,18);
+    c.fillStyle='#e8eeff'; c.fillRect(midX-leftW,y+4,leftW,18);
     if(tw>0){c.fillStyle=t.tc+'44'; c.fillRect(midX-leftW,y+4,tw,18);}
     if(t.trf>0){c.fillStyle=t.tc; c.font='10px sans-serif'; c.textAlign='left'; c.fillText('TRF '+t.trf+'%',midX-leftW+3,y+16);}
 
     // need bar
     var nw=t.need/100*rightW;
-    c.fillStyle='#1a1d28'; c.fillRect(midX+100,y+4,rightW,18);
+    c.fillStyle='#e8eeff'; c.fillRect(midX+100,y+4,rightW,18);
     if(nw>0){c.fillStyle=t.nc+'44'; c.fillRect(midX+100,y+4,nw,18);}
     if(t.need>0){c.fillStyle=t.nc; c.font='10px sans-serif'; c.textAlign='left'; c.fillText('차광 '+t.need+'%',midX+103,y+16);}
 
-    c.strokeStyle='#1e2130'; c.lineWidth=0.5; c.strokeRect(midX-leftW,y+4,leftW,18);
+    c.strokeStyle='#c8d2e8'; c.lineWidth=0.5; c.strokeRect(midX-leftW,y+4,leftW,18);
     c.strokeRect(midX+100,y+4,rightW,18);
   });
   c.textAlign='left';
