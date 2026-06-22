@@ -5,26 +5,26 @@
 <title>TRF 광학계 성능 시뮬레이터</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f1117;color:#c8ccd8;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
-#header{padding:18px 24px 10px;border-bottom:1px solid #1e2130}
-#header h1{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
-#header p{font-size:11px;color:#555;letter-spacing:.5px}
+body{background:#eef1fa;color:#1e2540;font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+#header{padding:18px 24px 10px;border-bottom:1px solid #dde2f0}
+#header h1{font-size:20px;font-weight:700;color:#1e2540;margin-bottom:4px}
+#header p{font-size:11px;color:#7080a8;letter-spacing:.5px}
 #main{display:flex;flex:1;overflow:hidden}
-#sidebar{width:290px;min-width:290px;padding:14px;overflow-y:auto;border-right:1px solid #1e2130;background:#0d0f18}
+#sidebar{width:290px;min-width:290px;padding:14px;overflow-y:auto;border-right:1px solid #dde2f0;background:#f4f6fc}
 #content{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-.card{background:#13151f;border:1px solid #1e2130;border-radius:10px;padding:14px}
-.card-title{font-size:10px;font-weight:700;color:#7eb8f7;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.card-title span{color:#444;font-weight:400}
+.card{background:#ffffff;border:1px solid #dde2f0;border-radius:10px;padding:14px}
+.card-title{font-size:10px;font-weight:700;color:#2060c0;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title span{color:#9098c0;font-weight:400}
 .ctrl{margin-bottom:10px}
-.ctrl label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11px;color:#888}
-.ctrl label .val{color:#7eb8f7;font-weight:700;font-size:12px}
-input[type=range]{width:100%;height:4px;appearance:none;background:#1e2130;border-radius:2px;outline:none;cursor:pointer}
+.ctrl label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11px;color:#6878a8}
+.ctrl label .val{color:#2060c0;font-weight:700;font-size:12px}
+input[type=range]{width:100%;height:4px;appearance:none;background:#f0f4ff;border-radius:2px;outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#7eb8f7;cursor:pointer}
-select{width:100%;background:#0d0f18;color:#c8ccd8;border:1px solid #2a2d3a;border-radius:6px;padding:6px 8px;font-size:12px;outline:none}
+select{width:100%;background:#f4f6fc;color:#1e2540;border:1px solid #dde2f0;border-radius:6px;padding:6px 8px;font-size:12px;outline:none}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.stat{background:#0d0f18;border:1px solid #1e2130;border-radius:8px;padding:10px 8px;text-align:center}
+.stat{background:#f4f6fc;border:1px solid #dde2f0;border-radius:8px;padding:10px 8px;text-align:center}
 .stat .sv{font-size:18px;font-weight:700;margin-bottom:2px}
-.stat .sk{font-size:10px;color:#555}
+.stat .sk{font-size:10px;color:#7080a8}
 canvas{display:block;border-radius:6px}
 .row2{display:flex;gap:14px}
 .row2>div{flex:1}
@@ -46,7 +46,7 @@ canvas{display:block;border-radius:6px}
     </div>
     <div class="card" style="margin-bottom:10px">
       <div class="card-title">형광체 <span>/ FLUOROPHORE</span></div>
-      <div class="ctrl"><label style="margin-bottom:6px;display:block;color:#888;font-size:11px">형광체 종류</label>
+      <div class="ctrl"><label style="margin-bottom:6px;display:block;color:#6878a8;font-size:11px">형광체 종류</label>
         <select id="r_fl" onchange="go()">
           <option value="eu">Eu³⁺ chelate (615 nm)</option>
           <option value="tb">Tb³⁺ chelate (545 nm)</option>
@@ -78,7 +78,7 @@ canvas{display:block;border-radius:6px}
       <canvas id="c_diagram" width="820" height="130"></canvas>
     </div>
     <div class="card">
-      <div class="card-title">스트립 밴드 시뮬레이션 <span style="color:#555">(약신호 → 강신호)</span></div>
+      <div class="card-title">스트립 밴드 시뮬레이션 <span style="color:#7080a8">(약신호 → 강신호)</span></div>
       <canvas id="c_strip" width="820" height="160"></canvas>
     </div>
     <div class="card">
@@ -133,11 +133,11 @@ function go() {
 
   document.getElementById('stats').innerHTML =
     '<div class="stat"><div class="sv" style="color:#f0b93a">'+snrMid.toFixed(1)+'</div><div class="sk">SNR (중간농도)</div></div>'+
-    '<div class="stat"><div class="sv" style="color:#7eb8f7">'+lod+'×</div><div class="sk">LOD (검출한계)</div></div>'+
+    '<div class="stat"><div class="sv" style="color:#2060c0">'+lod+'×</div><div class="sk">LOD (검출한계)</div></div>'+
     '<div class="stat"><div class="sv" style="color:#4caf7d">'+stokes+'nm</div><div class="sk">스토크스 이동</div></div>'+
     '<div class="stat"><div class="sv" style="color:#b080ff">'+bgSup+'%</div><div class="sk">배경 제거율</div></div>'+
     '<div class="stat"><div class="sv" style="color:#f07070">'+dynRange+' dec</div><div class="sk">동적범위</div></div>'+
-    '<div class="stat"><div class="sv" style="color:#7eb8f7">'+fp.em+'nm</div><div class="sk">방출 파장</div></div>';
+    '<div class="stat"><div class="sv" style="color:#2060c0">'+fp.em+'nm</div><div class="sk">방출 파장</div></div>';
 
   drawDiagram(ex, gate, fp, fl);
   drawStrip(pw, qy, det, gate, tau, bg, cmin, cmax, fp);
@@ -159,7 +159,7 @@ function drawDiagram(ex, gate, fp, fl) {
   ];
 
   // connecting line
-  c.strokeStyle='#2a2d3a'; c.lineWidth=2; c.setLineDash([4,4]);
+  c.strokeStyle='#e8eeff'; c.lineWidth=2; c.setLineDash([4,4]);
   c.beginPath(); c.moveTo(30,60); c.lineTo(W-30,60); c.stroke(); c.setLineDash([]);
 
   // beam path (colored)
@@ -173,17 +173,17 @@ function drawDiagram(ex, gate, fp, fl) {
 
   // gate annotation
   c.fillStyle='rgba(126,184,247,0.1)'; c.fillRect(430,28,220,65);
-  c.strokeStyle='#7eb8f7'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.strokeStyle='#2060c0'; c.lineWidth=1; c.setLineDash([3,3]);
   c.beginPath(); c.moveTo(430,28); c.lineTo(650,28); c.stroke();
   c.beginPath(); c.moveTo(430,93); c.lineTo(650,93); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#7eb8f7'; c.font='bold 10px sans-serif'; c.fillText('Gate '+gate+'μs',520,22);
+  c.fillStyle='#2060c0'; c.font='bold 10px sans-serif'; c.fillText('Gate '+gate+'μs',520,22);
 
   items.forEach(function(it) {
     var x=it.x, y=60;
     if (it.icon==='star') {
       c.fillStyle=it.color;
       c.beginPath(); c.arc(x,y,16,0,Math.PI*2); c.fill();
-      c.fillStyle='#222'; c.font='bold 14px sans-serif'; c.textAlign='center'; c.fillText('✦',x,y+5);
+      c.fillStyle='#f0f4ff'; c.font='bold 14px sans-serif'; c.textAlign='center'; c.fillText('✦',x,y+5);
     } else if (it.icon==='rect') {
       c.fillStyle=it.color+'33'; c.strokeStyle=it.color; c.lineWidth=2;
       c.fillRect(x-10,y-22,20,44); c.strokeRect(x-10,y-22,20,44);
@@ -202,8 +202,8 @@ function drawDiagram(ex, gate, fp, fl) {
       c.beginPath(); c.moveTo(x-8,y-12); c.lineTo(x+8,y+12); c.stroke();
       c.beginPath(); c.moveTo(x+8,y-12); c.lineTo(x-8,y+12); c.stroke();
     }
-    c.textAlign='center'; c.fillStyle='#aaa'; c.font='11px sans-serif'; c.fillText(it.label,x,y+38);
-    c.fillStyle='#555'; c.font='10px sans-serif'; c.fillText(it.sub,x,y+50);
+    c.textAlign='center'; c.fillStyle='#6878a8'; c.font='11px sans-serif'; c.fillText(it.label,x,y+38);
+    c.fillStyle='#7080a8'; c.font='10px sans-serif'; c.fillText(it.sub,x,y+50);
   });
   c.textAlign='left';
 }
@@ -218,11 +218,11 @@ function drawStrip(pw, qy, det, gate, tau, bg, cmin, cmax, fp) {
   var sh = H - 35;
 
   // label top
-  c.fillStyle='#555'; c.font='10px sans-serif';
+  c.fillStyle='#7080a8'; c.font='10px sans-serif';
   c.fillText('← 약신호 (Weak)', 10, 12);
-  c.textAlign='center'; c.fillStyle='#888'; c.font='10px sans-serif';
+  c.textAlign='center'; c.fillStyle='#6878a8'; c.font='10px sans-serif';
   c.fillText('T-line: Eu³⁺  |  C-line: Anti-species IgG', W/2, 12);
-  c.textAlign='right'; c.fillStyle='#555';
+  c.textAlign='right'; c.fillStyle='#7080a8';
   c.fillText('강신호 (Strong) →', W-10, 12);
   c.textAlign='left';
 
@@ -280,9 +280,9 @@ function drawStrip(pw, qy, det, gate, tau, bg, cmin, cmax, fp) {
     // label bottom
     var label = conc >= 1000 ? '×'+(conc/1000).toFixed(1)+'k' : '×'+Math.round(conc);
     var snrLabel = 'SNR:'+(snr>0.1?snr.toFixed(1):'0.1');
-    c.fillStyle='#888'; c.font='9px sans-serif'; c.textAlign='center';
+    c.fillStyle='#6878a8'; c.font='9px sans-serif'; c.textAlign='center';
     c.fillText(label, x+sw/2, H-14);
-    c.fillStyle='#555'; c.font='8px sans-serif';
+    c.fillStyle='#7080a8'; c.font='8px sans-serif';
     c.fillText(snrLabel, x+sw/2, H-4);
     c.textAlign='left';
   }
@@ -305,9 +305,9 @@ function drawSNRcurve(pw, qy, det, gate, tau, bg, cmin, cmax, fp) {
   var yGrids=[0,25,50,75,100];
   yGrids.forEach(function(v){
     var y=yB-(yB-yT)*v/100;
-    c.strokeStyle='#1a1d2a'; c.lineWidth=1;
+    c.strokeStyle='#e8eeff'; c.lineWidth=1;
     c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
-    c.fillStyle='#444'; c.font='10px sans-serif'; c.textAlign='right';
+    c.fillStyle='#c8d2e8'; c.font='10px sans-serif'; c.textAlign='right';
     c.fillText(v+'%',xS-5,y+4);
   });
 
@@ -316,23 +316,23 @@ function drawSNRcurve(pw, qy, det, gate, tau, bg, cmin, cmax, fp) {
   xTicks.forEach(function(v){
     if(v<cmin||v>cmax*1.2) return;
     var xp=xS+(Math.log10(v)-logMin)/(logMax-logMin)*(xE-xS);
-    c.strokeStyle='#1a1d2a'; c.lineWidth=1;
+    c.strokeStyle='#e8eeff'; c.lineWidth=1;
     c.beginPath(); c.moveTo(xp,yT); c.lineTo(xp,yB); c.stroke();
-    c.fillStyle='#444'; c.font='10px sans-serif'; c.textAlign='center';
+    c.fillStyle='#c8d2e8'; c.font='10px sans-serif'; c.textAlign='center';
     var lbl=v>=1000?(v/1000)+'k':v+'';
     c.fillText(lbl,xp,yB+14);
   });
 
   // axes
-  c.strokeStyle='#2a2d3a'; c.lineWidth=1.5;
+  c.strokeStyle='#e8eeff'; c.lineWidth=1.5;
   c.beginPath(); c.moveTo(xS,yB); c.lineTo(xE,yB); c.stroke();
   c.beginPath(); c.moveTo(xS,yT); c.lineTo(xS,yB); c.stroke();
 
   // axis labels
-  c.fillStyle='#555'; c.font='11px sans-serif'; c.textAlign='center';
+  c.fillStyle='#7080a8'; c.font='11px sans-serif'; c.textAlign='center';
   c.fillText('농도 (LOD 배수, log scale)',W/2,H-4);
   c.save(); c.translate(14,(yT+yB)/2); c.rotate(-Math.PI/2);
-  c.fillStyle='#555'; c.font='11px sans-serif'; c.fillText('신호 / SNR (%)',0,0); c.restore();
+  c.fillStyle='#7080a8'; c.font='11px sans-serif'; c.fillText('신호 / SNR (%)',0,0); c.restore();
 
   var baseScale=(pw/50)*(qy/25)*(det/70)*Math.exp(-gate/tau)*(1-bg/100);
 
@@ -363,9 +363,9 @@ function drawSNRcurve(pw, qy, det, gate, tau, bg, cmin, cmax, fp) {
   // SNR=3 LOD line
   var snr3y=yB-(yB-yT)*3/100*baseScale*15;
   snr3y=Math.max(yT+5,Math.min(yB-5,yB-(yB-yT)*0.12));
-  c.strokeStyle='#f07070'; c.lineWidth=1; c.setLineDash([4,4]);
+  c.strokeStyle='#c03030'; c.lineWidth=1; c.setLineDash([4,4]);
   c.beginPath(); c.moveTo(xS,snr3y); c.lineTo(xE,snr3y); c.stroke(); c.setLineDash([]);
-  c.fillStyle='#f07070'; c.font='10px sans-serif'; c.textAlign='left';
+  c.fillStyle='#c03030'; c.font='10px sans-serif'; c.textAlign='left';
   c.fillText('SNR=3 (LOD)',xS+4,snr3y-4);
 
   // legend
