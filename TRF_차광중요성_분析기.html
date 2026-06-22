@@ -161,6 +161,7 @@ function drawCards(curLt) {
     {key:'dc',   title:'LED 조명',          sub:'(DC 연속)',    note:'속정 구간 내내 배\n경으로 작용',    verdict:'✗ 차광 필요',        vc:'#c03030', bg:'#fff0f0', border:'#f0b0b0'}
   ];
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var cw=(W-20)/4, gap=6;
   cards.forEach(function(card, i) {
     var x=10+i*(cw+gap), isActive=(card.key===curLt);
@@ -172,7 +173,7 @@ function drawCards(curLt) {
 
     c.fillStyle=card.vc; c.font='bold 13px sans-serif'; c.textAlign='center';
     c.fillText(card.title, x+cw/2-gap/2, 26);
-    c.fillStyle='#666'; c.font='11px sans-serif';
+    c.fillStyle='#7080a8'; c.font='11px sans-serif';
     c.fillText(card.sub, x+cw/2-gap/2, 42);
 
     var lines=card.note.split('\n');
@@ -197,6 +198,7 @@ function drawTiming(td, tg, lt) {
   var W=480, H=180;
   c.clearRect(0,0,W,H);
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var rows=[
     {label:'UV 펄스', y:20},
     {label:'배경형광', y:60},
@@ -209,14 +211,14 @@ function drawTiming(td, tg, lt) {
 
   // gate bg
   c.fillStyle='rgba(76,175,121,0.07)'; c.fillRect(gateX1,5,gateX2-gateX1,H-10);
-  c.strokeStyle='#2a5a3a'; c.lineWidth=1; c.setLineDash([3,3]);
+  c.strokeStyle='#70b080'; c.lineWidth=1; c.setLineDash([3,3]);
   c.beginPath(); c.moveTo(gateX1,5); c.lineTo(gateX1,H-5); c.stroke();
   c.beginPath(); c.moveTo(gateX2,5); c.lineTo(gateX2,H-5); c.stroke(); c.setLineDash([]);
   c.fillStyle='#1a8040'; c.font='10px sans-serif'; c.textAlign='center';
   c.fillText('측정 게이트',(gateX1+gateX2)/2,14); c.textAlign='left';
 
   rows.forEach(function(row){
-    c.fillStyle='#c8d2e8'; c.font='10px sans-serif'; c.fillText(row.label, 0, row.y+10);
+    c.fillStyle='#7080a8'; c.font='10px sans-serif'; c.fillText(row.label, 0, row.y+10);
     c.strokeStyle='#c8d2e8'; c.lineWidth=1;
     c.beginPath(); c.moveTo(xS,row.y+10); c.lineTo(xE,row.y+10); c.stroke();
   });
@@ -257,6 +259,7 @@ function drawBar(amb, sig, td, tg, lt) {
   var W=320, H=180;
   c.clearRect(0,0,W,H);
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var levels=[0,50,80,95,99];
   var lp=LT_PROPS[lt];
   var xS=40,xE=W-20,yB=H-20,yT=20;
@@ -277,7 +280,7 @@ function drawBar(amb, sig, td, tg, lt) {
     c.fillRect(x,yB-h,bw,h); c.strokeRect(x,yB-h,bw,h);
     c.fillStyle=colors[i]; c.font='bold 10px sans-serif'; c.textAlign='center';
     c.fillText(snrs[i].toFixed(1),x+bw/2,yB-h-4);
-    c.fillStyle='#666'; c.font='9px sans-serif';
+    c.fillStyle='#7080a8'; c.font='9px sans-serif';
     c.fillText(sh+'%',x+bw/2,yB+12);
   });
 
@@ -297,6 +300,7 @@ function drawCurve(curAmb, curSh, sig, td, tg, lt) {
   var W=860, H=180;
   c.clearRect(0,0,W,H);
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var xS=45, xE=W-20, yB=H-22, yT=12;
   var lp=LT_PROPS[lt];
   var eu=sig*Math.exp(-td/600)*(1-Math.exp(-tg/600));
@@ -308,13 +312,13 @@ function drawCurve(curAmb, curSh, sig, td, tg, lt) {
     var y=yB-(yB-yT)*v/maxSNR;
     c.strokeStyle='#c8d2e8'; c.lineWidth=1;
     c.beginPath(); c.moveTo(xS,y); c.lineTo(xE,y); c.stroke();
-    c.fillStyle='#c8d2e8'; c.font='9px sans-serif'; c.textAlign='right'; c.fillText(v,xS-4,y+4);
+    c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='right'; c.fillText(v,xS-4,y+4);
   });
   [0,20,40,60,80,100].forEach(function(v){
     var x=xS+v*(xE-xS)/100;
     c.strokeStyle='#c8d2e8'; c.lineWidth=1;
     c.beginPath(); c.moveTo(x,yT); c.lineTo(x,yB); c.stroke();
-    c.fillStyle='#c8d2e8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(v,x,yB+13);
+    c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText(v,x,yB+13);
   });
 
   c.strokeStyle='#c8d2e8'; c.lineWidth=1;
@@ -357,6 +361,7 @@ function drawTypes() {
     {name:'스트립 자체형광', trf:95, need:0, tc:'#1a8040', nc:'#1a8040'}
   ];
 
+  c.fillStyle='#ffffff'; c.fillRect(0,0,W,H);
   var midX=W/2, leftW=midX-100, rightW=midX-100;
   var rowH=26, yS=18;
 
@@ -368,7 +373,7 @@ function drawTypes() {
   types.forEach(function(t,i){
     var y=yS+i*rowH;
     // name
-    c.fillStyle='#777'; c.font='11px sans-serif'; c.textAlign='right';
+    c.fillStyle='#7080a8'; c.font='11px sans-serif'; c.textAlign='right';
     c.fillText(t.name, midX-leftW-8, y+16);
 
     // TRF bar
