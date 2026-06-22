@@ -32,6 +32,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 .ctrl{margin-bottom:8px}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
 .green{background:#e8f5ee;color:#1a8040}.blue{background:#e4eeff;color:#2060c0}.yellow{background:#fff3e0;color:#b06010}.red{background:#ffebeb;color:#c02828}
+@keyframes fbPop{0%{transform:scale(0.94);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
 </style>
 </head>
 <body>
@@ -244,6 +245,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 #cl_progress_fill{height:100%;background:linear-gradient(90deg,#2060c0,#40a0e0);border-radius:4px;transition:width .3s}
 #cl_summary{font-size:12px;color:#6878a8}
 #cl_verdict{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;display:none}
+@keyframes fbPop{0%{transform:scale(0.94);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
 </style>
 
 <div style="display:flex;gap:14px;flex-wrap:wrap;padding:16px">
@@ -535,7 +537,8 @@ function updateProgress() {
       <canvas id="c_layout9" width="700" height="380" style="max-width:100%;display:block"></canvas>
       <div class="chart-desc">💡 보라=UV LED 빛, 주황=T밴드 반사광, 파랑=PD 수광범위, 회색=차광벽. 스팟이 T밴드에 닿고 PD가 반사광을 잡으면 OK입니다.</div>
     </div>
-    <div class="card" style="margin-top:12px;padding:16px">
+    <div id="l9_feedback" style="margin-top:12px;display:none"></div>
+    <div class="card" style="margin-top:4px;padding:16px">
       <h3>📊 설계 검증 결과</h3>
       <div id="l9_result" style="color:#888;font-size:13px">슬라이더를 움직이면 결과가 나와요.</div>
     </div>
@@ -1650,6 +1653,7 @@ function drawCorrect(drift, temp) {
   c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('농도 (log scale)', (xS+xE)/2, yB+14);
   c.save(); c.translate(12,(yT+yB)/2); c.rotate(-Math.PI/2); c.fillText('신호 (RFU)', 0, 0); c.restore();
 }
+var _prev9=null;
 function upd9() {
   var ids=["l9_ledx","l9_ledh","l9_leda","l9_pdx","l9_pdh","l9_pdr","l9_shh"];
   var v={};
@@ -1799,6 +1803,40 @@ function calcLayout9(v) {
     "<tr><td style=\"color:#6878a8;padding:2px 8px 2px 0\">차광벽</td><td style=\"font-weight:bold\">H="+v["l9_shh"]+"mm</td></tr>"+
     "<tr><td style=\"color:#6878a8;padding:2px 8px 2px 0\">스팟</td><td style=\"font-weight:bold\">중심 X="+footX.toFixed(1)+"mm, 폭="+spotW.toFixed(1)+"mm</td></tr>"+
     "</table></div></div>";
+
+  // 피드백 배너
+  var fb=document.getElementById("l9_feedback");
+  if(fb) {
+    if(_prev9!==null) {
+      var diff=score-_prev9.score;
+      var dEta=(eta-_prev9.eta)*100;
+      var dSpot=spotW-_prev9.spotW;
+      var msgs=[];
+      if(Math.abs(dEta)>0.05) msgs.push("집광효율 "+(dEta>0?"↑+":"↓")+dEta.toFixed(1)+"%");
+      if(Math.abs(dSpot)>0.05) msgs.push("스팟 "+(dSpot<0?"↓작아짐 ✓":"↑커짐 ⚠️"));
+      if(tIllum!==_prev9.tIllum) msgs.push(tIllum?"T밴드 조사 ✓":"T밴드 놓침 ✗");
+      if(tCapture!==_prev9.tCapture) msgs.push(tCapture?"PD 수광 ✓":"PD 수광 놓침 ✗");
+      var detail=msgs.length?msgs.join(" · "):"";
+      if(diff>0) {
+        fb.style.cssText="display:flex;align-items:center;gap:12px;background:#e6f4ea;border:2px solid #70c080;border-radius:12px;padding:12px 16px;margin-top:12px;animation:fbPop 0.35s ease";
+        fb.innerHTML="<span style=\"font-size:28px\">🎉</span><div style=\"flex:1\"><div style=\"font-weight:bold;color:#1a6030;font-size:14px\">신호 좋아졌어요!</div><div style=\"font-size:11px;color:#2a8040;margin-top:2px\">"+detail+"</div></div><div style=\"font-size:22px;font-weight:bold;color:#1a8040;background:#c8ecd0;padding:4px 12px;border-radius:8px\">+"+diff+"점 ▲</div>";
+      } else if(diff<0) {
+        fb.style.cssText="display:flex;align-items:center;gap:12px;background:#fde8e8;border:2px solid #f08080;border-radius:12px;padding:12px 16px;margin-top:12px;animation:fbPop 0.35s ease";
+        fb.innerHTML="<span style=\"font-size:28px\">😰</span><div style=\"flex:1\"><div style=\"font-weight:bold;color:#901818;font-size:14px\">신호 나빠졌어요!</div><div style=\"font-size:11px;color:#c03030;margin-top:2px\">"+detail+"</div></div><div style=\"font-size:22px;font-weight:bold;color:#c03030;background:#fcc0c0;padding:4px 12px;border-radius:8px\">"+diff+"점 ▼</div>";
+      } else {
+        if(score>=80) {
+          fb.style.cssText="display:flex;align-items:center;gap:12px;background:#e8f0ff;border:2px solid #90b8f0;border-radius:12px;padding:12px 16px;margin-top:12px";
+          fb.innerHTML="<span style=\"font-size:28px\">✅</span><div style=\"font-weight:bold;color:#2050a0;font-size:14px\">현재 설계 좋아요!</div>";
+        } else {
+          fb.style.cssText="display:flex;align-items:center;gap:12px;background:#fff8e1;border:2px solid #e0c040;border-radius:12px;padding:12px 16px;margin-top:12px";
+          fb.innerHTML="<span style=\"font-size:28px\">🔧</span><div style=\"font-weight:bold;color:#a06000;font-size:14px\">아직 조정이 필요해요</div>";
+        }
+      }
+    } else {
+      fb.style.display="none";
+    }
+  }
+  _prev9={score:score,eta:eta,spotW:spotW,tIllum:tIllum,tCapture:tCapture};
 }
 
 </script>
