@@ -48,6 +48,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   <div class="tab" onclick="switchTab(6)">⑥ 차광 중요성</div>
   <div class="tab" onclick="switchTab(7)">⑦ 광학계 성능</div>
   <div class="tab" onclick="switchTab(8)">⑧ 신호 검출 & 캘리브레이션</div>
+  <div class="tab" onclick="switchTab(9)">⑨ 기구 레이아웃</div>
 </div>
 
 <!-- TAB1: TRF 원리 -->
@@ -484,6 +485,65 @@ function updateProgress() {
 </div>
 
 
+<!-- TAB9: 기구 레이아웃 프리뷰 -->
+<div id="t9" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>UV LED와 PD 센서 위치를 직접 바꿔가며, 빛이 스트립에 어떻게 닿고 얼마나 들어오는지 그림으로 바로 확인하는 탭이에요. 기구(하우징) 설계할 때 쓰세요.</div>
+<div class="row" style="align-items:flex-start;gap:16px">
+  <div class="card" style="min-width:240px;max-width:260px">
+    <h3>🔧 부품 위치 설정</h3>
+    <div class="cl-section" style="margin-top:8px">UV LED</div>
+    <div class="ctrl"><label>수평 위치 X mm<br><small style="color:#888">0=T밴드 위</small></label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_ledx" min="-15" max="15" value="-5" step="0.5" oninput="upd9()">
+        <span id="l9_ledx_v" style="min-width:40px;text-align:right;font-weight:bold">-5</span> mm
+      </div></div>
+    <div class="ctrl"><label>높이 H mm</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_ledh" min="3" max="30" value="12" step="0.5" oninput="upd9()">
+        <span id="l9_ledh_v" style="min-width:40px;text-align:right;font-weight:bold">12</span> mm
+      </div></div>
+    <div class="ctrl"><label>조사각 (0=수직, +우)</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_leda" min="-30" max="30" value="5" step="1" oninput="upd9()">
+        <span id="l9_leda_v" style="min-width:40px;text-align:right;font-weight:bold">5</span> deg
+      </div></div>
+    <div class="cl-section" style="margin-top:10px">PD 센서 (포토다이오드)</div>
+    <div class="ctrl"><label>수평 위치 X mm</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_pdx" min="-15" max="15" value="0" step="0.5" oninput="upd9()">
+        <span id="l9_pdx_v" style="min-width:40px;text-align:right;font-weight:bold">0</span> mm
+      </div></div>
+    <div class="ctrl"><label>높이 H mm</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_pdh" min="3" max="25" value="10" step="0.5" oninput="upd9()">
+        <span id="l9_pdh_v" style="min-width:40px;text-align:right;font-weight:bold">10</span> mm
+      </div></div>
+    <div class="ctrl"><label>센서 반지름 mm</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_pdr" min="1" max="8" value="3" step="0.5" oninput="upd9()">
+        <span id="l9_pdr_v" style="min-width:40px;text-align:right;font-weight:bold">3</span> mm
+      </div></div>
+    <div class="cl-section" style="margin-top:10px">차광벽</div>
+    <div class="ctrl"><label>차광벽 높이 mm</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_shh" min="0" max="20" value="5" step="0.5" oninput="upd9()">
+        <span id="l9_shh_v" style="min-width:40px;text-align:right;font-weight:bold">5</span> mm
+      </div></div>
+  </div>
+  <div style="flex:1;min-width:0">
+    <div class="card" style="padding:12px">
+      <canvas id="c_layout9" width="700" height="380" style="max-width:100%;display:block"></canvas>
+      <div class="chart-desc">💡 보라=UV LED 빛, 주황=T밴드 반사광, 파랑=PD 수광범위, 회색=차광벽. 스팟이 T밴드에 닿고 PD가 반사광을 잡으면 OK입니다.</div>
+    </div>
+    <div class="card" style="margin-top:12px;padding:16px">
+      <h3>📊 설계 검증 결과</h3>
+      <div id="l9_result" style="color:#888;font-size:13px">슬라이더를 움직이면 결과가 나와요.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+
 <script>
 // ── 탭 전환 ─────────────────────────────────────────────────
 function switchTab(n) {
@@ -493,7 +553,7 @@ function switchTab(n) {
   for (var i = 0; i < contents.length; i++) { contents[i].classList.remove('active'); }
   tabs[n-1].classList.add('active');
   document.getElementById('t'+n).classList.add('active');
-  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, upd8, null];
+  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, upd8, upd9];
   if (fn[n]) setTimeout(fn[n], 60);
 }
 
@@ -1590,6 +1650,157 @@ function drawCorrect(drift, temp) {
   c.fillStyle='#7080a8'; c.font='9px sans-serif'; c.textAlign='center'; c.fillText('농도 (log scale)', (xS+xE)/2, yB+14);
   c.save(); c.translate(12,(yT+yB)/2); c.rotate(-Math.PI/2); c.fillText('신호 (RFU)', 0, 0); c.restore();
 }
+function upd9() {
+  var ids=["l9_ledx","l9_ledh","l9_leda","l9_pdx","l9_pdh","l9_pdr","l9_shh"];
+  var v={};
+  ids.forEach(function(id){
+    v[id]=parseFloat(document.getElementById(id).value);
+    var sp=document.getElementById(id+"_v");
+    if(sp) sp.textContent=document.getElementById(id).value;
+  });
+  drawLayout9(v); calcLayout9(v);
+}
+function drawLayout9(v) {
+  var cv=document.getElementById("c_layout9"); if(!cv) return;
+  var c=cv.getContext("2d"), W=700, H=380, sc=10, ox=350, oy=325;
+  function px(m){return ox+m*sc;} function py(m){return oy-m*sc;}
+  c.clearRect(0,0,W,H);
+  c.fillStyle="#f4f7ff"; c.fillRect(0,0,W,H);
+  c.strokeStyle="#dde4f4"; c.lineWidth=0.5;
+  for(var gx=-30;gx<=30;gx+=5){c.beginPath();c.moveTo(px(gx),20);c.lineTo(px(gx),H);c.stroke();}
+  for(var gy=0;gy<=30;gy+=5){c.beginPath();c.moveTo(20,py(gy));c.lineTo(W-20,py(gy));c.stroke();}
+  c.fillStyle="#b0bcd8"; c.font="10px sans-serif"; c.textAlign="center";
+  for(var gx=-30;gx<=30;gx+=10) c.fillText(gx+"mm",px(gx),H-3);
+  c.textAlign="right";
+  for(var gy=0;gy<=30;gy+=5) c.fillText(gy+"mm",18,py(gy)+3);
+  c.fillStyle="#ffffff"; c.strokeStyle="#7080b0"; c.lineWidth=2;
+  c.fillRect(px(-25),py(1.5),50*sc,1.5*sc); c.strokeRect(px(-25),py(1.5),50*sc,1.5*sc);
+  c.fillStyle="rgba(220,50,50,0.3)"; c.fillRect(px(-1),py(1.5),2*sc,1.5*sc);
+  c.fillStyle="rgba(50,80,220,0.3)"; c.fillRect(px(3),py(1.5),2*sc,1.5*sc);
+  c.fillStyle="#8090b8"; c.font="10px sans-serif"; c.textAlign="center";
+  c.fillText("T",px(0),py(0.4)); c.fillText("C",px(4),py(0.4));
+  c.fillStyle="#9098c0"; c.fillText("LFA 스트립",ox,oy+15);
+  var ledA=v["l9_leda"]*Math.PI/180;
+  var ledPx=px(v["l9_ledx"]), ledPy=py(v["l9_ledh"]);
+  var cosA=Math.cos(ledA), sinA=Math.sin(ledA), hb=15*Math.PI/180;
+  var tFoot=cosA>0.01?v["l9_ledh"]/cosA:999;
+  var footX=v["l9_ledx"]+tFoot*sinA;
+  var cosA1=Math.cos(ledA-hb),sinA1=Math.sin(ledA-hb);
+  var cosA2=Math.cos(ledA+hb),sinA2=Math.sin(ledA+hb);
+  var t1=cosA1>0.01?v["l9_ledh"]/cosA1:999, t2=cosA2>0.01?v["l9_ledh"]/cosA2:999;
+  var f1x=v["l9_ledx"]+t1*sinA1, f2x=v["l9_ledx"]+t2*sinA2;
+  var spotW=Math.abs(f2x-f1x);
+  c.fillStyle="rgba(170,60,255,0.12)";
+  c.beginPath(); c.moveTo(ledPx,ledPy); c.lineTo(px(f1x),py(0)); c.lineTo(px(f2x),py(0)); c.closePath(); c.fill();
+  c.strokeStyle="rgba(150,30,255,0.45)"; c.lineWidth=1;
+  c.beginPath(); c.moveTo(ledPx,ledPy); c.lineTo(px(f1x),py(0)); c.stroke();
+  c.beginPath(); c.moveTo(ledPx,ledPy); c.lineTo(px(f2x),py(0)); c.stroke();
+  c.strokeStyle="rgba(120,0,210,0.6)"; c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(ledPx,ledPy); c.lineTo(px(footX),py(0)); c.stroke(); c.setLineDash([]);
+  var rhb=35*Math.PI/180;
+  c.fillStyle="rgba(255,140,0,0.09)";
+  c.beginPath(); c.moveTo(px(0),py(0));
+  c.lineTo(px(-v["l9_pdh"]*Math.tan(rhb)),py(v["l9_pdh"]+3));
+  c.lineTo(px(v["l9_pdh"]*Math.tan(rhb)),py(v["l9_pdh"]+3)); c.closePath(); c.fill();
+  c.strokeStyle="rgba(220,120,0,0.25)"; c.lineWidth=1; c.setLineDash([3,3]);
+  c.beginPath(); c.moveTo(px(0),py(0)); c.lineTo(px(-v["l9_pdh"]*Math.tan(rhb)),py(v["l9_pdh"]+3)); c.stroke();
+  c.beginPath(); c.moveTo(px(0),py(0)); c.lineTo(px(v["l9_pdh"]*Math.tan(rhb)),py(v["l9_pdh"]+3)); c.stroke();
+  c.setLineDash([]);
+  var lg=c.createRadialGradient(ledPx,ledPy,0,ledPx,ledPy,9);
+  lg.addColorStop(0,"#e090ff"); lg.addColorStop(1,"#6010a0");
+  c.fillStyle=lg; c.beginPath(); c.arc(ledPx,ledPy,8,0,2*Math.PI); c.fill();
+  c.strokeStyle="#4000a0"; c.lineWidth=1.5; c.stroke();
+  c.fillStyle="#fff"; c.font="bold 8px sans-serif"; c.textAlign="center"; c.fillText("UV",ledPx,ledPy+3);
+  c.fillStyle="#5000a0"; c.font="11px sans-serif"; c.textAlign="left";
+  c.fillText("UV LED ("+v["l9_ledx"]+", "+v["l9_ledh"]+"mm, "+v["l9_leda"]+"deg)",ledPx+11,ledPy-3);
+  var pdPx=px(v["l9_pdx"]), pdPy=py(v["l9_pdh"]);
+  var pdHa=30*Math.PI/180, pdSpread=v["l9_pdh"]*sc*Math.tan(pdHa);
+  c.fillStyle="rgba(30,100,220,0.10)";
+  c.beginPath(); c.moveTo(pdPx,pdPy); c.lineTo(pdPx-pdSpread,py(0)); c.lineTo(pdPx+pdSpread,py(0)); c.closePath(); c.fill();
+  c.strokeStyle="rgba(30,100,220,0.3)"; c.lineWidth=1; c.setLineDash([3,3]);
+  c.beginPath(); c.moveTo(pdPx,pdPy); c.lineTo(pdPx-pdSpread,py(0)); c.stroke();
+  c.beginPath(); c.moveTo(pdPx,pdPy); c.lineTo(pdPx+pdSpread,py(0)); c.stroke();
+  c.setLineDash([]);
+  var pdW2=v["l9_pdr"]*2*sc;
+  c.fillStyle="#1a3a90"; c.fillRect(pdPx-pdW2/2,pdPy-6,pdW2,12);
+  c.strokeStyle="#0020a0"; c.lineWidth=1.5; c.strokeRect(pdPx-pdW2/2,pdPy-6,pdW2,12);
+  c.fillStyle="#aaccff"; c.font="bold 8px sans-serif"; c.textAlign="center"; c.fillText("PD",pdPx,pdPy+3);
+  c.fillStyle="#0030b0"; c.font="10px sans-serif"; c.textAlign="right";
+  c.fillText("PD ("+v["l9_pdx"]+", "+v["l9_pdh"]+"mm, R="+v["l9_pdr"]+"mm)",pdPx-pdW2/2-5,pdPy-5);
+  if(v["l9_shh"]>0) {
+    c.fillStyle="rgba(70,75,100,0.55)";
+    c.fillRect(px(-20)-20,py(v["l9_shh"]),20,v["l9_shh"]*sc+2);
+    c.fillRect(px(20),py(v["l9_shh"]),20,v["l9_shh"]*sc+2);
+    c.fillStyle="#404460"; c.font="10px sans-serif"; c.textAlign="center";
+    c.fillText("차광벽 "+v["l9_shh"]+"mm",px(-20)-10,py(v["l9_shh"])-5);
+  }
+  c.strokeStyle="#cc6600"; c.lineWidth=2.5;
+  c.beginPath(); c.moveTo(px(f1x),py(0.4)); c.lineTo(px(f2x),py(0.4)); c.stroke();
+  c.fillStyle="#cc6600"; c.font="bold 10px sans-serif"; c.textAlign="center";
+  c.fillText("스팟 "+spotW.toFixed(1)+"mm",px((f1x+f2x)/2),py(0.4)-5);
+  c.strokeStyle="#c03030"; c.lineWidth=1; c.setLineDash([3,3]);
+  c.beginPath(); c.moveTo(ledPx-22,ledPy); c.lineTo(ledPx-22,py(0)); c.stroke(); c.setLineDash([]);
+  c.fillStyle="#c03030"; c.font="10px sans-serif"; c.textAlign="right";
+  c.fillText(v["l9_ledh"]+"mm",ledPx-24,(ledPy+py(0))/2+3);
+  c.fillStyle="#1e2540"; c.font="bold 13px sans-serif"; c.textAlign="center";
+  c.fillText("TRF LFA 광학계 단면도 (측면, mm)",W/2,14);
+}
+function calcLayout9(v) {
+  var d=v["l9_pdh"], r=v["l9_pdr"];
+  var eta=(1-d/Math.sqrt(r*r+d*d))/2;
+  var ledA=v["l9_leda"]*Math.PI/180;
+  var cosA=Math.cos(ledA), sinA=Math.sin(ledA);
+  var tFoot=cosA>0.01?v["l9_ledh"]/cosA:999;
+  var footX=v["l9_ledx"]+tFoot*sinA;
+  var cosA1=Math.cos(ledA-15*Math.PI/180),sinA1=Math.sin(ledA-15*Math.PI/180);
+  var cosA2=Math.cos(ledA+15*Math.PI/180),sinA2=Math.sin(ledA+15*Math.PI/180);
+  var t1=cosA1>0.01?v["l9_ledh"]/cosA1:999, t2=cosA2>0.01?v["l9_ledh"]/cosA2:999;
+  var f1x=v["l9_ledx"]+t1*sinA1, f2x=v["l9_ledx"]+t2*sinA2;
+  var spotW=Math.abs(f2x-f1x);
+  var tIllum=!(f1x>1||f2x<-1);
+  var pdSpX=v["l9_pdh"]*Math.tan(30*Math.PI/180);
+  var pdL=v["l9_pdx"]-pdSpX, pdR2=v["l9_pdx"]+pdSpX;
+  var tCapture=!(pdL>1||pdR2<-1);
+  var shieldOK=v["l9_shh"]>Math.min(v["l9_ledh"],v["l9_pdh"])*0.4;
+  var score=0;
+  if(tIllum) score+=40; if(tCapture) score+=40; if(shieldOK) score+=20;
+  var grade=score>=80?"A OK":score>=60?"B 주의":"C 개선필요";
+  var gColor=score>=80?"#1a8040":score>=60?"#c07818":"#c03030";
+  var gBg=score>=80?"#e6f4ea":score>=60?"#fff8e1":"#fde8e8";
+  var p=document.getElementById("l9_result"); if(!p) return;
+  p.innerHTML=
+    "<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px\">"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">빛 스팟 크기</div>"+
+    "<div style=\"font-size:20px;font-weight:bold;color:#1e2540\">"+spotW.toFixed(1)+"<span style=\"font-size:11px\">mm</span></div>"+
+    "<div style=\"font-size:10px;color:"+(spotW<4?"#1a8040":"#c03030")+"\">T밴드 "+(spotW<4?"OK":"큼")+"</div></div>"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">집광 효율</div>"+
+    "<div style=\"font-size:20px;font-weight:bold;color:#1e2540\">"+(eta*100).toFixed(1)+"<span style=\"font-size:11px\">%</span></div>"+
+    "<div style=\"font-size:10px;color:"+(eta>0.05?"#1a8040":"#c03030")+"\">"+(eta>0.10?"우수":eta>0.05?"보통":"낮음")+"</div></div>"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">T밴드 조사</div>"+
+    "<div style=\"font-size:18px;font-weight:bold;color:"+(tIllum?"#1a8040":"#c03030")+"\">"+(tIllum?"OK":"NG")+"</div>"+
+    "<div style=\"font-size:10px;color:#6878a8\">중심 "+footX.toFixed(1)+"mm</div></div>"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">차광</div>"+
+    "<div style=\"font-size:18px;font-weight:bold;color:"+(shieldOK?"#1a8040":"#c03030")+"\">"+(shieldOK?"OK":"NG")+"</div>"+
+    "<div style=\"font-size:10px;color:#6878a8\">"+v["l9_shh"]+"mm</div></div>"+
+    "</div>"+
+    "<div style=\"display:flex;gap:12px\">"+
+    "<div style=\"background:"+gBg+";border-radius:10px;padding:14px 18px;text-align:center\">"+
+    "<div style=\"font-size:11px;color:#6878a8;margin-bottom:2px\">종합 등급</div>"+
+    "<div style=\"font-size:26px;font-weight:bold;color:"+gColor+"\">"+grade+"</div></div>"+
+    "<div style=\"background:#f4f6fc;border-radius:8px;padding:12px;flex:1\">"+
+    "<div style=\"font-size:12px;font-weight:bold;color:#1e2540;margin-bottom:6px\">기구 도면 치수 요약</div>"+
+    "<table style=\"font-size:11px;width:100%;border-collapse:collapse\">"+
+    "<tr><td style=\"color:#6878a8;padding:2px 8px 2px 0\">UV LED</td><td style=\"font-weight:bold\">X="+v["l9_ledx"]+"mm, H="+v["l9_ledh"]+"mm, 각도="+v["l9_leda"]+"deg</td></tr>"+
+    "<tr><td style=\"color:#6878a8;padding:2px 8px 2px 0\">PD 센서</td><td style=\"font-weight:bold\">X="+v["l9_pdx"]+"mm, H="+v["l9_pdh"]+"mm, R="+v["l9_pdr"]+"mm</td></tr>"+
+    "<tr><td style=\"color:#6878a8;padding:2px 8px 2px 0\">차광벽</td><td style=\"font-weight:bold\">H="+v["l9_shh"]+"mm</td></tr>"+
+    "<tr><td style=\"color:#6878a8;padding:2px 8px 2px 0\">스팟</td><td style=\"font-weight:bold\">중심 X="+footX.toFixed(1)+"mm, 폭="+spotW.toFixed(1)+"mm</td></tr>"+
+    "</table></div></div>";
+}
+
 </script>
 <div id="cl-tooltip"></div></body>
 </html>
