@@ -2084,10 +2084,10 @@ function calc10(){
   // 결과 패널
   var p=document.getElementById("d10_result");if(!p)return;
   var scenes=[
-    {id:"s10_00",label:"칸막이 없음",color:"#fde8e8",tColor:"#c03030",verdict:"❌ 측정 불가",desc:"광학 누화 "+（xt1*100).toFixed(0)+"%로 인접 채널 신호가 완전히 섞임. 7채널 독립 측정 불가"},
-    {id:"s10_10",label:"광학부 칸막이 ✓",color:"#e6f4ea",tColor:"#1a8040",verdict:"✅ 권장",desc:"멤브레인 산란만 남아 누화 "+（xt1*100).toFixed(2)+"%로 무시 가능. 테스트 스틱 변경 불필요"},
-    {id:"s10_01",label:"스틱 칸막이만 ✓",color:"#fff8e1",tColor:"#c07818",verdict:"⚠️ 불충분",desc:"직접 광학 경로 "+（xt1*100).toFixed(0)+"%가 여전히 존재. 광학부 칸막이가 핵심"},
-    {id:"s10_11",label:"둘 다 칸막이 ✓",color:"#e8f0ff",tColor:"#2060c0",verdict:"✅ 최적",desc:"누화 "+（xt1*100).toFixed(3)+"%로 완벽 격리. 단, 스틱 제조 복잡도 ↑"}
+    {id:"s10_00",label:"칸막이 없음",color:"#fde8e8",tColor:"#c03030",verdict:"❌ 측정 불가",desc:"광학 누화 "+(xt1*100).toFixed(0)+"%로 인접 채널 신호가 완전히 섞임. 7채널 독립 측정 불가"},
+    {id:"s10_10",label:"광학부 칸막이 ✓",color:"#e6f4ea",tColor:"#1a8040",verdict:"✅ 권장",desc:"멤브레인 산란만 남아 누화 "+(xt1*100).toFixed(2)+"%로 무시 가능. 테스트 스틱 변경 불필요"},
+    {id:"s10_01",label:"스틱 칸막이만 ✓",color:"#fff8e1",tColor:"#c07818",verdict:"⚠️ 불충분",desc:"직접 광학 경로 "+(xt1*100).toFixed(0)+"%가 여전히 존재. 광학부 칸막이가 핵심"},
+    {id:"s10_11",label:"둘 다 칸막이 ✓",color:"#e8f0ff",tColor:"#2060c0",verdict:"✅ 최적",desc:"누화 "+(xt1*100).toFixed(3)+"%로 완벽 격리. 단, 스틱 제조 복잡도 ↑"}
   ];
   var cur=_s10.op?(_s10.sp?3:1):(_s10.sp?2:0);
   var sc=scenes[cur];
@@ -2116,8 +2116,8 @@ function calc10(){
     "<div style=\"background:#eff4ff;border-left:4px solid #2060c0;border-radius:0 8px 8px 0;padding:12px\">"+
     "<div style=\"font-weight:bold;color:#2060c0;margin-bottom:6px\">💡 결론: 칸막이 설계 가이드</div>"+
     "<div style=\"font-size:12px;color:#2a3050;line-height:1.8\">"+
-    "📌 <b>광학부 칸막이</b> → <b style=\"color:#c03030\">반드시 필요</b>. 칸막이 없으면 인접 채널 누화 "+（ov1*100).toFixed(0)+"%로 신호 구별 불가<br>"+
-    "📌 <b>테스트 스틱 칸막이</b> → <b style=\"color:#1a8040\">없어도 됨</b>. 멤브레인 측면 산란은 2.5mm에서 "+（mem1*100).toFixed(2)+"%로 무시 가능<br>"+
+    "📌 <b>광학부 칸막이</b> → <b style=\"color:#c03030\">반드시 필요</b>. 칸막이 없으면 인접 채널 누화 "+(ov1*100).toFixed(0)+"%로 신호 구별 불가<br>"+
+    "📌 <b>테스트 스틱 칸막이</b> → <b style=\"color:#1a8040\">없어도 됨</b>. 멤브레인 측면 산란은 2.5mm에서 "+(mem1*100).toFixed(2)+"%로 무시 가능<br>"+
     "📌 기존 테스트 스틱(칸막이 없음)을 그대로 사용하면서 광학 하우징에만 칸막이를 설계하면 됩니다"+
     "</div></div>";
 }
