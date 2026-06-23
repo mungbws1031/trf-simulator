@@ -1902,8 +1902,16 @@ function calcLayout9(v) {
 }
 
 // ── TAB10: 다채널 격리 ────────────────────────────────────────
-var _s10={op:false,sp:false};
-function upd10(){draw10();calc10();}
+var _s10={op:true,sp:false};
+function upd10(){
+  // 초기 버튼 활성화
+  var initBtn=document.getElementById("s10_"+(parseInt(_s10.op?1:0)+"")+(parseInt(_s10.sp?1:0)+""));
+  if(initBtn&&initBtn.style.background!="#2060c0"){
+    document.querySelectorAll(".s10btn").forEach(function(b){b.style.background="#f0f4ff";b.style.color="#6878a8";b.style.borderColor="#dde2f0";});
+    initBtn.style.background="#2060c0";initBtn.style.color="#fff";initBtn.style.borderColor="#2060c0";
+  }
+  draw10();calc10();
+}
 function setS10(op,sp){
   _s10={op:op,sp:sp};
   document.querySelectorAll(".s10btn").forEach(function(b){
@@ -1942,25 +1950,46 @@ function draw10(){
     c.fillStyle=isAct?"rgba(80,160,100,0.18)":"rgba(200,210,240,0.25)";
     c.fillRect(px(cx-sp/2),py(1.5),sp*sc,1.5*sc);
   });
-  // 광학부 칸막이
+  // 광학부 칸막이 (두꺼운 벽)
   if(_s10.op){
     for(var i=0;i<=nCh;i++){
       var wx=chPos[0]-sp/2+i*sp;
-      c.fillStyle="rgba(80,85,110,0.7)";
-      c.fillRect(px(wx)-2,py(ledH+1.5),4,(ledH+1.5)*sc);
+      var wallX=px(wx), wallTop=py(ledH+2), wallBot=py(0);
+      var wallW=6;
+      // 벽 그림자
+      c.fillStyle="rgba(60,65,90,0.15)";
+      c.fillRect(wallX-wallW/2+3,wallTop+3,wallW,wallBot-wallTop);
+      // 벽 본체
+      c.fillStyle="#5a5f7a";
+      c.fillRect(wallX-wallW/2,wallTop,wallW,wallBot-wallTop);
+      // 벽 하이라이트
+      c.fillStyle="rgba(255,255,255,0.25)";
+      c.fillRect(wallX-wallW/2,wallTop,2,wallBot-wallTop);
     }
-    c.fillStyle="#505570";c.font="bold 9px sans-serif";c.textAlign="left";
-    c.fillText("◀ 광학부 칸막이",px(chPos[0]-sp/2)+4,py(ledH+1.5)-4);
+    // 칸막이 라벨 (화살표)
+    var labelX=px(chPos[0]-sp/2+sp*0.5), labelY=py(ledH+2)-10;
+    c.fillStyle="#3a3f60";c.font="bold 10px sans-serif";c.textAlign="center";
+    c.fillText("▼ 광학부 칸막이",labelX, labelY);
+    // 칸막이 높이 치수선
+    var dimX=px(chPos[nCh-1]+sp/2)+15;
+    c.strokeStyle="#5a5f7a";c.lineWidth=1;c.setLineDash([3,2]);
+    c.beginPath();c.moveTo(dimX,py(ledH+2));c.lineTo(dimX,py(0));c.stroke();c.setLineDash([]);
+    c.fillStyle="#5a5f7a";c.font="9px sans-serif";c.textAlign="left";
+    c.fillText((ledH+2)+"mm",dimX+3,(py(ledH+2)+py(0))/2+3);
   }
   // 스틱 칸막이
   if(_s10.sp){
     for(var i=0;i<=nCh;i++){
       var wx=chPos[0]-sp/2+i*sp;
-      c.fillStyle="rgba(50,140,80,0.6)";
-      c.fillRect(px(wx)-2,py(1.5),4,1.5*sc);
+      var wallX=px(wx), wallW=5;
+      // 스틱 벽
+      c.fillStyle="#2a8050";
+      c.fillRect(wallX-wallW/2,py(1.5),wallW,1.5*sc);
+      c.fillStyle="rgba(255,255,255,0.3)";
+      c.fillRect(wallX-wallW/2,py(1.5),2,1.5*sc);
     }
-    c.fillStyle="#2a7040";c.font="9px sans-serif";c.textAlign="left";
-    c.fillText("스틱 칸막이",px(chPos[0]-sp/2)+4,py(0)-4);
+    c.fillStyle="#1a6038";c.font="bold 10px sans-serif";c.textAlign="center";
+    c.fillText("▲ 스틱 칸막이",px(chPos[0]-sp/2+sp*0.5),py(0)+26);
   }
   // 중심 채널(CH4) 빔 계산
   var cCh=chPos[actCh];
