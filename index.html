@@ -455,6 +455,7 @@ function updateProgress() {
     <div class="ctrl"><label>지연시간 t_d (μs)<span class="val" id="v8_td">100</span></label><input type="range" id="r8_td" min="10" max="500" value="100" oninput="upd8()"></div>
     <div class="ctrl"><label>게이트 폭 t_g (μs)<span class="val" id="v8_tg">600</span></label><input type="range" id="r8_tg" min="100" max="2000" value="600" oninput="upd8()"></div>
     <div class="ctrl"><label>소광 여유 t_off (μs)<span class="val" id="v8_off">200</span></label><input type="range" id="r8_off" min="50" max="500" value="200" oninput="upd8()"></div>
+    <div class="ctrl"><label>Eu³⁺ 수명 τ (μs)<span class="val" id="v8_tau">600</span></label><input type="range" id="r8_tau" min="100" max="1500" value="600" oninput="upd8()"></div>
     <div id="prf_result" style="margin-top:8px;font-size:12px;line-height:1.8"></div>
     <div class="chart-desc" style="margin-top:8px">펄스를 너무 빨리 반복하면 이전 Eu³⁺ 신호가 아직 남아있는 상태에서 다음 측정이 시작돼요. 충분히 기다렸다 다음 펄스를 쏘아야 신호가 안 겹쳐요.</div>
   </div>
@@ -510,6 +511,11 @@ function updateProgress() {
         <input type="range" id="l9_leda" min="-30" max="30" value="5" step="1" oninput="upd9()">
         <span id="l9_leda_v" style="min-width:40px;text-align:right;font-weight:bold">5</span> deg
       </div></div>
+    <div class="ctrl"><label>LED 빔 반각 (°)<br><small style="color:#888">±각도, UV LED 방사각</small></label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_beama" min="5" max="45" value="15" step="1" oninput="upd9()">
+        <span id="l9_beama_v" style="min-width:40px;text-align:right;font-weight:bold">15</span> °
+      </div></div>
     <div class="cl-section" style="margin-top:10px">PD 센서 (포토다이오드)</div>
     <div class="ctrl"><label>수평 위치 X mm</label>
       <div style="display:flex;align-items:center;gap:6px">
@@ -525,6 +531,11 @@ function updateProgress() {
       <div style="display:flex;align-items:center;gap:6px">
         <input type="range" id="l9_pdr" min="1" max="8" value="3" step="0.5" oninput="upd9()">
         <span id="l9_pdr_v" style="min-width:40px;text-align:right;font-weight:bold">3</span> mm
+      </div></div>
+    <div class="ctrl"><label>PD 수광 반각 (°)<br><small style="color:#888">수광 시야각</small></label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="range" id="l9_pdang" min="10" max="60" value="30" step="1" oninput="upd9()">
+        <span id="l9_pdang_v" style="min-width:40px;text-align:right;font-weight:bold">30</span> °
       </div></div>
     <div class="cl-section" style="margin-top:10px">차광벽</div>
     <div class="ctrl"><label>차광벽 높이 mm</label>
@@ -980,11 +991,13 @@ function upd2() {
   document.getElementById('v2_bg').textContent=bg;
   document.getElementById('v2_sig').textContent=sig;
   var eta=Math.exp(-td/tau)*(1-Math.exp(-tg/tau));
-  var snr=sig*eta/Math.max(0.01,bg*0.001);
-  var optTd=tau*Math.log(1+tg/tau);
+  var tau_bg=0.05; // 배경 수명 50ns (자가형광 대표값, μs단위)
+  var bg_gated=bg*Math.exp(-td/tau_bg)*(1-Math.exp(-tg/tau_bg));
+  var S=sig*eta, snr=S/Math.sqrt(Math.max(1,S+bg_gated));
+  var optTd=Math.max(5*tau_bg, 0.1*tau); // 배경 소거 최소 지연
   document.getElementById('r2_eta').textContent=(eta*100).toFixed(1)+'%';
-  document.getElementById('r2_snr').textContent=snr.toFixed(0);
-  document.getElementById('r2_opt').textContent=optTd.toFixed(0)+'μs';
+  document.getElementById('r2_snr').textContent=snr.toFixed(1);
+  document.getElementById('r2_opt').textContent=optTd.toFixed(2)+'μs';
   drawTiming2(td,tg,tau); drawEtaCurve(td,tg,tau); drawSNR2(sig,bg,td,tg,tau); drawSpec2();
 }
 
@@ -996,8 +1009,8 @@ function drawTiming2(td,tg,tau) {
   c.fillStyle='#6030d0'; c.fillRect(xS,H-80,15,50); c.fillStyle='#8060e8'; c.font='9px sans-serif'; c.fillText('UV',xS+2,H-83);
   // background decay
   c.strokeStyle='#c03030'; c.lineWidth=1.5; c.beginPath();
-  for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/50), y=(H-30)-50*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
-  c.stroke(); c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경',xS+22,H-68);
+  for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/2), y=(H-30)-50*v; // 배경 τ≈2μs(시각화용) if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
+  c.stroke(); c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경(τ≈2μs, 산란/자가형광)',xS+22,H-68);
   // Eu signal
   c.strokeStyle='#2272cc'; c.lineWidth=1.5; c.beginPath();
   for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/tau), y=(H-30)-55*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
@@ -1038,7 +1051,7 @@ function drawSNR2(sig,bg,td,tg,tau) {
   var c=document.getElementById('c_snr2').getContext('2d'), W=200, H=140;
   c.clearRect(0,0,W,H);
   var eta=Math.exp(-td/tau)*(1-Math.exp(-tg/tau));
-  var snrConv=sig/Math.max(0.1,bg), snrTRF=sig*eta/Math.max(0.01,bg*0.001);
+  var tau_bg2=0.05; var bg_g=bg*Math.exp(-td/tau_bg2)*(1-Math.exp(-tg/tau_bg2)); var snrConv=sig/Math.sqrt(Math.max(1,sig+bg)); var snrTRF=(sig*eta)/Math.sqrt(Math.max(1,sig*eta+bg_g));
   var mx=Math.max(snrConv,snrTRF)*1.2;
   var bars=[{label:'기존',v:snrConv,color:'#c03030'},{label:'TRF',v:snrTRF,color:'#2272cc'}];
   bars.forEach(function(b,i) {
@@ -1307,7 +1320,7 @@ function upd5() {
   document.getElementById('v5_r').textContent=r;
   document.getElementById('v5_tc').textContent=tc;
   // η = (1 - cos θ)/2, cos θ = d/√(r²+d²) — 정확한 입체각 기반 수집 효율
-  var eta=(1-d/Math.sqrt(r*r+d*d))/2, na=r/Math.sqrt(r*r+d*d), spot=2*d*0.1, xtalk=Math.exp(-tc*tc/(2*spot*spot))*100;
+  var eta=(1-d/Math.sqrt(r*r+d*d))/2, na=r/Math.sqrt(r*r+d*d), spot=2*d*Math.tan(15*3.14159/180), xtalk=Math.exp(-tc*tc/(2*spot*spot))*100;
   document.getElementById('v5_eta').textContent=(eta*100).toFixed(3)+'%';
   document.getElementById('v5_na').textContent=na.toFixed(3);
   document.getElementById('v5_spot').textContent=spot.toFixed(1)+'mm';
@@ -1566,6 +1579,7 @@ function upd8() {
   var slope= parseInt(document.getElementById('r8_slope').value);
   var drift= parseInt(document.getElementById('r8_drift').value);
   var temp = parseInt(document.getElementById('r8_temp').value);
+  var tau8 = (document.getElementById('r8_tau') ? parseInt(document.getElementById('r8_tau').value) : 600);
 
   document.getElementById('v8_td').textContent  = td;
   document.getElementById('v8_tg').textContent  = tg;
@@ -1578,12 +1592,13 @@ function upd8() {
   document.getElementById('v8_sigma').textContent= sig;
   document.getElementById('v8_slope').textContent= slope;
   document.getElementById('v8_drift').textContent= drift;
+  if(document.getElementById('v8_tau')) document.getElementById('v8_tau').textContent= tau8;
   document.getElementById('v8_temp').textContent= temp;
 
   // PRF 계산
   var totalCycle = td + tg + toff;
   var maxPRF = Math.floor(1e6 / totalCycle);
-  var euRemain = Math.exp(-(toff)/600)*100;
+  var euRemain = Math.exp(-totalCycle/tau8)*100; // 1사이클 후 잔류 Eu 신호
   var prfOK = euRemain < 1;
   document.getElementById('prf_result').innerHTML =
     '<div class="kv"><span>1사이클 총 시간</span><span class="val">'+ totalCycle +' μs</span></div>' +
@@ -1717,7 +1732,7 @@ function drawCorrect(drift, temp) {
 }
 var _prev9=null;
 function upd9() {
-  var ids=["l9_ledx","l9_ledh","l9_leda","l9_pdx","l9_pdh","l9_pdr","l9_shh"];
+  var ids=["l9_ledx","l9_ledh","l9_leda","l9_beama","l9_pdx","l9_pdh","l9_pdr","l9_pdang","l9_shh"];
   var v={};
   ids.forEach(function(id){
     v[id]=parseFloat(document.getElementById(id).value);
@@ -1748,7 +1763,7 @@ function drawLayout9(v) {
   c.fillStyle="#9098c0"; c.fillText("LFA 스트립",ox,oy+15);
   var ledA=v["l9_leda"]*Math.PI/180;
   var ledPx=px(v["l9_ledx"]), ledPy=py(v["l9_ledh"]);
-  var cosA=Math.cos(ledA), sinA=Math.sin(ledA), hb=15*Math.PI/180;
+  var hb_deg=v["l9_beama"]||15; var cosA=Math.cos(ledA), sinA=Math.sin(ledA), hb=hb_deg*Math.PI/180;
   var tFoot=cosA>0.01?v["l9_ledh"]/cosA:999;
   var footX=v["l9_ledx"]+tFoot*sinA;
   var cosA1=Math.cos(ledA-hb),sinA1=Math.sin(ledA-hb);
@@ -1780,7 +1795,7 @@ function drawLayout9(v) {
   c.fillStyle="#5000a0"; c.font="11px sans-serif"; c.textAlign="left";
   c.fillText("UV LED ("+v["l9_ledx"]+", "+v["l9_ledh"]+"mm, "+v["l9_leda"]+"deg)",ledPx+11,ledPy-3);
   var pdPx=px(v["l9_pdx"]), pdPy=py(v["l9_pdh"]);
-  var pdHa=30*Math.PI/180, pdSpread=v["l9_pdh"]*sc*Math.tan(pdHa);
+  var pdHa_deg=v["l9_pdang"]||30; var pdHa=pdHa_deg*Math.PI/180, pdSpread=v["l9_pdh"]*sc*Math.tan(pdHa);
   c.fillStyle="rgba(30,100,220,0.10)";
   c.beginPath(); c.moveTo(pdPx,pdPy); c.lineTo(pdPx-pdSpread,py(0)); c.lineTo(pdPx+pdSpread,py(0)); c.closePath(); c.fill();
   c.strokeStyle="rgba(30,100,220,0.3)"; c.lineWidth=1; c.setLineDash([3,3]);
@@ -1818,13 +1833,13 @@ function calcLayout9(v) {
   var cosA=Math.cos(ledA), sinA=Math.sin(ledA);
   var tFoot=cosA>0.01?v["l9_ledh"]/cosA:999;
   var footX=v["l9_ledx"]+tFoot*sinA;
-  var cosA1=Math.cos(ledA-15*Math.PI/180),sinA1=Math.sin(ledA-15*Math.PI/180);
-  var cosA2=Math.cos(ledA+15*Math.PI/180),sinA2=Math.sin(ledA+15*Math.PI/180);
+  var beamHa_deg=v["l9_beama"]||15; var beamHa=beamHa_deg*Math.PI/180; var cosA1=Math.cos(ledA-beamHa),sinA1=Math.sin(ledA-beamHa);
+  var cosA2=Math.cos(ledA+beamHa),sinA2=Math.sin(ledA+beamHa);
   var t1=cosA1>0.01?v["l9_ledh"]/cosA1:999, t2=cosA2>0.01?v["l9_ledh"]/cosA2:999;
   var f1x=v["l9_ledx"]+t1*sinA1, f2x=v["l9_ledx"]+t2*sinA2;
   var spotW=Math.abs(f2x-f1x);
   var tIllum=!(f1x>1||f2x<-1);
-  var pdSpX=v["l9_pdh"]*Math.tan(30*Math.PI/180);
+  var pdSpX=v["l9_pdh"]*Math.tan((v["l9_pdang"]||30)*Math.PI/180);
   var pdL=v["l9_pdx"]-pdSpX, pdR2=v["l9_pdx"]+pdSpX;
   var tCapture=!(pdL>1||pdR2<-1);
   var shieldOK=v["l9_shh"]>Math.min(v["l9_ledh"],v["l9_pdh"])*0.4;
