@@ -50,6 +50,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   <div class="tab" onclick="switchTab(7)">⑦ 광학계 성능</div>
   <div class="tab" onclick="switchTab(8)">⑧ 신호 검출 & 캘리브레이션</div>
   <div class="tab" onclick="switchTab(9)">⑨ 기구 레이아웃</div>
+  <div class="tab" onclick="switchTab(10)">⑩ 다채널 격리</div>
 </div>
 
 <!-- TAB1: TRF 원리 -->
@@ -547,6 +548,67 @@ function updateProgress() {
 </div>
 
 
+<!-- TAB10: 다채널 격리 분析 -->
+<div id="t10" class="tabcontent">
+<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>LED·PD가 2.5mm 간격으로 7개 늘어서 있을 때, 옆 채널 빛이 얼마나 새어 들어오는지(누화) 계산하고, 광학부 칸막이·테스트스틱 칸막이가 각각 어떤 역할을 하는지 비교해요.</div>
+<div class="row" style="align-items:flex-start;gap:16px">
+
+  <!-- 시나리오 선택 -->
+  <div class="card" style="min-width:230px;max-width:250px">
+    <h3>🔧 칸막이 시나리오</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+      <button id="s10_00" class="s10btn" onclick="setS10(false,false)" style="padding:10px 6px;border-radius:8px;border:2px solid #dde2f0;background:#f0f4ff;cursor:pointer;font-size:11px;color:#6878a8">
+        <div style="font-size:18px">❌❌</div>
+        <div style="font-weight:bold;margin-top:4px">둘 다 없음</div>
+        <div style="font-size:10px;color:#c03030">최악</div>
+      </button>
+      <button id="s10_10" class="s10btn" onclick="setS10(true,false)" style="padding:10px 6px;border-radius:8px;border:2px solid #dde2f0;background:#f0f4ff;cursor:pointer;font-size:11px;color:#6878a8">
+        <div style="font-size:18px">✅❌</div>
+        <div style="font-weight:bold;margin-top:4px">광학부만</div>
+        <div style="font-size:10px;color:#1a8040">권장</div>
+      </button>
+      <button id="s10_01" class="s10btn" onclick="setS10(false,true)" style="padding:10px 6px;border-radius:8px;border:2px solid #dde2f0;background:#f0f4ff;cursor:pointer;font-size:11px;color:#6878a8">
+        <div style="font-size:18px">❌✅</div>
+        <div style="font-weight:bold;margin-top:4px">스틱만</div>
+        <div style="font-size:10px;color:#c07818">불충분</div>
+      </button>
+      <button id="s10_11" class="s10btn" onclick="setS10(true,true)" style="padding:10px 6px;border-radius:8px;border:2px solid #dde2f0;background:#f0f4ff;cursor:pointer;font-size:11px;color:#6878a8">
+        <div style="font-size:18px">✅✅</div>
+        <div style="font-weight:bold;margin-top:4px">둘 다 있음</div>
+        <div style="font-size:10px;color:#2060c0">최적</div>
+      </button>
+    </div>
+    <div style="margin-top:14px;background:#f4f6fc;border-radius:8px;padding:10px;font-size:11px">
+      <div style="font-weight:bold;color:#1e2540;margin-bottom:6px">설계 파라미터</div>
+      <div style="color:#6878a8">채널 수: <b style="color:#1e2540">7채널</b></div>
+      <div style="color:#6878a8">채널 간격: <b style="color:#1e2540">2.5 mm</b></div>
+      <div style="color:#6878a8">LED 높이: <b style="color:#1e2540">12 mm</b></div>
+      <div style="color:#6878a8">PD 높이: <b style="color:#1e2540">10 mm</b></div>
+      <div style="color:#6878a8">LED 빔 반각: <b style="color:#1e2540">±15°</b></div>
+    </div>
+    <div style="margin-top:10px;background:#fff8e1;border-radius:8px;padding:10px;font-size:11px;border:1px solid #e0c040">
+      <div style="font-weight:bold;color:#c07818;margin-bottom:4px">💡 핵심 요약</div>
+      <div style="color:#6a5010;line-height:1.6">광학부 칸막이: <b>필수</b><br>테스트 스틱 칸막이: <b>없어도 됨</b></div>
+    </div>
+  </div>
+
+  <!-- 메인 콘텐츠 -->
+  <div style="flex:1;min-width:0">
+    <div class="card" style="padding:12px">
+      <canvas id="c10_main" width="700" height="300" style="max-width:100%;display:block"></canvas>
+      <div class="chart-desc">💡 빨간 빔=옆 채널로 새는 빛(누화), 초록 빔=정상 신호 경로. 회색=광학부 칸막이, 녹색=스틱 칸막이</div>
+    </div>
+    <div class="card" style="margin-top:10px;padding:12px">
+      <canvas id="c10_bar" width="700" height="110" style="max-width:100%;display:block"></canvas>
+      <div class="chart-desc">💡 중심 채널(CH4) 대비 각 채널의 누화 신호량. 칸막이가 없으면 옆 채널이 중심 신호를 오염시켜요.</div>
+    </div>
+    <div class="card" style="margin-top:10px;padding:14px" id="d10_result">
+      슬라이더를 선택하면 결과가 나와요.
+    </div>
+  </div>
+</div>
+</div>
+
 <script>
 // ── 탭 전환 ─────────────────────────────────────────────────
 function switchTab(n) {
@@ -556,7 +618,7 @@ function switchTab(n) {
   for (var i = 0; i < contents.length; i++) { contents[i].classList.remove('active'); }
   tabs[n-1].classList.add('active');
   document.getElementById('t'+n).classList.add('active');
-  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, upd8, upd9];
+  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, upd8, upd9, upd10];
   if (fn[n]) setTimeout(fn[n], 60);
 }
 
@@ -1839,6 +1901,220 @@ function calcLayout9(v) {
   _prev9={score:score,eta:eta,spotW:spotW,tIllum:tIllum,tCapture:tCapture};
 }
 
+// ── TAB10: 다채널 격리 ────────────────────────────────────────
+var _s10={op:false,sp:false};
+function upd10(){draw10();calc10();}
+function setS10(op,sp){
+  _s10={op:op,sp:sp};
+  document.querySelectorAll(".s10btn").forEach(function(b){
+    b.style.background="#f0f4ff";b.style.color="#6878a8";b.style.borderColor="#dde2f0";
+  });
+  var aid="s10_"+(op?"1":"0")+(sp?"1":"0");
+  var ab=document.getElementById(aid);
+  if(ab){ab.style.background="#2060c0";ab.style.color="#fff";ab.style.borderColor="#2060c0";}
+  draw10();calc10();
+}
+function draw10(){
+  var cv=document.getElementById("c10_main");if(!cv)return;
+  var c=cv.getContext("2d"),W=700,H=300,sc=16,oy=H-42,ox=W/2;
+  function px(m){return ox+m*sc;}function py(m){return oy-m*sc;}
+  c.fillStyle="#fff";c.fillRect(0,0,W,H);
+  // 그리드
+  c.strokeStyle="#e8eef8";c.lineWidth=0.5;
+  for(var gx=-12;gx<=12;gx+=2.5){c.beginPath();c.moveTo(px(gx),18);c.lineTo(px(gx),H);c.stroke();}
+  for(var gy=0;gy<=20;gy+=5){c.beginPath();c.moveTo(20,py(gy));c.lineTo(W-20,py(gy));c.stroke();}
+  // 축 레이블
+  c.fillStyle="#c0c8e0";c.font="9px sans-serif";c.textAlign="center";
+  for(var gx=-10;gx<=10;gx+=5)c.fillText(gx+"mm",px(gx),H-3);
+  // LFA 스트립
+  c.fillStyle="#f8f9ff";c.strokeStyle="#7080b0";c.lineWidth=2;
+  c.fillRect(px(-8.75),py(1.5),17.5*sc,1.5*sc);
+  c.strokeRect(px(-8.75),py(1.5),17.5*sc,1.5*sc);
+  c.fillStyle="#9098c0";c.font="10px sans-serif";c.textAlign="center";
+  c.fillText("LFA 스트립 (니트로셀룰로스 멤브레인)",px(0),oy+15);
+  // 채널 위치 (7채널, 2.5mm 간격, 중앙 CH4)
+  var nCh=7,sp=2.5,ledH=12,pdH=10,ledA=5*Math.PI/180,beamHa=15*Math.PI/180;
+  var chPos=[];for(var i=0;i<nCh;i++)chPos.push((i-3)*sp);
+  var actCh=3; // CH4 (center)
+  // 각 채널 존 색상
+  chPos.forEach(function(cx,i){
+    var isAct=(i===actCh);
+    c.fillStyle=isAct?"rgba(80,160,100,0.18)":"rgba(200,210,240,0.25)";
+    c.fillRect(px(cx-sp/2),py(1.5),sp*sc,1.5*sc);
+  });
+  // 광학부 칸막이
+  if(_s10.op){
+    for(var i=0;i<=nCh;i++){
+      var wx=chPos[0]-sp/2+i*sp;
+      c.fillStyle="rgba(80,85,110,0.7)";
+      c.fillRect(px(wx)-2,py(ledH+1.5),4,(ledH+1.5)*sc);
+    }
+    c.fillStyle="#505570";c.font="bold 9px sans-serif";c.textAlign="left";
+    c.fillText("◀ 광학부 칸막이",px(chPos[0]-sp/2)+4,py(ledH+1.5)-4);
+  }
+  // 스틱 칸막이
+  if(_s10.sp){
+    for(var i=0;i<=nCh;i++){
+      var wx=chPos[0]-sp/2+i*sp;
+      c.fillStyle="rgba(50,140,80,0.6)";
+      c.fillRect(px(wx)-2,py(1.5),4,1.5*sc);
+    }
+    c.fillStyle="#2a7040";c.font="9px sans-serif";c.textAlign="left";
+    c.fillText("스틱 칸막이",px(chPos[0]-sp/2)+4,py(0)-4);
+  }
+  // 중심 채널(CH4) 빔 계산
+  var cCh=chPos[actCh];
+  var cosA=Math.cos(ledA),sinA=Math.sin(ledA);
+  var tFoot=ledH/cosA,footX=cCh+tFoot*sinA;
+  var t1=ledH/Math.cos(ledA-beamHa),t2=ledH/Math.cos(ledA+beamHa);
+  var f1x=cCh+t1*Math.sin(ledA-beamHa),f2x=cCh+t2*Math.sin(ledA+beamHa);
+  var ownL=cCh-sp/2,ownR=cCh+sp/2;
+  var cLPx=px(cCh),cLPy=py(ledH);
+  // 누화 빔 (칸막이 없을 때)
+  if(!_s10.op){
+    // 왼쪽 넘침
+    if(f1x<ownL){
+      c.fillStyle="rgba(220,50,50,0.15)";
+      c.beginPath();c.moveTo(cLPx,cLPy);c.lineTo(px(f1x),py(0));c.lineTo(px(ownL),py(0));c.closePath();c.fill();
+      c.strokeStyle="rgba(200,40,40,0.6)";c.lineWidth=1.5;
+      c.beginPath();c.moveTo(cLPx,cLPy);c.lineTo(px(f1x),py(0));c.stroke();
+    }
+    // 오른쪽 넘침
+    if(f2x>ownR){
+      c.fillStyle="rgba(220,50,50,0.15)";
+      c.beginPath();c.moveTo(cLPx,cLPy);c.lineTo(px(ownR),py(0));c.lineTo(px(f2x),py(0));c.closePath();c.fill();
+      c.strokeStyle="rgba(200,40,40,0.6)";c.lineWidth=1.5;
+      c.beginPath();c.moveTo(cLPx,cLPy);c.lineTo(px(f2x),py(0));c.stroke();
+    }
+    // 누화 라벨
+    c.fillStyle="#c03030";c.font="bold 10px sans-serif";c.textAlign="center";
+    if(f1x<ownL)c.fillText("⚠️ 누화",px((f1x+ownL)/2),py(0)+16);
+    if(f2x>ownR)c.fillText("⚠️ 누화",px((f2x+ownR)/2),py(0)+16);
+  }
+  // 정상 빔 (초록)
+  var bL=_s10.op?f1x:Math.max(f1x,ownL),bR=_s10.op?f2x:Math.min(f2x,ownR);
+  if(bR>bL){
+    c.fillStyle="rgba(40,160,80,0.18)";
+    c.beginPath();c.moveTo(cLPx,cLPy);c.lineTo(px(bL),py(0));c.lineTo(px(bR),py(0));c.closePath();c.fill();
+  }
+  // 중심선
+  c.strokeStyle="rgba(100,0,200,0.5)";c.lineWidth=1.5;c.setLineDash([4,3]);
+  c.beginPath();c.moveTo(cLPx,cLPy);c.lineTo(px(footX),py(0));c.stroke();c.setLineDash([]);
+  // 각 채널 LED/PD 그리기
+  chPos.forEach(function(cx,i){
+    var isAct=(i===actCh),lx=px(cx),ly=py(ledH),pdy=py(pdH);
+    var pdW2=16;
+    // LED
+    c.fillStyle=isAct?"#8020e0":"#c090ff";
+    c.beginPath();c.arc(lx,ly,isAct?7:5,0,2*Math.PI);c.fill();
+    c.fillStyle="#fff";c.font=(isAct?"bold ":"")+"7px sans-serif";c.textAlign="center";
+    c.fillText("UV",lx,ly+2.5);
+    // PD
+    c.fillStyle=isAct?"#1a3a90":"#7090c0";
+    c.fillRect(lx-pdW2/2,pdy-4,pdW2,8);
+    c.fillStyle="#fff";c.font="7px sans-serif";c.textAlign="center";
+    c.fillText("PD",lx,pdy+2.5);
+    // 채널 번호
+    c.fillStyle=isAct?"#2060c0":"#a0aac8";
+    c.font=(isAct?"bold ":"")+"9px sans-serif";c.textAlign="center";
+    c.fillText("CH"+(i+1),lx,H-5);
+  });
+  // 제목
+  c.fillStyle="#1e2540";c.font="bold 12px sans-serif";c.textAlign="center";
+  c.fillText("7채널 배열 단면도 (2.5mm 간격) — CH4 기준 빔 표시",W/2,13);
+  // 범례
+  c.fillStyle="#1a8040";c.fillRect(20,18,12,8);
+  c.fillStyle="#1a8040";c.font="9px sans-serif";c.textAlign="left";c.fillText("정상 경로",35,26);
+  c.fillStyle="#c03030";c.fillRect(20,30,12,8);
+  c.fillStyle="#c03030";c.fillText("누화(크로스톡)",35,38);
+}
+function calc10(){
+  var sp=2.5,ledH=12,pdH=10,ledA=5*Math.PI/180,beamHa=15*Math.PI/180;
+  // 중심 채널 빔 발자국
+  var cosA=Math.cos(ledA),sinA=Math.sin(ledA);
+  var tFoot=ledH/cosA,footX=tFoot*sinA;
+  var t1=ledH/Math.cos(ledA-beamHa),t2=ledH/Math.cos(ledA+beamHa);
+  var f1x=t1*Math.sin(ledA-beamHa),f2x=t2*Math.sin(ledA+beamHa);
+  var beamW=f2x-f1x;
+  // 인접 채널(±1) 누화 (광학 기하)
+  var adj1L=sp/2,adj1R=sp*3/2;
+  var ov1=Math.max(0,Math.min(f2x,adj1R)-Math.max(f1x,adj1L))/beamW;
+  var adj2L=sp*3/2,adj2R=sp*5/2;
+  var ov2=Math.max(0,Math.min(f2x,adj2R)-Math.max(f1x,adj2L))/beamW;
+  // 멤브레인 산란 (람베르트-베르 법칙, 감쇠길이 ~1mm)
+  var mem1=0.025*Math.exp(-sp/1.0);   // ~0.21%
+  var mem2=0.025*Math.exp(-2*sp/1.0); // ~0.017%
+  // 시나리오별 누화
+  var xt1,xt2;
+  if(!_s10.op&&!_s10.sp){xt1=ov1;xt2=ov2;}
+  else if(_s10.op&&!_s10.sp){xt1=mem1;xt2=mem2;}
+  else if(!_s10.op&&_s10.sp){xt1=ov1*0.92+mem1*0.08;xt2=ov2*0.92+mem2*0.08;}
+  else{xt1=mem1*0.08;xt2=mem2*0.08;}
+  // 바 차트
+  drawBar10(xt1,xt2);
+  // 결과 패널
+  var p=document.getElementById("d10_result");if(!p)return;
+  var scenes=[
+    {id:"s10_00",label:"칸막이 없음",color:"#fde8e8",tColor:"#c03030",verdict:"❌ 측정 불가",desc:"광학 누화 "+（xt1*100).toFixed(0)+"%로 인접 채널 신호가 완전히 섞임. 7채널 독립 측정 불가"},
+    {id:"s10_10",label:"광학부 칸막이 ✓",color:"#e6f4ea",tColor:"#1a8040",verdict:"✅ 권장",desc:"멤브레인 산란만 남아 누화 "+（xt1*100).toFixed(2)+"%로 무시 가능. 테스트 스틱 변경 불필요"},
+    {id:"s10_01",label:"스틱 칸막이만 ✓",color:"#fff8e1",tColor:"#c07818",verdict:"⚠️ 불충분",desc:"직접 광학 경로 "+（xt1*100).toFixed(0)+"%가 여전히 존재. 광학부 칸막이가 핵심"},
+    {id:"s10_11",label:"둘 다 칸막이 ✓",color:"#e8f0ff",tColor:"#2060c0",verdict:"✅ 최적",desc:"누화 "+（xt1*100).toFixed(3)+"%로 완벽 격리. 단, 스틱 제조 복잡도 ↑"}
+  ];
+  var cur=_s10.op?(_s10.sp?3:1):(_s10.sp?2:0);
+  var sc=scenes[cur];
+  var snrRel=(1/(1+xt1*10)*100).toFixed(0);
+  p.innerHTML=
+    "<div style=\"background:"+sc.color+";border-radius:10px;padding:14px;margin-bottom:12px\">"+
+    "<div style=\"font-size:15px;font-weight:bold;color:"+sc.tColor+"\">"+sc.verdict+" — "+sc.label+"</div>"+
+    "<div style=\"font-size:12px;color:#2a3050;margin-top:4px\">"+sc.desc+"</div></div>"+
+    "<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px\">"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">인접(±1) 누화</div>"+
+    "<div style=\"font-size:22px;font-weight:bold;color:"+(xt1<0.01?"#1a8040":xt1<0.05?"#c07818":"#c03030")+"\">"+(xt1*100).toFixed(2)+"%</div>"+
+    "<div style=\"font-size:10px;color:"+(xt1<0.01?"#1a8040":"#c03030")+"\">"+(xt1<0.01?"무시 가능":"문제 수준")+"</div></div>"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">차차인접(±2) 누화</div>"+
+    "<div style=\"font-size:22px;font-weight:bold;color:"+(xt2<0.01?"#1a8040":"#c07818")+"\">"+(xt2*100).toFixed(3)+"%</div>"+
+    "<div style=\"font-size:10px;color:#7080a8\">"+sp*2+"mm 거리</div></div>"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">신호 품질</div>"+
+    "<div style=\"font-size:22px;font-weight:bold;color:"+(snrRel>90?"#1a8040":snrRel>70?"#c07818":"#c03030")+"\">"+snrRel+"%</div>"+
+    "<div style=\"font-size:10px;color:#7080a8\">누화 없을 때 대비</div></div>"+
+    "<div style=\"background:#f0f4ff;border-radius:8px;padding:10px;text-align:center\">"+
+    "<div style=\"font-size:10px;color:#6878a8\">멤브레인 산란</div>"+
+    "<div style=\"font-size:22px;font-weight:bold;color:#1a8040\">"+(mem1*100).toFixed(2)+"%</div>"+
+    "<div style=\"font-size:10px;color:#1a8040\">2.5mm에서 무시</div></div></div>"+
+    "<div style=\"background:#eff4ff;border-left:4px solid #2060c0;border-radius:0 8px 8px 0;padding:12px\">"+
+    "<div style=\"font-weight:bold;color:#2060c0;margin-bottom:6px\">💡 결론: 칸막이 설계 가이드</div>"+
+    "<div style=\"font-size:12px;color:#2a3050;line-height:1.8\">"+
+    "📌 <b>광학부 칸막이</b> → <b style=\"color:#c03030\">반드시 필요</b>. 칸막이 없으면 인접 채널 누화 "+（ov1*100).toFixed(0)+"%로 신호 구별 불가<br>"+
+    "📌 <b>테스트 스틱 칸막이</b> → <b style=\"color:#1a8040\">없어도 됨</b>. 멤브레인 측면 산란은 2.5mm에서 "+（mem1*100).toFixed(2)+"%로 무시 가능<br>"+
+    "📌 기존 테스트 스틱(칸막이 없음)을 그대로 사용하면서 광학 하우징에만 칸막이를 설계하면 됩니다"+
+    "</div></div>";
+}
+function drawBar10(xt1,xt2){
+  var cv=document.getElementById("c10_bar");if(!cv)return;
+  var c=cv.getContext("2d"),W=700,H=110;
+  c.fillStyle="#fff";c.fillRect(0,0,W,H);
+  var chLabels=["CH1","CH2","CH3","CH4\n(기준)","CH5","CH6","CH7"];
+  var dist=[3,2,1,0,1,2,3];
+  var vals=dist.map(function(d){return d===0?1:d===1?xt1:xt2;});
+  var colors=vals.map(function(v,i){return i===3?"#2060c0":v>0.05?"#c03030":v>0.01?"#c07818":"#1a8040";});
+  var bW=70,gap=10,xS=20,maxH=H-35;
+  vals.forEach(function(v,i){
+    var x=xS+i*(bW+gap);
+    var h=Math.max(2,v*maxH);
+    c.fillStyle=colors[i]+"33";c.strokeStyle=colors[i];c.lineWidth=1.5;
+    c.fillRect(x,H-25-h,bW,h);c.strokeRect(x,H-25-h,bW,h);
+    c.fillStyle=colors[i];c.font="bold 9px sans-serif";c.textAlign="center";
+    c.fillText(i===3?"기준":(v*100).toFixed(v<0.01?2:1)+"%",x+bW/2,H-25-h-4);
+    c.fillStyle="#7080a8";c.font="9px sans-serif";
+    c.fillText(chLabels[i].split("\n")[0],x+bW/2,H-12);
+    if(chLabels[i].includes("\n"))c.fillText(chLabels[i].split("\n")[1],x+bW/2,H-2);
+  });
+  c.fillStyle="#1e2540";c.font="bold 11px sans-serif";c.textAlign="center";
+  c.fillText("채널별 누화 비율 (CH4 기준)",W/2,12);
+}
 </script>
 <div id="cl-tooltip"></div></body>
 </html>
