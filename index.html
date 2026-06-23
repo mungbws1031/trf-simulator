@@ -1009,7 +1009,7 @@ function drawTiming2(td,tg,tau) {
   c.fillStyle='#6030d0'; c.fillRect(xS,H-80,15,50); c.fillStyle='#8060e8'; c.font='9px sans-serif'; c.fillText('UV',xS+2,H-83);
   // background decay
   c.strokeStyle='#c03030'; c.lineWidth=1.5; c.beginPath();
-  for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/2), y=(H-30)-50*v; // 배경 τ≈2μs(시각화용) if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
+  for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/2), y=(H-30)-50*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
   c.stroke(); c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경(τ≈2μs, 산란/자가형광)',xS+22,H-68);
   // Eu signal
   c.strokeStyle='#2272cc'; c.lineWidth=1.5; c.beginPath();
@@ -1099,9 +1099,10 @@ function seededRand(s) {
   return function() { x=(x*9301+49297)%233280; return x/233280; };
 }
 
-// 경쟁법(competitive) T-line: 농도↑ → 신호↓
-// R = Rmax / (1 + (cv/EC50)^n)  EC50=0.15ng/mL, n=1.5
-function stripR(cv,Rmax) { return Rmax/(1+Math.pow((cv+1e-9)/0.15,1.5)); }
+// 샌드위치 면역분석(sandwich) T-line: 농도↑ → 신호↑, 고농도서 Hook(프로존) 효과
+// R = Rmax · x/(1 + x + x²/H),  x=cv/EC50, EC50=0.15ng/mL, H=후크계수(50)
+// 저농도: R≈Rmax·x (상승), x=√H 부근서 최대 후 하강(항체 포화)
+function stripR(cv,Rmax) { var x=(cv+1e-9)/0.15, H=50; return Rmax*x/(1+x+x*x/H); }
 
 function upd3() {
   var rmax=parseInt(document.getElementById('r3_rmax').value)/100;
@@ -1203,6 +1204,10 @@ function drawDose3(Rmax) {
     if (i===0) c.moveTo(x,y); else c.lineTo(x,y);
   }
   c.stroke();
+  // Hook(프로존) 정점: x=√H 부근서 신호 최대 후 하강
+  var hkC=Math.sqrt(50)*0.15, hkX=(Math.log10(hkC)+3)/4, hkPx=xS+hkX*(xE-xS), hkR=stripR(hkC,Rmax), hkPy=yB-(yB-yT)*hkR/Rmax;
+  c.fillStyle='#c03030'; c.beginPath(); c.arc(hkPx,hkPy,3,0,Math.PI*2); c.fill();
+  c.fillStyle='#c03030'; c.font='8px sans-serif'; c.textAlign='center'; c.fillText('Hook',hkPx,hkPy-5); c.textAlign='left';
   for (var k=0;k<STRIP_CONCS.length;k++) {
     var conc=STRIP_CONCS[k];
     if (conc>0) {
@@ -1611,10 +1616,19 @@ function upd8() {
   var tiaOut = photoCurr * 1e-9 * gain * 1e6 * 1000; // mV
   var saturated = tiaOut > 3300;
   var tooDark = tiaOut < 0.1;
+  // TIA 대역폭 / 정착시간 vs 게이트폭 (귀환 커패시터 Cf≈1pF 가정)
+  var Cf = 1e-12;                       // 귀환 커패시터 1pF (대표값)
+  var tauRC = gain*1e6 * Cf * 1e6;      // 정착 시정수 τ=R·Cf (μs) = gain(MΩ)×1pF
+  var f3dB = 1/(2*Math.PI*gain*1e6*Cf); // -3dB 대역폭 (Hz)
+  var settle = 5*tauRC;                 // 99% 정착시간 (μs)
+  var bwOK = settle < tg;               // 게이트 안에서 정착되는가
   document.getElementById('tia_result').innerHTML =
     '<div class="kv"><span>PD 광전류</span><span class="val">'+ photoCurr.toFixed(3) +' nA</span></div>' +
     '<div class="kv"><span>TIA 출력 전압</span><span class="val" style="color:'+(saturated?'#c03030':tooDark?'#c07818':'#1a8040')+'">'+ tiaOut.toFixed(2) +' mV</span></div>' +
-    '<div style="margin-top:6px;padding:7px 10px;background:'+(saturated?'#ffebeb':tooDark?'#fff8e8':'#eaf5ee')+';border-radius:6px;font-size:11px;color:'+(saturated?'#c03030':tooDark?'#8a5a00':'#1a6030')+'">'+(saturated?'⚠️ TIA 포화 — 이득 낮추거나 광원 출력 감소':tooDark?'⚠️ 신호 너무 작음 — 이득 높이거나 광원 출력 증가':'✅ 적절한 신호 레벨')+'</div>';
+    '<div class="kv"><span>대역폭 f₃dB (Cf=1pF)</span><span class="val">'+ (f3dB/1000).toFixed(1) +' kHz</span></div>' +
+    '<div class="kv"><span>정착시간 5τ vs 게이트</span><span class="val" style="color:'+(bwOK?'#1a8040':'#c03030')+'">'+ settle.toFixed(1) +' / '+ tg +' μs</span></div>' +
+    '<div style="margin-top:6px;padding:7px 10px;background:'+(saturated?'#ffebeb':tooDark?'#fff8e8':'#eaf5ee')+';border-radius:6px;font-size:11px;color:'+(saturated?'#c03030':tooDark?'#8a5a00':'#1a6030')+'">'+(saturated?'⚠️ TIA 포화 — 이득 낮추거나 광원 출력 감소':tooDark?'⚠️ 신호 너무 작음 — 이득 높이거나 광원 출력 증가':'✅ 적절한 신호 레벨')+'</div>' +
+    (bwOK?'':'<div style="margin-top:5px;padding:7px 10px;background:#ffebeb;border-radius:6px;font-size:11px;color:#c03030">⚠️ 이득이 높아 정착시간(5τ='+settle.toFixed(0)+'μs)이 게이트폭('+tg+'μs)에 근접/초과 — 신호가 다 안 차서 과소측정. 이득↓ 또는 게이트폭↑</div>');
 
   // LOD 그래프
   drawLOD(blank, sig, slope);
@@ -1838,13 +1852,28 @@ function calcLayout9(v) {
   var t1=cosA1>0.01?v["l9_ledh"]/cosA1:999, t2=cosA2>0.01?v["l9_ledh"]/cosA2:999;
   var f1x=v["l9_ledx"]+t1*sinA1, f2x=v["l9_ledx"]+t2*sinA2;
   var spotW=Math.abs(f2x-f1x);
-  var tIllum=!(f1x>1||f2x<-1);
   var pdSpX=v["l9_pdh"]*Math.tan((v["l9_pdang"]||30)*Math.PI/180);
   var pdL=v["l9_pdx"]-pdSpX, pdR2=v["l9_pdx"]+pdSpX;
-  var tCapture=!(pdL>1||pdR2<-1);
-  var shieldOK=v["l9_shh"]>Math.min(v["l9_ledh"],v["l9_pdh"])*0.4;
-  var score=0;
-  if(tIllum) score+=40; if(tCapture) score+=40; if(shieldOK) score+=20;
+  // T밴드: 중심 X=0, 폭 1mm => [-0.5,0.5]
+  var tbL=-0.5, tbR=0.5, tbW=1.0;
+  var spotL=Math.min(f1x,f2x), spotR=Math.max(f1x,f2x);
+  // 조사 점수(0~40): T밴드 덮임 비율 x 조도효율(스팟 작을수록↑, 이상 2mm)
+  var illumOv=Math.max(0,Math.min(spotR,tbR)-Math.max(spotL,tbL));
+  var coverFrac=illumOv/tbW;
+  var spotEff=spotW>0?Math.min(1,2.0/spotW):0;
+  var illumScore=40*coverFrac*(0.5+0.5*spotEff);
+  // 수광 점수(0~40): PD 수광창-T밴드 겹침 x 집광효율(η/0.10 정규화)
+  var capOv=Math.max(0,Math.min(pdR2,tbR)-Math.max(pdL,tbL));
+  var capFrac=capOv/tbW;
+  var etaNorm=Math.min(1,eta/0.10);
+  var capScore=40*capFrac*(0.4+0.6*etaNorm);
+  // 차광 점수(0~20): LED-PD 직접 시선 차단(최소 컴포넌트 높이의 60% 기준)
+  var refH=Math.min(v["l9_ledh"],v["l9_pdh"]);
+  var shieldFrac=refH>0?Math.min(1,v["l9_shh"]/(refH*0.6)):0;
+  var shieldScore=20*shieldFrac;
+  var score=Math.round(illumScore+capScore+shieldScore);
+  // 피드백용 플래그(연속값에서 도출)
+  var tIllum=coverFrac>0.5, tCapture=capFrac>0.5, shieldOK=shieldFrac>=0.8;
   var grade=score>=80?"A OK":score>=60?"B 주의":"C 개선필요";
   var gColor=score>=80?"#1a8040":score>=60?"#c07818":"#c03030";
   var gBg=score>=80?"#e6f4ea":score>=60?"#fff8e1":"#fde8e8";
@@ -1871,7 +1900,8 @@ function calcLayout9(v) {
     "<div style=\"display:flex;gap:12px\">"+
     "<div style=\"background:"+gBg+";border-radius:10px;padding:14px 18px;text-align:center\">"+
     "<div style=\"font-size:11px;color:#6878a8;margin-bottom:2px\">종합 등급</div>"+
-    "<div style=\"font-size:26px;font-weight:bold;color:"+gColor+"\">"+grade+"</div></div>"+
+    "<div style=\"font-size:26px;font-weight:bold;color:"+gColor+"\">"+grade+"</div>"+
+    "<div style=\"font-size:13px;font-weight:bold;color:"+gColor+"\">"+score+"점</div></div>"+
     "<div style=\"background:#f4f6fc;border-radius:8px;padding:12px;flex:1\">"+
     "<div style=\"font-size:12px;font-weight:bold;color:#1e2540;margin-bottom:6px\">기구 도면 치수 요약</div>"+
     "<table style=\"font-size:11px;width:100%;border-collapse:collapse\">"+
@@ -2085,9 +2115,11 @@ function calc10(){
   var ov1=Math.max(0,Math.min(f2x,adj1R)-Math.max(f1x,adj1L))/beamW;
   var adj2L=sp*3/2,adj2R=sp*5/2;
   var ov2=Math.max(0,Math.min(f2x,adj2R)-Math.max(f1x,adj2L))/beamW;
-  // 멤브레인 산란 (람베르트-베르 법칙, 감쇠길이 ~1mm)
-  var mem1=0.025*Math.exp(-sp/1.0);   // ~0.21%
-  var mem2=0.025*Math.exp(-2*sp/1.0); // ~0.017%
+  // 멤브레인 측면 산란 (지수감쇠) — 아래 상수는 보수적 추정값
+  var S0=0.025;  // 인접거리 0서 측면 산란율(NC멤브레인, UV 365nm, HF120급 기준)
+  var Latt=1.0;  // 산란 감쇠길이 mm (멤브레인 종류/두께 의존)
+  var mem1=S0*Math.exp(-sp/Latt);    // ~0.21% @2.5mm
+  var mem2=S0*Math.exp(-2*sp/Latt);  // ~0.017% @5mm
   // 시나리오별 누화
   var xt1,xt2;
   if(!_s10.op&&!_s10.sp){xt1=ov1;xt2=ov2;}
@@ -2133,7 +2165,8 @@ function calc10(){
     "<div style=\"font-size:12px;color:#2a3050;line-height:1.8\">"+
     "📌 <b>광학부 칸막이</b> → <b style=\"color:#c03030\">반드시 필요</b>. 칸막이 없으면 인접 채널 누화 "+(ov1*100).toFixed(0)+"%로 신호 구별 불가<br>"+
     "📌 <b>테스트 스틱 칸막이</b> → <b style=\"color:#1a8040\">없어도 됨</b>. 멤브레인 측면 산란은 2.5mm에서 "+(mem1*100).toFixed(2)+"%로 무시 가능<br>"+
-    "📌 기존 테스트 스틱(칸막이 없음)을 그대로 사용하면서 광학 하우징에만 칸막이를 설계하면 됩니다"+
+    "📌 기존 테스트 스틱(칸막이 없음)을 그대로 사용하면서 광학 하우징에만 칸막이를 설계하면 됩니다<br>"+
+    "<span style=\"font-size:10px;color:#8090b0\">※ 멤브레인 산란값은 NC(HF120급)·UV365nm 보수적 추정. 칸막이 벽면은 흑색 무광 처리 시 반사 재유입 무시 가능. 실측 권장.</span>"+
     "</div></div>";
 }
 function drawBar10(xt1,xt2){
