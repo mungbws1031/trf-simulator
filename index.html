@@ -147,10 +147,10 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
   <div class="row">
     <div class="card" style="width:220px">
       <h3>파라미터</h3>
-      <div class="ctrl"><label>지연 t_d: <span class="val" id="v2_td">100</span> μs</label><input type="range" id="r2_td" min="10" max="500" value="100" oninput="upd2()"></div>
+      <div class="ctrl"><label>지연 t_d: <span class="val" id="v2_td">100</span> μs</label><input type="range" id="r2_td" min="1" max="500" value="50" oninput="upd2()"></div>
       <div class="ctrl"><label>게이트 t_g: <span class="val" id="v2_tg">600</span> μs</label><input type="range" id="r2_tg" min="50" max="1500" value="600" oninput="upd2()"></div>
       <div class="ctrl"><label>수명 τ: <span class="val" id="v2_tau">600</span> μs</label><input type="range" id="r2_tau" min="100" max="2000" value="600" oninput="upd2()"></div>
-      <div class="ctrl"><label>배경광 Ib: <span class="val" id="v2_bg">10</span></label><input type="range" id="r2_bg" min="1" max="100" value="10" oninput="upd2()"></div>
+      <div class="ctrl"><label>배경광 Ib: <span class="val" id="v2_bg">10</span></label><input type="range" id="r2_bg" min="100" max="50000" value="20000" oninput="upd2()"></div>
       <div class="ctrl"><label>신호 Is: <span class="val" id="v2_sig">1000</span></label><input type="range" id="r2_sig" min="100" max="5000" value="1000" oninput="upd2()"></div>
       <div style="margin-top:10px;padding:8px;background:#f0f4ff;border-radius:6px;border:1px solid #dde2f0" id="res2">
         <div class="kv"><span>η</span><span id="r2_eta">-</span></div>
@@ -991,10 +991,10 @@ function upd2() {
   document.getElementById('v2_bg').textContent=bg;
   document.getElementById('v2_sig').textContent=sig;
   var eta=Math.exp(-td/tau)*(1-Math.exp(-tg/tau));
-  var tau_bg=0.05; // 배경 수명 50ns (자가형광 대표값, μs단위)
+  var tau_bg=1.0; // 잔류배경 수명 ~1μs (광원잔광+광학계형광, 실제 게이팅 대상)
   var bg_gated=bg*Math.exp(-td/tau_bg)*(1-Math.exp(-tg/tau_bg));
   var S=sig*eta, snr=S/Math.sqrt(Math.max(1,S+bg_gated));
-  var optTd=Math.max(5*tau_bg, 0.1*tau); // 배경 소거 최소 지연
+  var optTd=Math.max(5*tau_bg, 2); // 배경 5수명 소거 + 전자부 정착 2us 하한
   document.getElementById('r2_eta').textContent=(eta*100).toFixed(1)+'%';
   document.getElementById('r2_snr').textContent=snr.toFixed(1);
   document.getElementById('r2_opt').textContent=optTd.toFixed(2)+'μs';
@@ -1010,7 +1010,7 @@ function drawTiming2(td,tg,tau) {
   // background decay
   c.strokeStyle='#c03030'; c.lineWidth=1.5; c.beginPath();
   for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/2), y=(H-30)-50*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
-  c.stroke(); c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경(τ≈2μs, 산란/자가형광)',xS+22,H-68);
+  c.stroke(); c.fillStyle='#c03030'; c.font='9px sans-serif'; c.fillText('배경(τ~1μs: 광원잔광/자가형광)',xS+22,H-68);
   // Eu signal
   c.strokeStyle='#2272cc'; c.lineWidth=1.5; c.beginPath();
   for (var i=0;i<=300;i++) { var t=i*4, x=xS+20+i*(W-50)/300, v=Math.exp(-t/tau), y=(H-30)-55*v; if(i===0) c.moveTo(x,y); else c.lineTo(x,y); }
@@ -1051,7 +1051,7 @@ function drawSNR2(sig,bg,td,tg,tau) {
   var c=document.getElementById('c_snr2').getContext('2d'), W=200, H=140;
   c.clearRect(0,0,W,H);
   var eta=Math.exp(-td/tau)*(1-Math.exp(-tg/tau));
-  var tau_bg2=0.05; var bg_g=bg*Math.exp(-td/tau_bg2)*(1-Math.exp(-tg/tau_bg2)); var snrConv=sig/Math.sqrt(Math.max(1,sig+bg)); var snrTRF=(sig*eta)/Math.sqrt(Math.max(1,sig*eta+bg_g));
+  var tau_bg2=1.0; var bg_g=bg*Math.exp(-td/tau_bg2)*(1-Math.exp(-tg/tau_bg2)); var snrConv=sig/Math.sqrt(Math.max(1,sig+bg)); var snrTRF=(sig*eta)/Math.sqrt(Math.max(1,sig*eta+bg_g));
   var mx=Math.max(snrConv,snrTRF)*1.2;
   var bars=[{label:'기존',v:snrConv,color:'#c03030'},{label:'TRF',v:snrTRF,color:'#2272cc'}];
   bars.forEach(function(b,i) {
