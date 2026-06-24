@@ -629,7 +629,7 @@ function switchTab(n) {
   for (var i = 0; i < contents.length; i++) { contents[i].classList.remove('active'); }
   tabs[n-1].classList.add('active');
   document.getElementById('t'+n).classList.add('active');
-  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, upd6, null, upd8, upd9, upd10];
+  var fn = [null, drawTab1, upd2, upd3, drawTab4, upd5, null, null, upd8, upd9, upd10]; // tab6,7은 iframe → null
   if (fn[n]) setTimeout(fn[n], 60);
 }
 
@@ -1646,7 +1646,7 @@ function drawLOD(blank, sigma, slope) {
   var LOQ = 10*sigma/slope;
   var maxConc = LOQ*3;
   var px = function(x){ return xS + (x/maxConc)*(xE-xS); };
-  var py = function(y){ var yMax=blank+slope*maxConc*0.5; var yMin=blank-sigma*2; return yB - (y-yMin)/(yMax-yMin)*(yB-yT); };
+  var py = function(y){ var yMax=blank+slope*maxConc*1.05; var yMin=blank-sigma*2; return yB - (y-yMin)/(yMax-yMin)*(yB-yT); };
 
   // 격자
   c.strokeStyle='#c8d2e8'; c.lineWidth=0.5;
@@ -1699,7 +1699,7 @@ function drawCorrect(drift, temp) {
   var N = concs.length;
 
   var px = function(i){ return xS + i*(xE-xS)/(N-1); };
-  var rawT = function(cv,d){ return 50000/(1+Math.pow(cv/0.1,1.5))*(1+d); };
+  var rawT = function(cv,d){ var x=cv/0.15; return 50000*x/(1+x+x*x/50)*(1+d); }; // 샌드위치+Hook (Tab3 일관)
   var rawC = function(d){ return 30000*(1+d); };
   var corrected = function(cv,d){ return rawT(cv,d)/rawC(d)*30000; };
 
