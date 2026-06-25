@@ -55,7 +55,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
 
 <!-- TAB1: TRF 원리 -->
 <div id="t1" class="tabcontent active">
-<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 번쩍 켰다가 끄고, 잠깐 기다린 다음에 신호를 재면 왜 더 정확한지 알려주는 탭이에요. 배경 노이즈은 이미 꺼진 다음에 우리가 원하는 형광 신호만 남거든요.</div><div style="background:#fff8ee;border-left:4px solid #e0a040;border-radius:0 8px 8px 0;padding:10px 14px;margin:0 0 12px 0;font-size:13px;color:#5a4a2a;line-height:1.7"><b style="color:#c07818">🎯 왜 이걸 해야 하나요?</b> 일반 형광은 시료 자가형광·산란 같은 배경에 신호가 묻혀 저농도를 못 잡아요. TRF는 배경이 사라진 뒤 측정해 감도를 수백~수천 배 끌어올립니다. 이 원리가 광학계·타이밍·회로 설계의 모든 판단 기준이라 가장 먼저 이해해야 합니다.</div>
+<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>빛을 번쩍 켰다가 끄고, 잠깐 기다린 다음에 신호를 재면 왜 더 정확한지 알려주는 탭이에요. 배경 노이즈는 이미 꺼진 다음에 우리가 원하는 형광 신호만 남거든요.</div><div style="background:#fff8ee;border-left:4px solid #e0a040;border-radius:0 8px 8px 0;padding:10px 14px;margin:0 0 12px 0;font-size:13px;color:#5a4a2a;line-height:1.7"><b style="color:#c07818">🎯 왜 이걸 해야 하나요?</b> 일반 형광은 시료 자가형광·산란 같은 배경에 신호가 묻혀 저농도를 못 잡아요. TRF는 배경이 사라진 뒤 측정해 감도를 수백~수천 배 끌어올립니다. 이 원리가 광학계·타이밍·회로 설계의 모든 판단 기준이라 가장 먼저 이해해야 합니다.</div>
   <div class="row">
     <div class="card" style="flex:1;min-width:300px">
       <h3>TRF 타이밍 원리 — 왜 기다렸다가 재는가?</h3>
@@ -95,7 +95,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <div class="card" style="flex:1;min-width:260px">
       <h3>형광 수명 비교</h3>
       <canvas id="c_lifetime" width="340" height="170"></canvas>
-      <div class="chart-desc">💡 Eu³⁺는 빛이 꺼진 후에도 600마이크로초 동안 빛나요. 일반 노이즈은 0.00001마이크로초면 꺼지는데, 이 엄청난 차이 덕분에 노이즈을 걸러낼 수 있어요.</div>
+      <div class="chart-desc">💡 Eu³⁺는 빛이 꺼진 후에도 600마이크로초 동안 빛나요. 일반 형광·자가형광은 수 나노초(0.001µs 정도)면 거의 꺼지는데, 이 10만 배 가까운 시간 차이 덕분에 노이즈를 걸러낼 수 있어요.</div>
     </div>
   </div>
   <!-- 타이밍 비교 카드 -->
@@ -120,7 +120,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <div class="card" style="flex:1;min-width:220px">
       <h3>TRF 배경광 억제 효과</h3>
       <canvas id="c_suppress" width="280" height="160"></canvas>
-      <div class="chart-desc">💡 TRF가 각 빛 종류마다 얼마나 노이즈을 없애주는지 보여요. 자가형광은 거의 다 없애지만, 햇빛처럼 항상 켜져 있는 빛은 아무리 해도 없앨 수 없어요.</div>
+      <div class="chart-desc">💡 TRF가 각 빛 종류마다 얼마나 노이즈를 없애주는지 보여요. 자가형광은 거의 다 없애지만, 햇빛처럼 항상 켜져 있는 빛은 아무리 해도 없앨 수 없어요.</div>
     </div>
   </div>
   <div class="row">
@@ -170,12 +170,12 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
         <div class="card" style="flex:1">
           <h3>수집 효율 η vs t_d</h3>
           <canvas id="c_etacurve" width="300" height="140"></canvas>
-      <div class="chart-desc">💡 기다리는 시간이 길수록 노이즈은 줄지만 우리 신호도 같이 줄어요. 노이즈은 없애면서 신호는 최대한 살리는 딱 맞는 기다림 시간을 이 그래프에서 찾아요.</div>
+      <div class="chart-desc">💡 기다리는 시간이 길수록 노이즈는 줄지만 우리 신호도 같이 줄어요. 노이즈는 없애면서 신호는 최대한 살리는 딱 맞는 기다림 시간을 이 그래프에서 찾아요.</div>
         </div>
         <div class="card" style="flex:1">
           <h3>SNR 비교</h3>
           <canvas id="c_snr2" width="200" height="140"></canvas>
-      <div class="chart-desc">💡 TRF와 일반 형광 측정의 신호 선명도(S/N)를 비교해요. TRF가 노이즈을 거의 없애기 때문에 신호가 훨씬 또렷하게 나와요.</div>
+      <div class="chart-desc">💡 TRF와 일반 형광 측정의 신호 선명도(S/N)를 비교해요. TRF가 노이즈를 거의 없애기 때문에 신호가 훨씬 또렷하게 나와요.</div>
         </div>
       </div>
       <div class="row">
@@ -205,7 +205,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
       <div class="card" style="margin-bottom:12px">
         <h3>실물 스트립 밴드 시각화 (농도별)</h3>
         <canvas id="c_strip" width="640" height="220"></canvas>
-      <div class="chart-desc">💡 농도가 높으면 T선이 옅어지고, 낮으면 진해져요. 실제 스트립이 어떻게 보일지 미리 확인할 수 있어요.</div>
+      <div class="chart-desc">💡 농도가 높으면 T선이 진해지고, 낮으면 옅어져요. (너무 높으면 Hook 효과로 오히려 다시 옅어질 수 있어요.) 실제 스트립이 어떻게 보일지 미리 확인할 수 있어요.</div>
       </div>
       <div class="row">
         <div class="card" style="flex:2">
@@ -272,7 +272,7 @@ select{background:#f4f7ff;color:#1e2540;border:1px solid #c8d0e8;border-radius:4
     <div class="cl-section">
       <h3><span class="num">1</span> 광원 (Excitation Source)</h3>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="형광 물질을 빛나게 하는 UV 파장(340nm)이 맞는지 확인해요. 파장이 다르면 아예 발광이 안 돼요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>UV LED 파장 확인: Eu³⁺ = <b>340 nm</b> (UV LED 또는 펄스 레이저)<span class="sub">빛의 색깔이 맞아야 형광물질이 반응해요</span></label></div>
-      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 아주 짧게 번쩍여야 배경 노이즈을 걸러낼 수 있어요. 길면 TRF 효과가 없어져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>펄스 폭 설정: <b>τ_pulse ≪ τ_fl</b><span class="formula">Eu³⁺ τ = 600 μs → 펄스 폭 &lt; 50 μs</span><span class="sub">빛을 길게 켜면 노이즈 제거 효과가 줄어요</span></label></div>
+      <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 아주 짧게 번쩍여야 배경 노이즈를 걸러낼 수 있어요. 길면 TRF 효과가 없어져요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>펄스 폭 설정: <b>τ_pulse ≪ τ_fl</b><span class="formula">Eu³⁺ τ = 600 μs → 펄스 폭 &lt; 50 μs</span><span class="sub">빛을 길게 켜면 노이즈 제거 효과가 줄어요</span></label></div>
       <div class="cl-item critical" onclick="toggleCL(this)" data-tip="빛을 너무 빨리 번쩍이면 이전 측정 신호가 남아서 겹쳐요. 충분히 쉬어야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>광원 반복 주파수 결정 (1/PRF &gt; t_d + t_g)<span class="sub">이전 신호가 완전히 꺼진 다음에 다시 켜야 해요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="너무 세면 형광 물질이 파괴되거나 센서가 포화돼요. 적당한 세기를 찾아야 해요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>광원 출력 파워 설정 (μW ~ mW 범위)<span class="sub">너무 세게 쏘면 형광물질이 망가지거나 센서가 포화돼요</span></label></div>
       <div class="cl-item warn" onclick="toggleCL(this)" data-tip="UV 조명 빛이 센서에 직접 닿으면 안 돼요. 필터로 조명 빛은 막고 형광만 통과시켜요." onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"><input type="checkbox"><span class="cl-star">★</span><label>UV LED 빛 차단 필터 (Notch / Short-pass) 선정<span class="sub">UV 빛이 센서에 직접 닿으면 신호가 완전히 묻혀요</span></label></div>
