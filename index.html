@@ -448,42 +448,42 @@ function updateProgress() {
 </div>
 <!-- TAB8: 신호 검출 & 캘리브레이션 -->
 <div id="t8" class="tabcontent">
-<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>신호를 얼마나 크게 키워야 하는지, 얼마나 낮은 농도까지 잡을 수 있는지, C선으로 보정하면 얼마나 안정되는지 계산해주는 탭이에요.</div><div style="background:#fff8ee;border-left:4px solid #e0a040;border-radius:0 8px 8px 0;padding:10px 14px;margin:0 0 12px 0;font-size:13px;color:#5a4a2a;line-height:1.7"><b style="color:#c07818">🎯 왜 이걸 해야 하나요?</b> TIA 게인·대역폭이 안 맞으면 신호가 포화되거나 게이트 안에서 다 안 차고, LOD가 목표 농도를 못 넘으면 제품 사양 미달입니다. 회로·펌웨어 스펙을 확정하고 C밴드 보정으로 광원 변동을 잡는 근거를 만듭니다.</div>
+<div class="tab-purpose"><b>📌 이 탭이 뭐 하는 곳이에요?</b>신호를 얼마나 크게 키워야 하는지, 얼마나 낮은 농도까지 잡을 수 있는지, C선으로 보정하면 얼마나 안정되는지 계산해주는 탭이에요.</div><div style="background:#fff8ee;border-left:4px solid #e0a040;border-radius:0 8px 8px 0;padding:10px 14px;margin:0 0 12px 0;font-size:13px;color:#5a4a2a;line-height:1.7"><b style="color:#c07818">🎯 왜 이걸 해야 하나요?</b> TIA 게인·대역폭이 안 맞으면 신호가 포화되거나 게이트 안에서 다 안 차고, LOD가 목표 농도를 못 넘으면 제품 사양 미달입니다. 회로·펌웨어 스펙을 확정하고 C밴드 보정으로 광원 변동을 잡는 근거를 만듭니다.</div><div style="background:#eef4ff;border-left:4px solid #3b82c4;border-radius:0 8px 8px 0;padding:12px 16px;margin:0 0 14px 0;font-size:13px;color:#2a3a5a;line-height:1.85"><b style="color:#2060c0">🔰 초보자 먼저 읽기 — 이 탭의 큰 그림</b><br>유로피움이 내는 빛은 아주 약해요. 이 약한 빛을 ① <b>언제·얼마나 오래 잴지(타이밍)</b> ② <b>얼마나 키울지(증폭)</b> ③ <b>얼마나 옅은 농도까지 믿을지(검출한계)</b> ④ <b>흔들림을 어떻게 잡을지(보정)</b> 네 단계로 다뤄요. 아래 4개 카드가 순서대로 그 4단계예요. 각 카드의 <b>💡 쉽게 말하면</b> 부분만 읽어도 감이 와요.</div>
 <div class="row">
   <div class="card" style="flex:1;min-width:280px">
-    <h3>PRF 펄스 반복 주파수 검토</h3>
-    <div class="ctrl"><label>지연시간 t_d (μs)<span class="val" id="v8_td">100</span></label><input type="range" id="r8_td" min="10" max="500" value="100" oninput="upd8()"></div>
-    <div class="ctrl"><label>게이트 폭 t_g (μs)<span class="val" id="v8_tg">600</span></label><input type="range" id="r8_tg" min="100" max="2000" value="600" oninput="upd8()"></div>
-    <div class="ctrl"><label>소광 여유 t_off (μs)<span class="val" id="v8_off">200</span></label><input type="range" id="r8_off" min="50" max="500" value="200" oninput="upd8()"></div>
-    <div class="ctrl"><label>Eu³⁺ 수명 τ (μs)<span class="val" id="v8_tau">600</span></label><input type="range" id="r8_tau" min="100" max="1500" value="600" oninput="upd8()"></div>
+    <h3>PRF 펄스 반복 주파수 검토</h3><div style="font-size:12px;color:#3b82c4;margin:2px 0 10px 0;font-weight:700">⏱️ 쉽게: UV를 얼마나 자주 번쩍여도 신호가 안 겹칠까?</div>
+    <div class="ctrl"><label>지연시간 t_d (μs) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 번쩍 끄고 잴 때까지 기다림</span><span class="val" id="v8_td">100</span></label><input type="range" id="r8_td" min="10" max="500" value="100" oninput="upd8()"></div>
+    <div class="ctrl"><label>게이트 폭 t_g (μs) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 신호를 재는 시간(창문 길이)</span><span class="val" id="v8_tg">600</span></label><input type="range" id="r8_tg" min="100" max="2000" value="600" oninput="upd8()"></div>
+    <div class="ctrl"><label>소광 여유 t_off (μs) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 다음 번쩍 전 추가 휴식</span><span class="val" id="v8_off">200</span></label><input type="range" id="r8_off" min="50" max="500" value="200" oninput="upd8()"></div>
+    <div class="ctrl"><label>Eu³⁺ 수명 τ (μs) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 유로피움 빛이 사라지는 시간</span><span class="val" id="v8_tau">600</span></label><input type="range" id="r8_tau" min="100" max="1500" value="600" oninput="upd8()"></div>
     <div id="prf_result" style="margin-top:8px;font-size:12px;line-height:1.8"></div>
-    <div class="chart-desc" style="margin-top:8px">펄스를 너무 빨리 반복하면 이전 Eu³⁺ 신호가 아직 남아있는 상태에서 다음 측정이 시작돼요. 충분히 기다렸다 다음 펄스를 쏘아야 신호가 안 겹쳐요.</div>
+    <div class="chart-desc" style="margin-top:8px">💡 <b>쉽게 말하면:</b> 유로피움은 UV를 한 번 받으면 수백 µs 동안 계속 빛나요(잔광). 종을 친 뒤 소리가 안 사라졌는데 또 치면 겹치듯, 빛이 다 꺼지기 전에 다음 UV를 쏘면 신호가 섞여 측정이 틀려요. 그래서 다음 번쩍까지 충분히 쉬는 거예요. 아래 <b>잔류 신호가 1% 아래</b>면 안 겹친다는 뜻(초록), 넘으면 더 쉬어야 해요(빨강).</div>
   </div>
   <div class="card" style="flex:1;min-width:280px">
-    <h3>TIA 이득 & 신호 레벨</h3>
-    <div class="ctrl"><label>수집 효율 η (%)<span class="val" id="v8_eta">0.5</span></label><input type="range" id="r8_eta" min="1" max="100" value="5" oninput="upd8()"></div>
-    <div class="ctrl"><label>광원 출력 (μW)<span class="val" id="v8_pow">100</span></label><input type="range" id="r8_pow" min="1" max="1000" value="100" oninput="upd8()"></div>
-    <div class="ctrl"><label>PD 감도 (A/W)<span class="val" id="v8_resp">0.30</span></label><input type="range" id="r8_resp" min="10" max="80" value="30" oninput="upd8()"></div>
-    <div class="ctrl"><label>TIA 이득 (MΩ)<span class="val" id="v8_gain">10</span></label><input type="range" id="r8_gain" min="1" max="100" value="10" oninput="upd8()"></div>
+    <h3>TIA 이득 & 신호 레벨</h3><div style="font-size:12px;color:#3b82c4;margin:2px 0 10px 0;font-weight:700">🔊 쉽게: 약한 센서 신호를 적당히 키우는 볼륨 맞추기</div>
+    <div class="ctrl"><label>수집 효율 η (%) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 센서가 빛을 잡아내는 비율</span><span class="val" id="v8_eta">0.5</span></label><input type="range" id="r8_eta" min="1" max="100" value="5" oninput="upd8()"></div>
+    <div class="ctrl"><label>광원 출력 (μW) <span style="color:#8a93ad;font-weight:400;font-size:11px">— UV LED 밝기</span><span class="val" id="v8_pow">100</span></label><input type="range" id="r8_pow" min="1" max="1000" value="100" oninput="upd8()"></div>
+    <div class="ctrl"><label>PD 감도 (A/W) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 빛을 전기로 바꾸는 효율</span><span class="val" id="v8_resp">0.30</span></label><input type="range" id="r8_resp" min="10" max="80" value="30" oninput="upd8()"></div>
+    <div class="ctrl"><label>TIA 이득 (MΩ) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 증폭기 볼륨(얼마나 키울지)</span><span class="val" id="v8_gain">10</span></label><input type="range" id="r8_gain" min="1" max="100" value="10" oninput="upd8()"></div>
     <div id="tia_result" style="margin-top:8px;font-size:12px;line-height:1.8"></div>
-    <div class="chart-desc">센서에서 나오는 아주 약한 전류를 TIA(증폭기)가 전압으로 키워줘요. 이득이 너무 낮으면 신호가 묻히고, 너무 높으면 포화돼요.</div>
+    <div class="chart-desc">💡 <b>쉽게 말하면:</b> 센서가 만든 전기는 아주 약해서(마이크에 속삭이는 수준) 그대로는 못 읽어요. TIA는 그걸 키우는 <b>볼륨</b>이에요. 볼륨이 작으면 안 들리고(신호 묻힘), 너무 크면 소리가 찢어지듯 <b>포화</b>돼요. 출력 전압이 <b>0.1~3300mV 사이</b>에 들어오게 이득을 맞추면 딱 좋아요.</div>
   </div>
 </div>
 <div class="row">
   <div class="card" style="flex:1;min-width:340px">
-    <h3>LOD / LOQ 계산기</h3>
-    <div class="ctrl"><label>Blank 신호 평균 (RFU)<span class="val" id="v8_blank">5000</span></label><input type="range" id="r8_blank" min="100" max="50000" value="5000" oninput="upd8()"></div>
-    <div class="ctrl"><label>Blank 표준편차 σ<span class="val" id="v8_sigma">300</span></label><input type="range" id="r8_sigma" min="10" max="5000" value="300" oninput="upd8()"></div>
-    <div class="ctrl"><label>기울기 S (RFU/ng/mL)<span class="val" id="v8_slope">800</span></label><input type="range" id="r8_slope" min="10" max="5000" value="800" oninput="upd8()"></div>
+    <h3>LOD / LOQ 계산기</h3><div style="font-size:12px;color:#3b82c4;margin:2px 0 10px 0;font-weight:700">🔬 쉽게: 얼마나 옅은 농도까지 믿고 읽을 수 있나?</div>
+    <div class="ctrl"><label>Blank 신호 평균 (RFU) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 검체 0(음성)일 때 바탕 신호</span><span class="val" id="v8_blank">5000</span></label><input type="range" id="r8_blank" min="100" max="50000" value="5000" oninput="upd8()"></div>
+    <div class="ctrl"><label>Blank 표준편차 σ <span style="color:#8a93ad;font-weight:400;font-size:11px">— 바탕 신호가 들쭉날쭉한 정도(노이즈)</span><span class="val" id="v8_sigma">300</span></label><input type="range" id="r8_sigma" min="10" max="5000" value="300" oninput="upd8()"></div>
+    <div class="ctrl"><label>기울기 S (RFU/ng/mL) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 농도 1 오를 때 신호 증가량</span><span class="val" id="v8_slope">800</span></label><input type="range" id="r8_slope" min="10" max="5000" value="800" oninput="upd8()"></div>
     <canvas id="c_lod" width="500" height="180"></canvas>
-    <div class="chart-desc">LOD는 노이즈보다 3배 이상 높은 신호를 낼 수 있는 최소 농도예요. LOQ는 10배 기준이에요. 노이즈이 클수록 LOD가 높아져요.</div>
+    <div class="chart-desc">💡 <b>쉽게 말하면:</b> 검체가 0(음성)이어도 바탕 신호가 조금 나오고 들쭉날쭉해요(노이즈 σ). 진짜 신호가 이 노이즈보다 확실히 커야 믿죠. <b>LOD</b>는 노이즈의 3배를 넘기는 최저 농도(있다/없다 판단 한계), <b>LOQ</b>는 10배 기준(숫자로 정량 가능한 한계)이에요. <b>노이즈가 클수록 LOD가 높아져요</b>(=더 옅은 건 못 잡음). RFU는 신호 크기를 나타내는 단위예요.</div>
   </div>
   <div class="card" style="flex:1;min-width:340px">
-    <h3>C밴드 내부 보정 효과</h3>
-    <div class="ctrl"><label>광원 변동폭 (%)<span class="val" id="v8_drift">20</span></label><input type="range" id="r8_drift" min="1" max="50" value="20" oninput="upd8()"></div>
-    <div class="ctrl"><label>온도 변화 (°C)<span class="val" id="v8_temp">10</span></label><input type="range" id="r8_temp" min="0" max="40" value="10" oninput="upd8()"></div>
+    <h3>C밴드 내부 보정 효과</h3><div style="font-size:12px;color:#3b82c4;margin:2px 0 10px 0;font-weight:700">⚖️ 쉽게: LED가 흔들리고 온도가 변해도 결과 안정시키기</div>
+    <div class="ctrl"><label>광원 변동폭 (%) <span style="color:#8a93ad;font-weight:400;font-size:11px">— LED 밝기가 측정마다 흔들리는 폭</span><span class="val" id="v8_drift">20</span></label><input type="range" id="r8_drift" min="1" max="50" value="20" oninput="upd8()"></div>
+    <div class="ctrl"><label>온도 변화 (°C) <span style="color:#8a93ad;font-weight:400;font-size:11px">— 기준 온도에서 벗어난 정도</span><span class="val" id="v8_temp">10</span></label><input type="range" id="r8_temp" min="0" max="40" value="10" oninput="upd8()"></div>
     <canvas id="c_correct" width="500" height="180"></canvas>
-    <div class="chart-desc">C밴드(대조선)는 농도와 무관하게 항상 일정 신호를 내야 해요. T/C 비율로 계산하면 광원이 흔들려도, 온도가 변해도 결과가 안정돼요.</div>
+    <div class="chart-desc">💡 <b>쉽게 말하면:</b> C선(대조선)은 농도와 상관없이 <b>항상 일정</b>해야 해요. LED가 흔들리거나 온도가 변하면 T선·C선이 <b>같이</b> 흔들리죠. 그래서 <b>T÷C 비율</b>로 보면 공통 흔들림이 상쇄돼 결과가 안정돼요. 자가 늘었다 줄었다 해도 같은 자로 두 길이를 재서 비율로 보면 정확한 것과 같은 원리예요.</div>
   </div>
 </div>
 </div>
